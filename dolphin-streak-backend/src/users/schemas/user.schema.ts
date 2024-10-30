@@ -20,8 +20,8 @@ export class User {
     @Prop({ required: true, length: 100 })
     firstName: string;
 
-    @Prop({ required: true, length: 100 })
-    lastName: string;
+    @Prop({ required: false, length: 100 })
+    lastName?: string;
 
     @Prop({ required: true, index: true, unique: true, length: 255 })
     email: string;

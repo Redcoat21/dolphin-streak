@@ -4,13 +4,14 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { User } from "src/users/schemas/user.schema";
 import { Model } from "mongoose";
+import * as argon2 from "argon2";
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   create(createUserDto: CreateUserDto) {
-    return "This action adds a new user";
+    return this.userModel.create(createUserDto);
   }
 
   findAll() {
