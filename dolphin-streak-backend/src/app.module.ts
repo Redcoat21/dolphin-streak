@@ -4,6 +4,13 @@ import { AppService } from "./app.service";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ScheduleModule } from "@nestjs/schedule";
+import { AuthModule } from "./auth/auth.module";
+import { UsersModule } from "./users/users.module";
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { QuestionsModule } from './questions/questions.module';
+import { CoursesModule } from './courses/courses.module';
+import { LanguagesModule } from './languages/languages.module';
+import { LevelsModule } from './levels/levels.module';
 
 @Module({
   imports: [
@@ -18,6 +25,13 @@ import { ScheduleModule } from "@nestjs/schedule";
       }),
     }),
     ScheduleModule.forRoot(),
+    AuthModule,
+    UsersModule,
+    SubscriptionsModule,
+    QuestionsModule,
+    CoursesModule,
+    LanguagesModule,
+    LevelsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
