@@ -11,6 +11,7 @@ import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import * as argon2 from "argon2";
+import { FindOneByIdParam } from "./dto/find-one-by-id.param";
 
 @Controller("users")
 export class UsersController {
@@ -42,7 +43,7 @@ export class UsersController {
   }
 
   @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.usersService.remove(+id);
+  async remove(@Param() deleteUserParam: FindOneByIdParam) {
+    return await this.usersService.remove(deleteUserParam.id);
   }
 }

@@ -4,7 +4,6 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { User } from "src/users/schemas/user.schema";
 import { Model } from "mongoose";
-import * as argon2 from "argon2";
 
 @Injectable()
 export class UsersService {
@@ -26,7 +25,7 @@ export class UsersService {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  remove(id: string) {
+    return this.userModel.findByIdAndDelete(id);
   }
 }
