@@ -1,9 +1,10 @@
-import { Injectable } from "@nestjs/common";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { UpdateUserDto } from "./dto/update-user.dto";
-import { InjectModel } from "@nestjs/mongoose";
-import { User } from "src/users/schemas/user.schema";
-import { Model } from "mongoose";
+import { Injectable } from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { User } from 'src/users/schemas/user.schema';
+import mongoose, { HydratedDocument, Model, Mongoose } from 'mongoose';
+import { FindUserQuery } from './dto/find-user.query';
 
 @Injectable()
 export class UsersService {
@@ -13,16 +14,22 @@ export class UsersService {
     return this.userModel.create(createUserDto);
   }
 
-  findAll() {
-    return `This action returns all users`;
+  findAll(findQuery: FindUserQuery) {
+    return this.userModel.find(findQuery ?? {});
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  findOne(query: string) {
+    if (mongoose.Types.ObjectId.isValid(query)) {
+      return this.userModel.findById(query);
+    }
+
+    return this.userModel.findOne({
+      email: query,
+    });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  update(id: string, updateUserDto: UpdateUserDto) {
+    return this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true });
   }
 
   remove(id: string) {
