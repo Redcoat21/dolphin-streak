@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main # Change this to the default branch of your project
+  workflow_dispatch: # Add this line to enable manual triggers
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22" # Use the version of Node.js you are using
+
+      # Install dependencies for the backend
+      - name: Install backend dependencies
+        run: npm install
+        working-directory: ./dolphin-streak-backend
+
+      - name: Run tests
+        run: npm test # Replace this with the command to run your tests with Vitest
+        working-directory: ./dolphin-streak-backend
