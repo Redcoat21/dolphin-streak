@@ -13,6 +13,7 @@ describe("UsersService", () => {
   // Mock the User Model.
   const userModel = {
     create: vi.fn(),
+    find: vi.fn(),
     findByIdAndDelete: vi.fn(),
   };
 
@@ -171,6 +172,16 @@ describe("UsersService", () => {
           'Cast to ObjectId failed for value "invalidObjectId" at path "_id" for model "User"',
         );
       }
+    });
+  });
+
+  describe("Find Users", () => {
+    // Test the findAll method to be succesful. It should return an array of users.
+    it("Should succesfully return an array of users", async () => {
+      userModel.find.mockResolvedValueOnce([expectedUser]);
+
+      const users = await service.findAll({});
+      expect(Array.isArray(users)).toBe(true);
     });
   });
 });
