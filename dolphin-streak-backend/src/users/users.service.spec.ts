@@ -5,6 +5,7 @@ import { getModelToken } from "@nestjs/mongoose";
 import { Provider, Role, User } from "./schemas/user.schema";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { DateTime } from "luxon";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
 // Unit test for user CRUD.
 describe("UsersService", () => {
@@ -15,6 +16,8 @@ describe("UsersService", () => {
     create: vi.fn(),
     find: vi.fn(),
     findByIdAndDelete: vi.fn(),
+    findById: vi.fn(),
+    findByIdAndUpdate: vi.fn(),
   };
 
   // Before each test, initialize the module with the UsersService and the mocked User Model.
@@ -175,6 +178,7 @@ describe("UsersService", () => {
     });
   });
 
+  // Test the update method.
   describe("Find Users", () => {
     // Test the findAll method to be succesful. It should return an array of users.
     it("Should succesfully return an array of users", async () => {
@@ -182,6 +186,143 @@ describe("UsersService", () => {
 
       const users = await service.findAll({});
       expect(Array.isArray(users)).toBe(true);
+    });
+
+    // Test the findAll method to return an empty array if no users found.
+    it("Should return an empty array if no users found", async () => {
+      userModel.find.mockResolvedValueOnce([]);
+
+      const users = await service.findAll({});
+      expect(users.length).toBe(0);
+    });
+
+    // Test the findAll method to return an array of users with the same firstName.
+    // Testing that it can do filter.
+    it("Should return an array of users with the same firstName", async () => {
+      userModel.find.mockResolvedValueOnce([expectedUser, {
+        ...expectedUser,
+        email: "johanhan@gmail.com",
+      }]);
+
+      const users = await service.findAll({ firstName: "John" });
+      expect(users.length).toBe(2);
+    });
+  });
+
+  // Test the find one method.
+  describe("Find User By Id", () => {
+    // Test the findOne method to be succesful. It should return a single user.
+    it("Should return a single user by id", async () => {
+      userModel.findById.mockResolvedValueOnce(expectedUser);
+
+      const id = "672307c4e1218b524c54e826";
+
+      const user = await service.findOne(id);
+      expect(user).toEqual(expectedUser);
+    });
+
+    // Test the findOne method to return undefined if no user found.
+    it("Should return undefined if user not found", async () => {
+      userModel.findById.mockResolvedValueOnce(undefined);
+
+      const id = "672307c4e1218b524c54e826";
+
+      const user = await service.findOne(id);
+      expect(user).toBeUndefined();
+    });
+
+    // Test the findOne method to throw an error if the given id is an invalid ObjectId.
+    it("Should throw an error if given id is an invalid ObjectId", async () => {
+      userModel.findById.mockImplementationOnce(() => {
+        throw new Error(
+          'Cast to ObjectId failed for value "invalidObjectId" at path "_id" for model "User"',
+        );
+      });
+
+      const id = "invalidObjectId";
+
+      // Call the findOne method with an invalid ObjectId. It should throw an error.
+      try {
+        await service.findOne(id);
+      } catch (error) {
+        expect(error.message).toBe(
+          'Cast to ObjectId failed for value "invalidObjectId" at path "_id" for model "User"',
+        );
+      }
+    });
+  });
+
+  // Test the update method.
+  describe("Update User", () => {
+    let updateUserDto: UpdateUserDto;
+
+    // Test the update method to be succesful. It should return the updated user.
+    it("Should update a single user succesfully", async () => {
+      updateUserDto = {
+        email: "johndoe@email.com",
+      };
+
+      // Define the newly updated user, which includes the updated email.
+      const updatedUser = {
+        ...expectedUser,
+        email: updateUserDto.email,
+      };
+
+      userModel.findByIdAndUpdate.mockResolvedValueOnce(updatedUser);
+
+      const id = "672307c4e1218b524c54e826";
+
+      const user = await service.update(id, updateUserDto);
+
+      expect(user).toEqual(updatedUser);
+    });
+
+    // Test the update method to throw an error if the given id is an invalid ObjectId.
+    it("Should throw an error if given id is an invalid ObjectId", async () => {
+      userModel.findByIdAndUpdate.mockImplementationOnce(() => {
+        throw new Error(
+          'Cast to ObjectId failed for value "invalidObjectId" at path "_id" for model "User"',
+        );
+      });
+
+      const updateUserDto = {
+        email: "",
+      };
+
+      const id = "invalidObjectId";
+
+      // Call the update method with an invalid ObjectId. It should throw an error.
+      try {
+        await service.update(id, updateUserDto);
+      } catch (error) {
+        expect(error.message).toBe(
+          'Cast to ObjectId failed for value "invalidObjectId" at path "_id" for model "User"',
+        );
+      }
+    });
+
+    // Test the update method to return undefined if no user found.
+    it("Shouldnt update a single user because user not found", async () => {
+      userModel.findByIdAndUpdate.mockResolvedValueOnce(undefined);
+
+      const updateUserDto = {
+        email: "",
+      };
+
+      const id = "672307c4e1218b524c54e826";
+
+      const user = await service.update(id, updateUserDto);
+      expect(user).toBeUndefined();
+    });
+
+    // Test the update method to return the user even if the update dto is empty.
+    it("Shouldnt throw an error even if update dto is empty", async () => {
+      userModel.findByIdAndUpdate.mockResolvedValueOnce(expectedUser);
+
+      const id = "672307c4e1218b524c54e826";
+
+      const user = await service.update(id, {});
+      expect(user).toEqual(expectedUser);
     });
   });
 });
