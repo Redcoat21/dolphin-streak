@@ -33,14 +33,8 @@ export class UsersService {
    * @param query - User ID or email
    * @returns The found user document
    */
-  findOne(query: string) {
-    if (mongoose.Types.ObjectId.isValid(query)) {
-      return this.userModel.findById(query);
-    }
-
-    return this.userModel.findOne({
-      email: query,
-    });
+  findOne(id: string) {
+    return this.userModel.findById(id);
   }
 
   /**
