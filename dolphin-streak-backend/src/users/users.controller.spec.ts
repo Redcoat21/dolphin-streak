@@ -34,30 +34,33 @@ describe("UsersController", () => {
   it("should be defined", () => {
     expect(controller).toBeDefined();
   });
-  
-  const userInputTemplate = {
-      firstName: "John",
-      email: "johndoe@email.com",
-      password: "PassWord123@!",
-      profilePicture: "https://www.google.com",
-      provider: Provider.LOCAL,
-  }
 
-    const expectedUser: ExpectedUser = {
-      firstName: userInputTemplate.firstName,
-      email: userInputTemplate.email,
-      profilePicture: userInputTemplate.profilePicture,
-      provider: Provider.LOCAL,
-      password: "$argon2d$v=19$m=12,t=3,p=1$NW95bmNkZ2R1ZmUwMDAwMA$0qyAwJ1vN5+fQhB/OWnGbg",
-      _id: "64fb3f8a7b8c5e001f4c5c5b",
-      __v: 0,
-      createdAt: DateTime.fromObject({ year: 2024, month: 11, day: 2 }).toJSDate(),
-      updatedAt: DateTime.fromObject({ year: 2024, month: 11, day: 2 }).toJSDate(),
-      loginHistories: [],
-      role: Role.USER,
-      completedCourses: [],
-      languages: [],
-    };
+  const userInputTemplate = {
+    firstName: "John",
+    email: "johndoe@email.com",
+    password: "PassWord123@!",
+    profilePicture: "https://www.google.com",
+    provider: Provider.LOCAL,
+  };
+
+  const expectedUser: ExpectedUser = {
+    firstName: userInputTemplate.firstName,
+    email: userInputTemplate.email,
+    profilePicture: userInputTemplate.profilePicture,
+    provider: Provider.LOCAL,
+    password:
+      "$argon2d$v=19$m=12,t=3,p=1$NW95bmNkZ2R1ZmUwMDAwMA$0qyAwJ1vN5+fQhB/OWnGbg",
+    _id: "64fb3f8a7b8c5e001f4c5c5b",
+    __v: 0,
+    createdAt: DateTime.fromObject({ year: 2024, month: 11, day: 2 })
+      .toJSDate(),
+    updatedAt: DateTime.fromObject({ year: 2024, month: 11, day: 2 })
+      .toJSDate(),
+    loginHistories: [],
+    role: Role.USER,
+    completedCourses: [],
+    languages: [],
+  };
 
   describe("Create User", () => {
     // Only contain the necessary fields, can be expanded again later.
@@ -66,20 +69,20 @@ describe("UsersController", () => {
     beforeEach(() => {
       // Before each test, we are going to mock the create service.
       userService.create.mockResolvedValueOnce(expectedUser);
-    })
-
-
+    });
 
     it("should create a user", async () => {
       // Spy on the hashing function.
-      const hashSpy = vi.spyOn(argon2, 'hash').mockResolvedValueOnce(expectedUser.password);
+      const hashSpy = vi.spyOn(argon2, "hash").mockResolvedValueOnce(
+        expectedUser.password,
+      );
 
       // Call the create function.
       const createdUser = await controller.create(createUserDto);
 
       // Expect that the hasing function was called.
       expect(hashSpy).toHaveBeenCalled();
-      
+
       // It might be called, but does it called with the correct arguments?
       expect(hashSpy).toHaveBeenCalledWith(createUserDto.password);
 
@@ -100,7 +103,7 @@ describe("UsersController", () => {
 
       // If there's an error, the length should be greater than 0.
       expect(errors.length).toBeGreaterThan(0);
-    })
+    });
 
     it("Validation shouldn't fail, if optional fields are missing", async () => {
       const tempDto = { ...createUserDto };
@@ -109,46 +112,100 @@ describe("UsersController", () => {
 
       // Length should be 0 because no error ever happened.
       expect(errors.length).toBe(0);
-    })
+    });
   });
 
   describe("Delete User", () => {
-    
     beforeEach(() => {
       userService.remove.mockResolvedValueOnce(expectedUser);
     });
 
     it("Should delete a user", async () => {
       const id = "64fb3f8a7b8c5e001f4c5c5b";
-      
+
       // Mock the remove function.
       const deletedUser = controller.remove({ id: id });
-      
+
       expect(deletedUser).resolves.toEqual(expectedUser);
     });
-    
+
+    it("Should return undefined if no user is found", async () => {
+      userService.remove.mockReset();
+      const id = "64fb3f8a7b8c5e001f4c5c5b";
+
+      userService.remove.mockResolvedValueOnce(undefined);
+
+      const deletedUser = controller.remove({ id: id });
+      console.log(deletedUser);
+
+      expect(deletedUser).resolves.toBeUndefined();
+    });
+
     it("Validation should fail if no input is given", async () => {
       const errors = await validate(plainToInstance(FindOneByIdParam, {}));
-      
+
       expect(errors.length).toBeGreaterThan(0);
     });
-    
+
     it("Validation should fail if the given input is not a valid mongo id", async () => {
-      const errors = await validate(plainToInstance(FindOneByIdParam, { id: "123" }));
-      
-      expect(errors.length).toBeGreaterThan(0);
-    })
-  });
-  
-  describe("Update User", () => {
-    it("Should succesfully update a user", async () => {
-      const id = "64fb3f8a7b8c5e001f4c5c5b";
-      
-      const updatedUser = await controller.update({ id }, { firstName: "Jane" });
-      
-      expect(updatedUser).toEqual({ ...expectedUser, firstName: "Jane" });
+      const errors = await validate(
+        plainToInstance(FindOneByIdParam, { id: "123" }),
+      );
 
+      expect(errors.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("Update User", () => {
+    // Ensure that the updated user updatedAt is always greater than the original object.
+    let expectedUpdatedUser;
+
+    beforeEach(() => {
+    expectedUpdatedUser = {
+      ...expectedUser,
+      updatedAt: DateTime.fromObject({
+        year: expectedUser.updatedAt.getFullYear() + 1,
+        month: expectedUser.updatedAt.getMonth() + 1,
+        day: expectedUser.updatedAt.getDate() + 1,
+      }).toJSDate(),
+    };
+
+      userService.update.mockResolvedValueOnce(expectedUpdatedUser);
     });
 
+    it("Should succesfully update a user", async () => {
+      expectedUpdatedUser = { ...expectedUpdatedUser, firstName: "Jane" };
+
+      userService.update.mockReset();
+      userService.update.mockResolvedValueOnce(expectedUpdatedUser);
+
+      const id = "64fb3f8a7b8c5e001f4c5c5b";
+
+      const updatedUser = await controller.update({ id }, {
+        firstName: "Jane",
+      });
+
+      expect(updatedUser).toEqual(expectedUpdatedUser);
+    });
+
+    it("Should return undefined, if the user doesn't exist", async () => {
+      userService.update.mockReset();
+      userService.update.mockResolvedValueOnce(undefined);
+
+      const id = "64fb3f8a7b8c5e001f4c5c5b";
+
+      const updatedUser = await controller.update({ id }, {
+        firstName: "Jane",
+      });
+
+      expect(updatedUser).toBeUndefined();
+    });
+
+    it("Validation should only fail if the given id is not a valid mongo id", async () => {
+      const id = "invalid id";
+      const errors = await validate(plainToInstance(FindOneByIdParam, { id }));
+
+      expect(errors.length).toBeGreaterThan(0);
+    });
   });
 });
