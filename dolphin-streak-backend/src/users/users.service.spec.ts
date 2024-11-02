@@ -2,10 +2,11 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { UsersService } from "./users.service";
 import { expect, vi } from "vitest";
 import { getModelToken } from "@nestjs/mongoose";
-import { Provider, Role, User } from "./schemas/user.schema";
+import { Provider, User } from "./schemas/user.schema";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { DateTime } from "luxon";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import { ExpectedUser } from "src/lib/types/test.type";
 
 // Unit test for user CRUD.
 describe("UsersService", () => {
@@ -36,22 +37,6 @@ describe("UsersService", () => {
   it("should be defined", () => {
     expect(service).toBeDefined();
   });
-
-  type ExpectedUser = {
-    _id: string;
-    firstName: string;
-    password: string;
-    email: string;
-    provider: Provider;
-    profilePicture: string;
-    loginHistories: [];
-    role: Role;
-    languages: [];
-    completedCourses: [];
-    __v: number;
-    createdAt: Date;
-    updatedAt: Date;
-  };
 
   let expectedUser: ExpectedUser;
 
@@ -262,10 +247,13 @@ describe("UsersService", () => {
         email: "johndoe@email.com",
       };
 
-      // Define the newly updated user, which includes the updated email.
+      const newUpdatedAtYear = DateTime.fromJSDate(expectedUser.updatedAt).year + 5;
+
+      // Define the newly updated user, which includes the updated email and also the updated updatedAt.
       const updatedUser = {
         ...expectedUser,
         email: updateUserDto.email,
+        updatedAt: newUpdatedAtYear
       };
 
       userModel.findByIdAndUpdate.mockResolvedValueOnce(updatedUser);
@@ -275,6 +263,10 @@ describe("UsersService", () => {
       const user = await service.update(id, updateUserDto);
 
       expect(user).toEqual(updatedUser);
+
+      // Forced to do @ts-ignore because i dont know how else to do it.
+      //@ts-ignore
+      expect(user.updatedAt).toBeGreaterThan(expectedUser.updatedAt.getFullYear());
     });
 
     // Test the update method to throw an error if the given id is an invalid ObjectId.
