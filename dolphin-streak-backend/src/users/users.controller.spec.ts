@@ -139,4 +139,16 @@ describe("UsersController", () => {
       expect(errors.length).toBeGreaterThan(0);
     })
   });
+  
+  describe("Update User", () => {
+    it("Should succesfully update a user", async () => {
+      const id = "64fb3f8a7b8c5e001f4c5c5b";
+      
+      const updatedUser = await controller.update({ id }, { firstName: "Jane" });
+      
+      expect(updatedUser).toEqual({ ...expectedUser, firstName: "Jane" });
+
+    });
+
+  });
 });
