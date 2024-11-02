@@ -10,6 +10,7 @@ import { DateTime } from "luxon";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { FindOneByIdParam } from "./dto/find-one-by-id.param";
+import { FindUserQuery } from "./dto/find-user.query";
 
 describe("UsersController", () => {
   let controller: UsersController;
@@ -204,6 +205,38 @@ describe("UsersController", () => {
     it("Validation should only fail if the given id is not a valid mongo id", async () => {
       const id = "invalid id";
       const errors = await validate(plainToInstance(FindOneByIdParam, { id }));
+
+      expect(errors.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("Find Users", () => {
+    it("Return type should be an array", async () => {
+      userService.findAll.mockResolvedValueOnce([expectedUser]);
+
+      const users = await controller.findAll({});
+
+      expect(users).toBeInstanceOf(Array);
+    });
+
+    it("Validation shouldnt fail, if no input is given", async () => {
+      const errors = await validate(plainToInstance(FindUserQuery, {}));
+
+      expect(errors.length).toBe(0);
+    })
+  });
+
+  describe("Find User", () => {
+    it("Should return a user", async () => {
+      userService.findOne.mockResolvedValueOnce(expectedUser);
+
+      const user = await controller.findOne({ id: "64fb3f8a7b8c5e001f4c5c5b" });
+
+      expect(user).toEqual(expectedUser);
+    })
+
+    it("Validation should fail, if no input is given", async () => {
+      const errors = await validate(plainToInstance(FindOneByIdParam, {}));
 
       expect(errors.length).toBeGreaterThan(0);
     });
