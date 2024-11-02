@@ -41,7 +41,7 @@ export class CreateUserDto {
     password: string;
 
     @IsEnum(Provider)
-    provider: string;
+    provider: Provider;
 
     @IsOptional()
     @IsString()
@@ -52,7 +52,7 @@ export class CreateUserDto {
 
     @IsOptional()
     @IsEnum(Role)
-    role?: string;
+    role?: Role;
 
     @IsOptional()
     @IsDate()
