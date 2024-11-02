@@ -78,7 +78,7 @@ describe("UsersService", () => {
         email: "johndoe@email.com",
         password: "JohnDoe123@#",
         firstName: "John",
-        provider: Provider.LOCAL.toString(),
+        provider: Provider.LOCAL,
         profilePicture: "https://test.com",
       };
 
