@@ -11,7 +11,7 @@ import {
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import * as argon2 from "argon2";
+import argon2 from "argon2";
 import { FindOneByIdParam } from "./dto/find-one-by-id.param";
 import { FindUserQuery } from "./dto/find-user.query";
 
