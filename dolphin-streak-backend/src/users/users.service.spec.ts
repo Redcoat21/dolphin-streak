@@ -44,8 +44,6 @@ describe("UsersService", () => {
     // Define the expected created user. Can be extended again later to include additional properties.
     expectedUser = {
       _id: "672307c4e1218b524c54e826",
-      password:
-        "$argon2d$v=19$m=12,t=3,p=1$emQ3bXIxMndtbG8wMDAwMA$sk4u/aJwOGJaOp8tWTOfhg",
       firstName: null,
       email: null,
       provider: 0,
@@ -247,13 +245,14 @@ describe("UsersService", () => {
         email: "johndoe@email.com",
       };
 
-      const newUpdatedAtYear = DateTime.fromJSDate(expectedUser.updatedAt).year + 5;
+      const newUpdatedAtYear =
+        DateTime.fromJSDate(expectedUser.updatedAt).year + 5;
 
       // Define the newly updated user, which includes the updated email and also the updated updatedAt.
       const updatedUser = {
         ...expectedUser,
         email: updateUserDto.email,
-        updatedAt: newUpdatedAtYear
+        updatedAt: newUpdatedAtYear,
       };
 
       userModel.findByIdAndUpdate.mockResolvedValueOnce(updatedUser);
@@ -266,7 +265,9 @@ describe("UsersService", () => {
 
       // Forced to do @ts-ignore because i dont know how else to do it.
       //@ts-ignore
-      expect(user.updatedAt).toBeGreaterThan(expectedUser.updatedAt.getFullYear());
+      expect(user.updatedAt).toBeGreaterThan(
+        expectedUser.updatedAt.getFullYear(),
+      );
     });
 
     // Test the update method to throw an error if the given id is an invalid ObjectId.

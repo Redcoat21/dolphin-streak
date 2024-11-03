@@ -14,7 +14,6 @@ import {
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { UpdateUserDto } from "./dto/update-user.dto";
 import argon2 from "argon2";
 import { FindOneByIdParam } from "./dto/find-one-by-id.param";
 import { FindUserQuery } from "./dto/find-user.query";
@@ -57,7 +56,7 @@ export class UsersController {
 
   @Get(":id")
   async findOne(@Param() findOneParam: FindOneByIdParam): Promise<ApiResponse> {
-    const foundedUser = await this.usersService.findOne(findOneParam.id);
+    const foundedUser = await this.usersService.findOne({});
 
     if (!foundedUser) {
       throw new HttpException("User not founded", 404);
@@ -74,7 +73,7 @@ export class UsersController {
   @Patch(":id")
   async update(
     @Param() findOneParam: FindOneByIdParam,
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() updateUserDto: Partial<CreateUserDto>,
   ): Promise<ApiResponse> {
     const updatedUser = await this.usersService.update(
       findOneParam.id,
