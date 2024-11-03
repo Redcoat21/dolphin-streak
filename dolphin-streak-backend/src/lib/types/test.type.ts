@@ -4,7 +4,6 @@ import { Role } from "src/users/schemas/user.schema";
 export type ExpectedUser = {
     _id: string;
     firstName: string;
-    password: string;
     lastName?: string;
     birthDate?: Date;
     email: string;
