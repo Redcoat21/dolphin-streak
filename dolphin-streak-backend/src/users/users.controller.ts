@@ -10,17 +10,14 @@ import {
   Patch,
   Post,
   Query,
-  UseFilters,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { UpdateUserDto } from "./dto/update-user.dto";
 import argon2 from "argon2";
 import { FindOneByIdParam } from "./dto/find-one-by-id.param";
 import { FindUserQuery } from "./dto/find-user.query";
 import { ApiResponse } from "src/lib/types/response.type";
 import { extractPassword } from "src/utils/user";
-import { ApiExceptionFilter } from "src/utils/filters/api-exception.filter";
 
 @Controller("users")
 export class UsersController {
@@ -45,7 +42,21 @@ export class UsersController {
 
   @Get()
   async findAll(@Query() queryParam: FindUserQuery): Promise<ApiResponse> {
-    const foundedUsers = (await this.usersService.findAll(queryParam)).map((
+    const filterConditions = [];
+
+    if (queryParam.firstName) {
+      filterConditions.push({ firstName: queryParam.firstName });
+    }
+    if (queryParam.lastName) {
+      filterConditions.push({ lastName: queryParam.lastName });
+    }
+
+    // If both firstName and lastName exist then do a $and query.
+    const filter = filterConditions.length > 1
+      ? { $and: filterConditions }
+      : filterConditions[0] || {};
+
+    const foundedUsers = (await this.usersService.findAll(filter)).map((
       user,
     ) => extractPassword(user));
 
@@ -57,7 +68,9 @@ export class UsersController {
 
   @Get(":id")
   async findOne(@Param() findOneParam: FindOneByIdParam): Promise<ApiResponse> {
-    const foundedUser = await this.usersService.findOne(findOneParam.id);
+    const foundedUser = await this.usersService.findOne({
+      _id: findOneParam.id,
+    });
 
     if (!foundedUser) {
       throw new HttpException("User not founded", 404);
@@ -74,7 +87,7 @@ export class UsersController {
   @Patch(":id")
   async update(
     @Param() findOneParam: FindOneByIdParam,
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() updateUserDto: Partial<CreateUserDto>,
   ): Promise<ApiResponse> {
     const updatedUser = await this.usersService.update(
       findOneParam.id,

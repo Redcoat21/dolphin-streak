@@ -2,8 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { InjectModel } from "@nestjs/mongoose";
-import { User } from "src/users/schemas/user.schema";
-import { Model } from "mongoose";
+import { User, UserDocument } from "src/users/schemas/user.schema";
+import { FilterQuery, Model, ProjectionType, QueryOptions } from "mongoose";
 import { FindUserQuery } from "./dto/find-user.query";
 
 @Injectable()
@@ -27,21 +27,38 @@ export class UsersService {
    }
 
    /**
-    * Finds all users matching the query.
-    * @param findQuery - Query object to filter users.
-    * @returns A list of users.
+    * Find many users matching the query.
+    * @param query Filter used to filter the founded users.
+    * @param projection What should be included or excluded in the result.
+    * @param options Options to customize how a query should be executed.
+    * @see {@link FilterQuery}
+    * @see {@link ProjectionType}
+    * @see {@link QueryOptions}
+    * @returns {Promise<UserDocument[] | null>} The founded users.
     */
-   findAll(findQuery: FindUserQuery) {
-      return this.userModel.find(findQuery ?? {});
+   findAll(
+      query: FilterQuery<User>,
+      projection?: ProjectionType<User>,
+      options?: QueryOptions<User>,
+   ) {
+      return this.userModel.find(query, projection, options);
    }
 
    /**
-    * Finds a single user by ID.
-    * @param id - User ID.
-    * @returns The user if found, otherwise null.
+    * Find one user.
+    * @param query Filter used to filter the founded users, to find by id, include { _id } in the query.
+    * @param projection What should be included or excluded in the result.
+    * @param options Options to customize how a query should be executed.
+    * @see {@link ProjectionType}
+    * @see {@link QueryOptions}
+    * @returns {Promise<UserDocument | null>} The founded user.
     */
-   findOne(id: string) {
-      return this.userModel.findById(id);
+   findOne(
+      query: FilterQuery<User>,
+      projection?: ProjectionType<User>,
+      options?: QueryOptions<User>,
+   ) {
+      return this.userModel.findById(query, projection, options);
    }
 
    /**
@@ -50,7 +67,7 @@ export class UsersService {
     * @param updateUserDto - Data transfer object for updating a user.
     * @returns The updated user.
     */
-   update(id: string, updateUserDto: UpdateUserDto) {
+   update(id: string, updateUserDto: Partial<CreateUserDto>) {
       return this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true });
    }
 
