@@ -5,7 +5,6 @@ import { getModelToken } from "@nestjs/mongoose";
 import { Provider, User } from "./schemas/user.schema";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { DateTime } from "luxon";
-import { UpdateUserDto } from "./dto/update-user.dto";
 import { ExpectedUser } from "src/lib/types/test.type";
 
 // Unit test for user CRUD.
@@ -200,7 +199,7 @@ describe("UsersService", () => {
 
       const id = "672307c4e1218b524c54e826";
 
-      const user = await service.findOne(id);
+      const user = await service.findOne({ _id: id });
       expect(user).toEqual(expectedUser);
     });
 
@@ -210,7 +209,7 @@ describe("UsersService", () => {
 
       const id = "672307c4e1218b524c54e826";
 
-      const user = await service.findOne(id);
+      const user = await service.findOne({ _id: id });
       expect(user).toBeUndefined();
     });
 
@@ -226,7 +225,7 @@ describe("UsersService", () => {
 
       // Call the findOne method with an invalid ObjectId. It should throw an error.
       try {
-        await service.findOne(id);
+        await service.findOne({ _id: id });
       } catch (error) {
         expect(error.message).toBe(
           'Cast to ObjectId failed for value "invalidObjectId" at path "_id" for model "User"',
@@ -237,7 +236,7 @@ describe("UsersService", () => {
 
   // Test the update method.
   describe("Update User", () => {
-    let updateUserDto: UpdateUserDto;
+    let updateUserDto: Partial<CreateUserDto>;
 
     // Test the update method to be succesful. It should return the updated user.
     it("Should update a single user succesfully", async () => {
