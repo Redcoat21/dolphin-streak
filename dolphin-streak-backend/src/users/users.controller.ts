@@ -10,7 +10,6 @@ import {
   Patch,
   Post,
   Query,
-  UseFilters,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -19,7 +18,6 @@ import { FindOneByIdParam } from "./dto/find-one-by-id.param";
 import { FindUserQuery } from "./dto/find-user.query";
 import { ApiResponse } from "src/lib/types/response.type";
 import { extractPassword } from "src/utils/user";
-import { ApiExceptionFilter } from "src/utils/filters/api-exception.filter";
 
 @Controller("users")
 export class UsersController {
@@ -48,8 +46,12 @@ export class UsersController {
       user,
     ) => extractPassword(user));
 
+    const foundedUsersLength = foundedUsers.length;
+
     return {
-      message: `${foundedUsers.length} users founded`,
+      message: `${foundedUsersLength} user${
+        foundedUsersLength > 1 ? "s" : ""
+      } founded`,
       data: foundedUsers,
     };
   }
