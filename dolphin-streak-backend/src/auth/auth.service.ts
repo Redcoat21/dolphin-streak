@@ -4,7 +4,7 @@ import { JwtService } from "@nestjs/jwt";
 import { verify } from "argon2";
 import { AuthResponse } from "src/lib/types/response.type";
 import { CreateUserDto } from "src/users/dto/create-user.dto";
-import { User } from "src/users/schemas/user.schema";
+import { Provider, User } from "src/users/schemas/user.schema";
 import { UsersService } from "src/users/users.service";
 import { extractPassword } from "src/utils/user";
 
@@ -64,7 +64,10 @@ export class AuthService {
     async register(createUserDto: CreateUserDto) {
         try {
             const createdUser = extractPassword(
-                await this.usersService.create(createUserDto),
+                await this.usersService.create({
+                    ...createUserDto,
+                    provider: Provider.LOCAL,
+                }),
             );
             return createdUser;
         } catch (error) {
