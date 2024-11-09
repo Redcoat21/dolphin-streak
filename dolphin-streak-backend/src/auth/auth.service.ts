@@ -3,8 +3,10 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { verify } from "argon2";
 import { AuthResponse } from "src/lib/types/response.type";
+import { CreateUserDto } from "src/users/dto/create-user.dto";
 import { User } from "src/users/schemas/user.schema";
 import { UsersService } from "src/users/users.service";
+import { extractPassword } from "src/utils/user";
 
 @Injectable()
 export class AuthService {
@@ -22,8 +24,7 @@ export class AuthService {
 
         const passwordMatched = await verify(user?.password, password);
         if (passwordMatched) {
-            const { password: foundedUserPassword, ...result } = user
-                .toObject();
+            const result = extractPassword(user);
             return result;
         }
         return null;
@@ -48,5 +49,14 @@ export class AuthService {
                 expiresIn: rememberMe ? "7d" : "1d",
             }),
         };
+    }
+
+    // This is a wrapper for the UsersService.create method.
+    // Feel free to eliminate this method if you think its not needed.
+    async register(createUserDto: CreateUserDto) {
+        const createdUser = extractPassword(
+            await this.usersService.create(createUserDto),
+        );
+        return createdUser;
     }
 }
