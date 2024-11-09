@@ -34,7 +34,11 @@ export class AuthService {
         user: Omit<User, "password"> & { _id: string },
         rememberMe: boolean = false,
     ): AuthResponse {
-        const payload = { email: user.email, sub: user.sub ?? user._id };
+        const payload = {
+            email: user.email,
+            sub: user.sub ?? user._id,
+            role: user.role,
+        };
         return {
             accessToken: this.jwtService.sign(payload, {
                 secret: this.configService.get<string>(
