@@ -57,7 +57,7 @@ export class UsersService {
       projection?: ProjectionType<User>,
       options?: QueryOptions<User>,
    ) {
-      return this.userModel.findById(query, projection, options);
+      return this.userModel.findOne(query, projection, options);
    }
 
    /**

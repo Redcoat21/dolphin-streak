@@ -68,9 +68,7 @@ export class UsersController {
 
   @Get(":id")
   async findOne(@Param() findOneParam: FindOneByIdParam): Promise<ApiResponse> {
-    const foundedUser = await this.usersService.findOne({
-      _id: findOneParam.id,
-    });
+    const foundedUser = await this.usersService.findOne({});
 
     if (!foundedUser) {
       throw new HttpException("User not founded", 404);
