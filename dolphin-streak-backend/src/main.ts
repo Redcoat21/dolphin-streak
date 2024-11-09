@@ -23,6 +23,7 @@ async function bootstrap() {
     .setTitle("Dolphin Streak API Endpoint")
     .setDescription("The endpoint for Dolphin Streak API")
     .setVersion("1.0")
+    .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api/docs", app, documentFactory);
