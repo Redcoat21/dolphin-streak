@@ -60,8 +60,12 @@ export class UsersController {
       user,
     ) => extractPassword(user));
 
+    const foundedUsersLength = foundedUsers.length;
+
     return {
-      message: `${foundedUsers.length} users founded`,
+      message: `${foundedUsersLength} user${
+        foundedUsersLength > 1 ? "s" : ""
+      } founded`,
       data: foundedUsers,
     };
   }
