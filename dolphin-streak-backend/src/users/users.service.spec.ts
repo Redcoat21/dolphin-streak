@@ -16,7 +16,7 @@ describe("UsersService", () => {
     create: vi.fn(),
     find: vi.fn(),
     findByIdAndDelete: vi.fn(),
-    findById: vi.fn(),
+    findOne: vi.fn(),
     findByIdAndUpdate: vi.fn(),
   };
 
@@ -195,7 +195,7 @@ describe("UsersService", () => {
   describe("Find User By Id", () => {
     // Test the findOne method to be succesful. It should return a single user.
     it("Should return a single user by id", async () => {
-      userModel.findById.mockResolvedValueOnce(expectedUser);
+      userModel.findOne.mockResolvedValueOnce(expectedUser);
 
       const id = "672307c4e1218b524c54e826";
 
@@ -205,7 +205,7 @@ describe("UsersService", () => {
 
     // Test the findOne method to return undefined if no user found.
     it("Should return undefined if user not found", async () => {
-      userModel.findById.mockResolvedValueOnce(undefined);
+      userModel.findOne.mockResolvedValueOnce(undefined);
 
       const id = "672307c4e1218b524c54e826";
 
@@ -215,7 +215,7 @@ describe("UsersService", () => {
 
     // Test the findOne method to throw an error if the given id is an invalid ObjectId.
     it("Should throw an error if given id is an invalid ObjectId", async () => {
-      userModel.findById.mockImplementationOnce(() => {
+      userModel.findOne.mockImplementationOnce(() => {
         throw new Error(
           'Cast to ObjectId failed for value "invalidObjectId" at path "_id" for model "User"',
         );
