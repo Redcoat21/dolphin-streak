@@ -15,7 +15,6 @@ import {
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import argon2 from "argon2";
-import { FindOneByIdParam } from "./dto/find-one-by-id.param";
 import { FindUserQuery } from "./dto/find-user.query";
 import { ApiResponse } from "src/lib/types/response.type";
 import { extractPassword } from "src/utils/user";
@@ -35,6 +34,7 @@ import {
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
 
 //TODO: Implement some kind of IP checker, so admin can only access this route from authorized IP.
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -235,7 +235,7 @@ export class UsersController {
       data: null,
     },
   })
-  async findOne(@Param() findOneParam: FindOneByIdParam): Promise<ApiResponse> {
+  async findOne(@Param() findOneParam: FindByIdParam): Promise<ApiResponse> {
     const foundedUser = await this.usersService.findOne({
       _id: findOneParam.id,
     });
@@ -289,7 +289,7 @@ export class UsersController {
     },
   })
   async update(
-    @Param() findOneParam: FindOneByIdParam,
+    @Param() findOneParam: FindByIdParam,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<ApiResponse> {
     const updatedUser = await this.usersService.update(
@@ -344,7 +344,7 @@ export class UsersController {
     },
   })
   async remove(
-    @Param() deleteUserParam: FindOneByIdParam,
+    @Param() deleteUserParam: FindByIdParam,
   ): Promise<ApiResponse> {
     const deletedUser = await this.usersService.remove(deleteUserParam.id);
 

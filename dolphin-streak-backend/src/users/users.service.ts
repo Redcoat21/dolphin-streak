@@ -38,7 +38,7 @@ export class UsersService {
     * @returns {Promise<UserDocument[] | null>} The founded users.
     */
    findAll(
-      query: FilterQuery<User>,
+      query?: FilterQuery<User>,
       projection?: ProjectionType<User>,
       options?: QueryOptions<User>,
    ) {
