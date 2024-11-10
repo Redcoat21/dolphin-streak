@@ -24,7 +24,7 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 
-@Controller("auth")
+@Controller("/api/auth")
 @ApiInternalServerErrorResponse({
   description:
     "Happen when something went wrong, that is not handled by this API, e.g. database error",
