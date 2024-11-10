@@ -34,6 +34,7 @@ import {
   ApiOperation,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
 //TODO: Implement some kind of IP checker, so admin can only access this route from authorized IP.
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -289,7 +290,7 @@ export class UsersController {
   })
   async update(
     @Param() findOneParam: FindOneByIdParam,
-    @Body() updateUserDto: Partial<CreateUserDto>,
+    @Body() updateUserDto: UpdateUserDto,
   ): Promise<ApiResponse> {
     const updatedUser = await this.usersService.update(
       findOneParam.id,
