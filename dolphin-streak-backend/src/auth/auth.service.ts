@@ -77,4 +77,16 @@ export class AuthService {
             );
         }
     }
+    
+    refreshToken(userPayload: unknown) {
+        try {
+            //TODO: Give this proper typing.
+            return this.jwtService.sign(userPayload as object, {
+                secret: this.configService.get<string>("ACCESS_TOKEN_SECRET_KEY"),
+                expiresIn: "5m",
+            });
+        } catch(error) {
+            throw new HttpException("Invalid token", HttpStatus.UNAUTHORIZED);
+        }
+    }
 }

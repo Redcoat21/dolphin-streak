@@ -14,6 +14,7 @@ import { BaseCreateUserDto } from "src/lib/dto/base-create-user.dto";
 import { Provider, Role } from "src/users/schemas/user.schema";
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
@@ -21,8 +22,9 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiTags,
+  ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { RefreshTokenGuard } from "./guard/refresh-jwt-auth.guard";
 
 @Controller("auth")
 @ApiInternalServerErrorResponse({
@@ -30,17 +32,6 @@ import {
     "Happen when something went wrong, that is not handled by this API, e.g. database error",
   example: {
     message: "Internal Server Error",
-    data: null,
-  },
-})
-@ApiBadRequestResponse({
-  description: "Happen when the provided data is not valid",
-  example: {
-    message: [
-      "firstName should not be null or undefined",
-      "firstName must be a string",
-      "firstName should not be empty",
-    ],
     data: null,
   },
 })
@@ -100,6 +91,17 @@ export class AuthController {
       data: null,
     },
   })
+  @ApiBadRequestResponse({
+    description: "Happen when the provided data is not valid",
+    example: {
+      message: [
+        "firstName should not be null or undefined",
+        "firstName must be a string",
+        "firstName should not be empty",
+      ],
+      data: null,
+    },
+  })
   async login(@Request() req): Promise<ApiResponse> {
     // Where does req.user came from? It came from the LocalAuthGuard or specifically from the LocalStrategy.
     return {
@@ -143,6 +145,17 @@ export class AuthController {
       data: null,
     },
   })
+  @ApiBadRequestResponse({
+    description: "Happen when the provided data is not valid",
+    example: {
+      message: [
+        "firstName should not be null or undefined",
+        "firstName must be a string",
+        "firstName should not be empty",
+      ],
+      data: null,
+    },
+  })
   async register(@Body() createUserDto: BaseCreateUserDto) {
     const registrationData = {
       ...createUserDto,
@@ -156,6 +169,29 @@ export class AuthController {
     return {
       message: "User registered succesfully",
       data: result,
+    };
+  }
+
+  @Post("/refresh")
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(RefreshTokenGuard)
+  @ApiOperation({
+    summary: "Request for a new access token using a refresh token",
+    description:
+      "This endpoint will return a new access token using a refresh token. Refresh token should be included in the Authorization header with the Bearer scheme",
+  })
+  @ApiUnauthorizedResponse({
+    description: "Happen when the provided refresh token is invalid",
+    example: {
+      message: "Invalid token",
+      data: null,
+    },
+  })
+  @ApiBearerAuth()
+  async refreshToken(@Request() req) {
+    return {
+      message: "New Access Token Generated",
+      data: this.authService.refreshToken(req.user),
     };
   }
 }
