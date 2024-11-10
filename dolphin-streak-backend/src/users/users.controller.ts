@@ -19,7 +19,6 @@ import { FindUserQuery } from "./dto/find-user.query";
 import { ApiResponse } from "src/lib/types/response.type";
 import { extractPassword } from "src/utils/user";
 import { JwtAuthGuard } from "src/auth/guard/jwt-auth.guard";
-import { RoleGuard } from "./guard/role.guard";
 import { HasRoles } from "src/lib/decorators/has-role.decorator";
 import { Provider, Role } from "./schemas/user.schema";
 import {
@@ -35,6 +34,7 @@ import {
 } from "@nestjs/swagger";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
+import { RoleGuard } from "src/lib/guard/role.guard";
 
 //TODO: Implement some kind of IP checker, so admin can only access this route from authorized IP.
 @UseGuards(JwtAuthGuard, RoleGuard)
