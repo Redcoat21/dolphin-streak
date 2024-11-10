@@ -23,7 +23,7 @@ export class ApiExceptionFilter implements ExceptionFilter {
             .status(status)
             .json({
                 //@ts-ignore
-                message: errorMessage,
+                messages: errorMessage,
                 data: null,
             });
     }

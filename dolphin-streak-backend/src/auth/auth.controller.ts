@@ -31,7 +31,7 @@ import { RefreshTokenGuard } from "./guard/refresh-jwt-auth.guard";
   description:
     "Happen when something went wrong, that is not handled by this API, e.g. database error",
   example: {
-    message: "Internal Server Error",
+    messages: "Internal Server Error",
     data: null,
   },
 })
@@ -67,7 +67,7 @@ export class AuthController {
   @ApiOkResponse({
     description: "Return a access token and a refresh token",
     example: {
-      message: "Logged in succesfully",
+      messages: "Logged in succesfully",
       data: {
         accessToken:
           "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG43QGVtYWlsLmNvbSIsInN1YiI6IjY3MjY2OTY0NzcxZTc2MTM4Mzk5ZGQ4MCIsInJvbGUiOjEsImlhdCI6MTczMTEzODA2NiwiZXhwIjoxNzMxMTM4MzY2fQ.VtUQAhDTeyB0c3N7ewOOOBlUMWKH9mRwLRTLuXWyvN0",
@@ -79,7 +79,7 @@ export class AuthController {
   @ApiNotFoundResponse({
     description: "Happen when the user with this email is not found",
     example: {
-      message: "User not found",
+      messages: "User not found",
       data: null,
     },
   })
@@ -87,14 +87,14 @@ export class AuthController {
     description:
       "Happen when something went wrong, that is not handled by this API, e.g. database error or wrong password",
     example: {
-      message: "Internal Server Error",
+      messages: "Internal Server Error",
       data: null,
     },
   })
   @ApiBadRequestResponse({
     description: "Happen when the provided data is not valid",
     example: {
-      message: [
+      messages: [
         "firstName should not be null or undefined",
         "firstName must be a string",
         "firstName should not be empty",
@@ -105,7 +105,7 @@ export class AuthController {
   async login(@Request() req): Promise<ApiResponse> {
     // Where does req.user came from? It came from the LocalAuthGuard or specifically from the LocalStrategy.
     return {
-      message: "Logged in succesfully",
+      messages: "Logged in succesfully",
       data: this.authService.login(req.user),
     };
   }
@@ -120,7 +120,7 @@ export class AuthController {
   @ApiCreatedResponse({
     description: "Return the registered user",
     example: {
-      message: "User registered succesfully",
+      messages: "User registered succesfully",
       data: {
         firstName: "John",
         lastName: "Doe",
@@ -141,14 +141,14 @@ export class AuthController {
   @ApiConflictResponse({
     description: "Happen when the user already exists",
     example: {
-      message: "User already exists",
+      messages: "User already exists",
       data: null,
     },
   })
   @ApiBadRequestResponse({
     description: "Happen when the provided data is not valid",
     example: {
-      message: [
+      messages: [
         "firstName should not be null or undefined",
         "firstName must be a string",
         "firstName should not be empty",
@@ -167,7 +167,7 @@ export class AuthController {
     const { provider, role, ...result } = registeredUser;
 
     return {
-      message: "User registered succesfully",
+      messages: "User registered succesfully",
       data: result,
     };
   }
@@ -183,14 +183,14 @@ export class AuthController {
   @ApiUnauthorizedResponse({
     description: "Happen when the provided refresh token is invalid",
     example: {
-      message: "Invalid token",
+      messages: "Invalid token",
       data: null,
     },
   })
   @ApiBearerAuth()
   async refreshToken(@Request() req) {
     return {
-      message: "New Access Token Generated",
+      messages: "New Access Token Generated",
       data: this.authService.refreshToken(req.user),
     };
   }

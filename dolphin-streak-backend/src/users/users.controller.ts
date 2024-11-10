@@ -81,7 +81,7 @@ export class UsersController {
   @ApiCreatedResponse({
     description: "User created successfully",
     example: {
-      message: "User created successfully",
+      messages: "User created successfully",
       data: {
         firstName: "John",
         lastName: "Doe",
@@ -104,7 +104,7 @@ export class UsersController {
   @ApiConflictResponse({
     description: "Happen when the user already exists",
     example: {
-      message: "User already exists",
+      messages: "User already exists",
       data: null,
     },
   })
@@ -119,7 +119,7 @@ export class UsersController {
     const userResponse = extractPassword(createdUser);
 
     return {
-      message: "User created successfully",
+      messages: "User created successfully",
       data: userResponse,
     };
   }
@@ -134,7 +134,7 @@ export class UsersController {
   @ApiOkResponse({
     description: "Return all users",
     example: {
-      message: "2 users founded",
+      messages: "2 users founded",
       data: [
         {
           "_id": "67230cbd0b53c9081bc2b1c8",
@@ -193,7 +193,7 @@ export class UsersController {
     const foundedUsersLength = foundedUsers.length;
 
     return {
-      message: `${foundedUsersLength} user${
+      messages: `${foundedUsersLength} user${
         foundedUsersLength > 1 ? "s" : ""
       } founded`,
       data: foundedUsers,
@@ -209,7 +209,7 @@ export class UsersController {
   @ApiOkResponse({
     description: "Return the user",
     example: {
-      message: "User founded",
+      messages: "User founded",
       data: {
         "_id": "67230cbd0b53c9081bc2b1c8",
         "firstName": "Johnson",
@@ -230,7 +230,7 @@ export class UsersController {
   @ApiNotFoundResponse({
     description: "Happen when the user is not found",
     example: {
-      message: "User not founded",
+      messages: "User not founded",
       data: null,
     },
   })
@@ -246,7 +246,7 @@ export class UsersController {
     const userResponse = extractPassword(foundedUser);
 
     return {
-      message: "User founded",
+      messages: "User founded",
       data: userResponse,
     };
   }
@@ -262,7 +262,7 @@ export class UsersController {
   @ApiOkResponse({
     description: "Return the updated user",
     example: {
-      message: "User updated successfully",
+      messages: "User updated successfully",
       data: {
         _id: "67230cbd0b53c9081bc2b1c8",
         firstName: "Billie Jean",
@@ -283,7 +283,7 @@ export class UsersController {
   @ApiNotFoundResponse({
     description: "Happen when the user is not found",
     example: {
-      message: "User not founded",
+      messages: "User not founded",
       data: null,
     },
   })
@@ -303,7 +303,7 @@ export class UsersController {
     const userResponse = extractPassword(updatedUser);
 
     return {
-      message: "User updated successfully",
+      messages: "User updated successfully",
       data: userResponse,
     };
   }
@@ -317,7 +317,7 @@ export class UsersController {
   @ApiOkResponse({
     description: "Return the deleted user",
     example: {
-      message: "User updated successfully",
+      messages: "User updated successfully",
       data: {
         _id: "67230cbd0b53c9081bc2b1c8",
         firstName: "Billie Jean",
@@ -338,7 +338,7 @@ export class UsersController {
   @ApiNotFoundResponse({
     description: "Happen when the user is not found",
     example: {
-      message: "User not founded",
+      messages: "User not founded",
       data: null,
     },
   })
@@ -354,7 +354,7 @@ export class UsersController {
     const userResponse = extractPassword(deletedUser);
 
     return {
-      message: "User deleted successfully",
+      messages: "User deleted successfully",
       data: userResponse,
     };
   }
