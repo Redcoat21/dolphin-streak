@@ -5,6 +5,7 @@ import { User, UserDocument } from "src/users/schemas/user.schema";
 import { FilterQuery, Model, ProjectionType, QueryOptions } from "mongoose";
 import { FindUserQuery } from "./dto/find-user.query";
 import { Provider as UserProvider } from "./schemas/user.schema";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
 @Injectable()
 /**
@@ -37,7 +38,7 @@ export class UsersService {
     * @returns {Promise<UserDocument[] | null>} The founded users.
     */
    findAll(
-      query: FilterQuery<User>,
+      query?: FilterQuery<User>,
       projection?: ProjectionType<User>,
       options?: QueryOptions<User>,
    ) {
@@ -67,7 +68,7 @@ export class UsersService {
     * @param updateUserDto - Data transfer object for updating a user.
     * @returns The updated user.
     */
-   update(id: string, updateUserDto: Partial<CreateUserDto>) {
+   update(id: string, updateUserDto: UpdateUserDto) {
       return this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true });
    }
 

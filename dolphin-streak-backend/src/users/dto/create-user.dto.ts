@@ -10,7 +10,7 @@ export class CreateUserDto extends BaseCreateUserDto {
         enum: Role,
         example: Role.USER,
         required: false,
-        nullable: true,
+        nullable: false,
     })
     @IsOptional()
     @IsEnum(Role)

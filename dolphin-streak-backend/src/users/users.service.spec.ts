@@ -67,7 +67,7 @@ describe("UsersService", () => {
 
   // Test the create method.
   describe("Create User", () => {
-    let createdUserDto: CreateUserDto;
+    let createdUserDto: CreateUserDto & { provider: Provider };
     let expectedCreatedUser: ExpectedUser;
     beforeEach(() => {
       // Define the expected create input. Can be extended again later to include additional properties.

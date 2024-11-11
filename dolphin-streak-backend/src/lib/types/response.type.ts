@@ -1,6 +1,6 @@
 export type ApiResponse = {
     data: any;
-    message: string;
+    messages: string;
 };
 
 export type AuthResponse = {

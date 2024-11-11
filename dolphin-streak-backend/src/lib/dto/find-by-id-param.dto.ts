@@ -1,9 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsMongoId } from "class-validator";
 
-export class FindOneByIdParam {
+export class FindByIdParam {
     @ApiProperty({
-        description: "The user's id",
+        description: "The object's id",
         example: "60f7e4e3d6c2c6e3f",
         required: true,
         nullable: false,

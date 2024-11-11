@@ -9,8 +9,8 @@ import argon2 from "argon2";
 import { DateTime } from "luxon";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
-import { FindOneByIdParam } from "./dto/find-one-by-id.param";
 import { FindUserQuery } from "./dto/find-user.query";
+import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
 
 vi.mock("src/utils/user", () => ({
   extractPassword: (user) => {
@@ -148,14 +148,14 @@ describe("UsersController", () => {
     });
 
     it("Validation should fail if no input is given", async () => {
-      const errors = await validate(plainToInstance(FindOneByIdParam, {}));
+      const errors = await validate(plainToInstance(FindByIdParam, {}));
 
       expect(errors.length).toBeGreaterThan(0);
     });
 
     it("Validation should fail if the given input is not a valid mongo id", async () => {
       const errors = await validate(
-        plainToInstance(FindOneByIdParam, { id: "123" }),
+        plainToInstance(FindByIdParam, { id: "123" }),
       );
 
       expect(errors.length).toBeGreaterThan(0);
@@ -215,7 +215,7 @@ describe("UsersController", () => {
 
     it("Validation should only fail if the given id is not a valid mongo id", async () => {
       const id = "invalid id";
-      const errors = await validate(plainToInstance(FindOneByIdParam, { id }));
+      const errors = await validate(plainToInstance(FindByIdParam, { id }));
 
       expect(errors.length).toBeGreaterThan(0);
     });
@@ -247,7 +247,7 @@ describe("UsersController", () => {
     });
 
     it("Validation should fail, if no input is given", async () => {
-      const errors = await validate(plainToInstance(FindOneByIdParam, {}));
+      const errors = await validate(plainToInstance(FindByIdParam, {}));
 
       expect(errors.length).toBeGreaterThan(0);
     });
