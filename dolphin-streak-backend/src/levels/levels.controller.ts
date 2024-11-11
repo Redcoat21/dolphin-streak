@@ -23,13 +23,43 @@ import { checkIfExist, formatGetAllMessages } from "src/lib/utils/response";
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { HasRoles } from "src/lib/decorators/has-role.decorator";
+import { Role } from "src/users/schemas/user.schema";
 
 @Controller("/api/levels")
 @UseGuards(JwtAuthGuard, RoleGuard)
+@HasRoles(Role.ADMIN)
+@ApiUnauthorizedResponse({
+  description:
+    "Happen because the user is not authorized (doesn't have a valid access token)",
+  example: {
+    message: "Unauthorized",
+    data: null,
+  },
+})
+@ApiForbiddenResponse({
+  description:
+    "Happen because the user doesn't have the right role to access this endpoint",
+  example: {
+    message: "Forbidden resource",
+    data: null,
+  },
+})
+@ApiInternalServerErrorResponse({
+  description:
+    "Happen when something went wrong, that is not handled by this API, e.g. database error",
+  example: {
+    message: "Internal Server Error",
+    data: null,
+  },
+})
 export class LevelsController {
   constructor(private readonly levelsService: LevelsService) {}
 
