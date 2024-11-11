@@ -1,34 +1,88 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { LevelsService } from './levels.service';
-import { CreateLevelDto } from './dto/create-level.dto';
-import { UpdateLevelDto } from './dto/update-level.dto';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
+import { LevelsService } from "./levels.service";
+import { CreateLevelDto } from "./dto/create-level.dto";
+import { UpdateLevelDto } from "./dto/update-level.dto";
+import { FindAllQuery } from "./dto/find-all-query.dto";
+import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
+import { JwtAuthGuard } from "src/auth/guard/jwt-auth.guard";
+import { RoleGuard } from "src/lib/guard/role.guard";
+import { checkIfExist, formatGetAllMessages } from "src/utils/response";
 
-@Controller('/api/levels')
+@Controller("/api/levels")
+@UseGuards(JwtAuthGuard, RoleGuard)
 export class LevelsController {
   constructor(private readonly levelsService: LevelsService) {}
 
   @Post()
-  create(@Body() createLevelDto: CreateLevelDto) {
-    return this.levelsService.create(createLevelDto);
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() createLevelDto: CreateLevelDto) {
+    return {
+      messages: "Level created successfully",
+      data: await this.levelsService.create(createLevelDto),
+    };
   }
 
   @Get()
-  findAll() {
-    return this.levelsService.findAll();
+  async findAll(@Query() query: FindAllQuery) {
+    const foundedLevels = await this.levelsService.findAll(
+      query.language ? { language: query.language } : undefined,
+    )
+      .populate(
+        "language",
+      );
+
+    return {
+      messages: formatGetAllMessages(foundedLevels.length, "level"),
+      data: foundedLevels,
+    };
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.levelsService.findOne(+id);
+  @Get(":id")
+  async findOne(@Param() findByIdParam: FindByIdParam) {
+    const foundedLevel = checkIfExist(
+      await this.levelsService.findOne(findByIdParam.id),
+      "Level not found",
+    );
+
+    return { messages: "Level founded", data: foundedLevel };
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLevelDto: UpdateLevelDto) {
-    return this.levelsService.update(+id, updateLevelDto);
+  @Patch(":id")
+  async update(
+    @Param() findByIdParam: FindByIdParam,
+    @Body() updateLevelDto: UpdateLevelDto,
+  ) {
+    const updatedLevel = checkIfExist(
+      await this.levelsService.update(
+        findByIdParam.id,
+        updateLevelDto,
+      ),
+      "Level not found",
+    );
+
+    return { messages: "Level updated successfully", data: updatedLevel };
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.levelsService.remove(+id);
+  @Delete(":id")
+  async remove(@Param() findByIdParam: FindByIdParam) {
+    const deletedLevel = checkIfExist(
+      await this.levelsService.remove(findByIdParam.id),
+      "Level not found",
+    );
+
+    return { messages: "Level deleted successfully", data: deletedLevel };
   }
 }

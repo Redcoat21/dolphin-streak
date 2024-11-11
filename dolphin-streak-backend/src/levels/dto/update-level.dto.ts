@@ -1,4 +1,5 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateLevelDto } from './create-level.dto';
+import { PartialType } from "@nestjs/swagger";
+import { CreateLevelDto } from "./create-level.dto";
 
-export class UpdateLevelDto extends PartialType(CreateLevelDto) {}
+export class UpdateLevelDto extends PartialType(CreateLevelDto) {
+}
