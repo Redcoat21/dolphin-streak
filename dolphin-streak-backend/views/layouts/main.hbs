@@ -4,15 +4,43 @@
     <title>{{title}}</title>
     <script src='https://cdn.tailwindcss.com'></script>
   </head>
-    <div class='bg-[#0288d1] min-h-screen flex items-center justify-center p-4'>
+    <div>
     {{{body}}}
-    <script>
+    {{!-- <script>
       document.addEventListener('DOMContentLoaded', () => {
         const currentPath = window.location.pathname;
         if (!localStorage.getItem('accesstoken') && currentPath !== '/login') {
           window.location.href = '/login';
         }
       });
+    </script> --}}
+    <script>
+      async function fetchAPI(url, method, data = {}) {
+        const options = {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('accesstoken')}`
+          }
+        };
+
+        if (method === 'GET' || method === 'DELETE') {
+          url += '?' + new URLSearchParams(data).toString();
+        } else {
+          options.body = JSON.stringify(data);
+        }
+
+        try {
+          const response = await fetch(url, options);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return await response.json();
+        } catch (error) {
+          console.error('Error:', error);
+          throw error;
+        }
+      }
     </script>
   </body>
 </html>
