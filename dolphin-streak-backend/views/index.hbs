@@ -5,5 +5,10 @@
   </head>
   <body>
     {{message}}
+    <script>
+      document.addEventListener('DOMContentLoaded', () => { if
+      (!localStorage.getItem('accesstoken')) { window.location.href = '/login';
+      } });
+    </script>
   </body>
 </html>

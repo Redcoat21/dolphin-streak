@@ -2,14 +2,15 @@ import { Controller, Get, Render } from '@nestjs/common';
 
 @Controller()
 export class ViewController {
-  @Get()
+  @Get('/')
   @Render('index')
   getHome() {
-    return { message: 'Hello from the ViewController!' };
+    return { message: 'Hello from the ViewControllerINDEX!' };
   }
-  @Get('/2')
-  @Render('index')
-  getHome() {
-    return { message: 'Hello from the ViewController!' };
+
+  @Get('/login')
+  @Render('login/index')
+  getLogin() {
+    return {};
   }
 }
