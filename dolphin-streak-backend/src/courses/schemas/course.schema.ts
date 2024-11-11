@@ -7,7 +7,7 @@ export type CourseDocument = HydratedDocument<Course>;
 
 @Schema()
 export class Course {
-    @Prop({ required: true, length: 255 })
+    @Prop({ required: true, maxlength: 255 })
     name: string;
 
     @Prop({
@@ -23,10 +23,10 @@ export class Course {
     })
     language: Language;
 
-    @Prop({ required: true, length: 255 })
+    @Prop({ required: true, maxlength: 255 })
     type: string;
 
-    @Prop({ required: false, length: 255 })
+    @Prop({ required: false, maxlength: 255 })
     thumbnail: 255;
 }
 
