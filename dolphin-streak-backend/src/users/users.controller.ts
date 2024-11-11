@@ -26,6 +26,7 @@ import {
   ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -66,6 +67,14 @@ import { formatGetAllMessages } from "src/lib/utils/response";
     "Happen when the user is not authorized, it can either be no bearer token or the role is not allowed",
   example: {
     message: "Unauthorized",
+    data: null,
+  },
+})
+@ApiForbiddenResponse({
+  description:
+    "Happen because the user doesn't have the right role to access this endpoint",
+  example: {
+    message: "Forbidden resource",
     data: null,
   },
 })
@@ -235,6 +244,15 @@ export class UsersController {
       data: null,
     },
   })
+  @ApiBadRequestResponse({
+    description: "Happen when the given id is not a valid mongodb id",
+    example: {
+      messages: [
+        "id must be a mongodb id",
+      ],
+      data: null,
+    },
+  })
   async findOne(@Param() findOneParam: FindByIdParam): Promise<ApiResponse> {
     const foundedUser = await this.usersService.findOne({
       _id: findOneParam.id,
@@ -285,6 +303,15 @@ export class UsersController {
     description: "Happen when the user is not found",
     example: {
       messages: "User not founded",
+      data: null,
+    },
+  })
+  @ApiBadRequestResponse({
+    description: "Happen when the given id is not a valid mongodb id",
+    example: {
+      messages: [
+        "id must be a mongodb id",
+      ],
       data: null,
     },
   })
@@ -340,6 +367,15 @@ export class UsersController {
     description: "Happen when the user is not found",
     example: {
       messages: "User not founded",
+      data: null,
+    },
+  })
+  @ApiBadRequestResponse({
+    description: "Happen when the given id is not a valid mongodb id",
+    example: {
+      messages: [
+        "id must be a mongodb id",
+      ],
       data: null,
     },
   })
