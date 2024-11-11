@@ -18,7 +18,7 @@ export class Question {
     @Prop(raw({
         type: { type: String, maxlength: 50 },
         text: { type: String, maxlength: 500 },
-        voice: { type: Object },
+        voice: { type: String, maxlength: 500 },
     }))
     question: QuestionDetail;
 
