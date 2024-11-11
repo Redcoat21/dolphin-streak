@@ -19,7 +19,8 @@ export class Course {
 
     @Prop({
         required: true,
-        type: { type: mongoose.Schema.Types.ObjectId, ref: "Language" },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Language", // Remove the extra `{ type: ... }` object
     })
     language: Language;
 
@@ -27,7 +28,7 @@ export class Course {
     type: string;
 
     @Prop({ required: false, maxlength: 255 })
-    thumbnail: 255;
+    thumbnail: string;
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);
