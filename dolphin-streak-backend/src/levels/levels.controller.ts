@@ -3,7 +3,7 @@ import { LevelsService } from './levels.service';
 import { CreateLevelDto } from './dto/create-level.dto';
 import { UpdateLevelDto } from './dto/update-level.dto';
 
-@Controller('levels')
+@Controller('/api/levels')
 export class LevelsController {
   constructor(private readonly levelsService: LevelsService) {}
 

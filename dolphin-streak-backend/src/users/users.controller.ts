@@ -39,7 +39,7 @@ import { RoleGuard } from "src/lib/guard/role.guard";
 //TODO: Implement some kind of IP checker, so admin can only access this route from authorized IP.
 @UseGuards(JwtAuthGuard, RoleGuard)
 // If no role are listed, meaning everyone can access it. But just to be safe, write the role that can access the route.
-@Controller("users")
+@Controller("/api/users")
 @ApiInternalServerErrorResponse({
   description:
     "Happen when something went wrong, that is not handled by this API, e.g. database error",

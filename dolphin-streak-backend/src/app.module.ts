@@ -11,6 +11,7 @@ import { QuestionsModule } from './questions/questions.module';
 import { CoursesModule } from './courses/courses.module';
 import { LanguagesModule } from './languages/languages.module';
 import { LevelsModule } from './levels/levels.module';
+import { ViewController } from './views/view.controller'; // Import the new views controller
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { LevelsModule } from './levels/levels.module';
     LanguagesModule,
     LevelsModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, ViewController],
   providers: [AppService],
 })
 export class AppModule {}

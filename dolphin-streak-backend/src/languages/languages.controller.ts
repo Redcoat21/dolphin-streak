@@ -12,7 +12,7 @@ import { CreateLanguageDto } from "./dto/create-language.dto";
 import { UpdateLanguageDto } from "./dto/update-language.dto";
 import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
 
-@Controller("languages")
+@Controller('/api/languages')
 export class LanguagesController {
   constructor(private readonly languagesService: LanguagesService) {}
 

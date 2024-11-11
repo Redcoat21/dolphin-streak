@@ -26,7 +26,7 @@ import {
 } from "@nestjs/swagger";
 import { RefreshTokenGuard } from "./guard/refresh-jwt-auth.guard";
 
-@Controller("auth")
+@Controller("/api/auth")
 @ApiInternalServerErrorResponse({
   description:
     "Happen when something went wrong, that is not handled by this API, e.g. database error",
