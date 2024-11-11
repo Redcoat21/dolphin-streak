@@ -20,6 +20,13 @@ import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
 import { JwtAuthGuard } from "src/auth/guard/jwt-auth.guard";
 import { RoleGuard } from "src/lib/guard/role.guard";
 import { checkIfExist, formatGetAllMessages } from "src/lib/utils/response";
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+} from "@nestjs/swagger";
 
 @Controller("/api/levels")
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -28,6 +35,32 @@ export class LevelsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: "Create a new level",
+    description: "Create a new level with the data provided in the body",
+  })
+  @ApiCreatedResponse({
+    description: "The level has been successfully created.",
+    example: {
+      message: "Level created successfully",
+      data: {
+        name: "Level 3",
+        language: "6732299a3b7d4ef48a34278c",
+        _id: "673229a43b7d4ef48a34278e",
+        __v: 0,
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: "Happen when the request body is not valid",
+    example: {
+      messages: [
+        "name must be a string",
+        "language must be a mongodb id",
+      ],
+      data: null,
+    },
+  })
   async create(@Body() createLevelDto: CreateLevelDto) {
     return {
       messages: "Level created successfully",
@@ -35,6 +68,30 @@ export class LevelsController {
     };
   }
 
+  @ApiOperation({
+    summary: "Get all levels",
+    description: "Get all levels with the option to filter by language",
+  })
+  @ApiOkResponse({
+    description: "Levels found",
+    example: {
+      messages: "2 levels found",
+      data: [
+        {
+          _id: "671afc7bc0a7ef4e76079383",
+          name: "Level 1",
+          language: null,
+          __v: 0,
+        },
+        {
+          _id: "673229813b7d4ef48a342788",
+          name: "Level 2",
+          language: null,
+          __v: 0,
+        },
+      ],
+    },
+  })
   @Get()
   async findAll(@Query() query: FindAllQuery) {
     const foundedLevels = await this.levelsService.findAll(
@@ -51,6 +108,36 @@ export class LevelsController {
   }
 
   @Get(":id")
+  @ApiOperation({
+    summary: "Get a level by id",
+    description: "Get a level by the id provided in the parameter",
+  })
+  @ApiBadRequestResponse({
+    description: "Happen when the id parameter is not a valid mongodb id",
+    example: {
+      messages: [
+        "id must be a mongodb id",
+      ],
+      data: null,
+    },
+  })
+  @ApiOkResponse({
+    description: "Level founded",
+    example: {
+      messages: "Level founded",
+      data: {
+        _id: "671afc7bc0a7ef4e76079383",
+        name: "Level 1",
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: "Happen when the level is not found",
+    example: {
+      messages: "Level not found",
+      data: null,
+    },
+  })
   async findOne(@Param() findByIdParam: FindByIdParam) {
     const foundedLevel = checkIfExist(
       await this.levelsService.findOne(findByIdParam.id),
@@ -60,6 +147,35 @@ export class LevelsController {
     return { messages: "Level founded", data: foundedLevel };
   }
 
+  @ApiOperation({
+    summary: "Update a level",
+    description: "Update a level with the data provided in the body",
+  })
+  @ApiOkResponse({
+    description: "Level updated successfully",
+    example: {
+      messages: "Level updated successfully",
+      data: {
+        _id: "671afc7bc0a7ef4e76079383",
+        name: "Level 1",
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: "Happen when the id parameter is not a valid mongodb id",
+    example: {
+      messages: [
+        "id must be a mongodb id",
+      ],
+    },
+  })
+  @ApiNotFoundResponse({
+    description: "Happen when the level is not found",
+    example: {
+      messages: "Level not found",
+      data: null,
+    },
+  })
   @Patch(":id")
   async update(
     @Param() findByIdParam: FindByIdParam,
@@ -76,6 +192,36 @@ export class LevelsController {
     return { messages: "Level updated successfully", data: updatedLevel };
   }
 
+  @ApiOperation({
+    summary: "Delete a level",
+    description: "Delete a level by the id provided in the parameter",
+  })
+  @ApiOkResponse({
+    description: "Level deleted successfully",
+    example: {
+      messages: "Level deleted successfully",
+      data: {
+        _id: "671afc7bc0a7ef4e76079383",
+        name: "Level 1",
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: "Happen when the id parameter is not a valid mongodb id",
+    example: {
+      messages: [
+        "id must be a mongodb id",
+      ],
+      data: null,
+    },
+  })
+  @ApiNotFoundResponse({
+    description: "Happen when the level is not found",
+    example: {
+      messages: "Level not found",
+      data: null,
+    },
+  })
   @Delete(":id")
   async remove(@Param() findByIdParam: FindByIdParam) {
     const deletedLevel = checkIfExist(
