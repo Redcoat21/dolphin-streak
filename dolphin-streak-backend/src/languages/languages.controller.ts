@@ -11,8 +11,11 @@ import { LanguagesService } from "./languages.service";
 import { CreateLanguageDto } from "./dto/create-language.dto";
 import { UpdateLanguageDto } from "./dto/update-language.dto";
 import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
+import { HasRoles } from "src/lib/decorators/has-role.decorator";
+import { Role } from "src/users/schemas/user.schema";
 
-@Controller('/api/languages')
+@Controller("/api/languages")
+@HasRoles(Role.ADMIN)
 export class LanguagesController {
   constructor(private readonly languagesService: LanguagesService) {}
 

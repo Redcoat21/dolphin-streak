@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   HttpCode,
+  HttpException,
   HttpStatus,
   Post,
   Request,
@@ -25,6 +26,8 @@ import {
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { RefreshTokenGuard } from "./guard/refresh-jwt-auth.guard";
+import { UsersService } from "src/users/users.service";
+import { CreateUserDto } from "src/users/dto/create-user.dto";
 
 @Controller("/api/auth")
 @ApiInternalServerErrorResponse({
@@ -36,7 +39,10 @@ import { RefreshTokenGuard } from "./guard/refresh-jwt-auth.guard";
   },
 })
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @UseGuards(LocalAuthGuard)
   @Post("login")
@@ -159,12 +165,11 @@ export class AuthController {
   async register(@Body() createUserDto: BaseCreateUserDto) {
     const registrationData = {
       ...createUserDto,
-      role: Role.USER,
       provider: Provider.LOCAL,
-    };
+    } satisfies CreateUserDto & { provider: Provider.LOCAL };
 
-    const registeredUser = await this.authService.register(registrationData);
-    const { provider, role, ...result } = registeredUser;
+    const registeredUser = await this.usersService.create(registrationData);
+    const { provider, role, ...result } = registeredUser.toObject();
 
     return {
       messages: "User registered succesfully",

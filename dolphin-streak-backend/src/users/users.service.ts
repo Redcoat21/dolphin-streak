@@ -1,11 +1,12 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { InjectModel } from "@nestjs/mongoose";
-import { User, UserDocument } from "src/users/schemas/user.schema";
+import { Provider, User, UserDocument } from "src/users/schemas/user.schema";
 import { FilterQuery, Model, ProjectionType, QueryOptions } from "mongoose";
 import { FindUserQuery } from "./dto/find-user.query";
 import { Provider as UserProvider } from "./schemas/user.schema";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import { extractPassword } from "src/utils/user";
 
 @Injectable()
 /**
@@ -23,8 +24,15 @@ export class UsersService {
     * @param createUserDto - Data transfer object for creating a user.
     * @returns The created user.
     */
-   create(createUserDto: CreateUserDto & { provider: UserProvider }) {
-      return this.userModel.create(createUserDto);
+   async create(createUserDto: CreateUserDto & { provider: UserProvider }) {
+      try {
+         return await this.userModel.create(createUserDto);
+      } catch (error) {
+         throw new HttpException(
+            "User already exists",
+            HttpStatus.CONFLICT,
+         );
+      }
    }
 
    /**
