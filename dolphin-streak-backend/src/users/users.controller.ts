@@ -36,6 +36,7 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
 import { RoleGuard } from "src/lib/guard/role.guard";
 import { aw } from "vitest/dist/chunks/reporters.anwo7Y6a";
+import { formatGetAllMessages } from "src/utils/response";
 
 //TODO: Implement some kind of IP checker, so admin can only access this route from authorized IP.
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -195,9 +196,7 @@ export class UsersController {
     const foundedUsersLength = foundedUsers.length;
 
     return {
-      messages: `${foundedUsersLength} user${
-        foundedUsersLength > 1 ? "s" : ""
-      } founded`,
+      messages: formatGetAllMessages(foundedUsersLength, "user"),
       data: foundedUsers,
     };
   }
