@@ -41,7 +41,6 @@ import { CreateUserDto } from "src/users/dto/create-user.dto";
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly usersService: UsersService,
   ) {}
 
   @UseGuards(LocalAuthGuard)
@@ -168,8 +167,8 @@ export class AuthController {
       provider: Provider.LOCAL,
     } satisfies CreateUserDto & { provider: Provider.LOCAL };
 
-    const registeredUser = await this.usersService.create(registrationData);
-    const { provider, role, ...result } = registeredUser.toObject();
+    const registeredUser = await this.authService.register(registrationData);
+    const { provider, role, ...result } = registeredUser;
 
     return {
       messages: "User registered succesfully",

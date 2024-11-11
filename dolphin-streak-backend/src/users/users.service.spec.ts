@@ -98,12 +98,12 @@ describe("UsersService", () => {
     // Test the create method to fail because the email already exists.
     it("Should failed to create a single user because email already exists", async () => {
       userModel.create.mockImplementationOnce(() => {
-        throw new Error("Email already exists");
+        throw new Error("User already exists");
       });
       try {
         await service.create(createdUserDto);
       } catch (error) {
-        expect(error.message).toBe("Email already exists");
+        expect(error.message).toBe("User already exists");
       }
     });
   });
