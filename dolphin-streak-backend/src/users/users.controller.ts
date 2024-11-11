@@ -17,7 +17,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import argon2 from "argon2";
 import { FindUserQuery } from "./dto/find-user.query";
 import { ApiResponse } from "src/lib/types/response.type";
-import { extractPassword } from "src/utils/user";
+import { extractPassword } from "src/lib/utils/user";
 import { JwtAuthGuard } from "src/auth/guard/jwt-auth.guard";
 import { HasRoles } from "src/lib/decorators/has-role.decorator";
 import { Provider, Role } from "./schemas/user.schema";
@@ -36,7 +36,7 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
 import { RoleGuard } from "src/lib/guard/role.guard";
 import { aw } from "vitest/dist/chunks/reporters.anwo7Y6a";
-import { formatGetAllMessages } from "src/utils/response";
+import { formatGetAllMessages } from "src/lib/utils/response";
 
 //TODO: Implement some kind of IP checker, so admin can only access this route from authorized IP.
 @UseGuards(JwtAuthGuard, RoleGuard)

@@ -6,7 +6,7 @@ import { AuthResponse } from "src/lib/types/response.type";
 import { CreateUserDto } from "src/users/dto/create-user.dto";
 import { Provider, User } from "src/users/schemas/user.schema";
 import { UsersService } from "src/users/users.service";
-import { extractPassword } from "src/utils/user";
+import { extractPassword } from "src/lib/utils/user";
 
 @Injectable()
 export class AuthService {
@@ -77,15 +77,17 @@ export class AuthService {
             );
         }
     }
-    
+
     refreshToken(userPayload: unknown) {
         try {
             //TODO: Give this proper typing.
             return this.jwtService.sign(userPayload as object, {
-                secret: this.configService.get<string>("ACCESS_TOKEN_SECRET_KEY"),
+                secret: this.configService.get<string>(
+                    "ACCESS_TOKEN_SECRET_KEY",
+                ),
                 expiresIn: "5m",
             });
-        } catch(error) {
+        } catch (error) {
             throw new HttpException("Invalid token", HttpStatus.UNAUTHORIZED);
         }
     }

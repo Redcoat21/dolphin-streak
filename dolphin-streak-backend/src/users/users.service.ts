@@ -6,7 +6,7 @@ import { FilterQuery, Model, ProjectionType, QueryOptions } from "mongoose";
 import { FindUserQuery } from "./dto/find-user.query";
 import { Provider as UserProvider } from "./schemas/user.schema";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { extractPassword } from "src/utils/user";
+import { extractPassword } from "src/lib/utils/user";
 
 @Injectable()
 /**

@@ -19,7 +19,7 @@ import { FindAllQuery } from "./dto/find-all-query.dto";
 import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
 import { JwtAuthGuard } from "src/auth/guard/jwt-auth.guard";
 import { RoleGuard } from "src/lib/guard/role.guard";
-import { checkIfExist, formatGetAllMessages } from "src/utils/response";
+import { checkIfExist, formatGetAllMessages } from "src/lib/utils/response";
 
 @Controller("/api/levels")
 @UseGuards(JwtAuthGuard, RoleGuard)

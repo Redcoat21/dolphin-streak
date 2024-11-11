@@ -18,7 +18,7 @@ import { HasRoles } from "src/lib/decorators/has-role.decorator";
 import { Role } from "src/users/schemas/user.schema";
 import { RoleGuard } from "src/lib/guard/role.guard";
 import { JwtAuthGuard } from "src/auth/guard/jwt-auth.guard";
-import { checkIfExist, formatGetAllMessages } from "src/utils/response";
+import { checkIfExist, formatGetAllMessages } from "src/lib/utils/response";
 
 @Controller("/api/languages")
 @UseGuards(JwtAuthGuard, RoleGuard)
