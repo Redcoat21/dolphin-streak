@@ -8,6 +8,7 @@
     "dx:prisma-studio": "pnpm prisma-studio",
     "dx": "run-p dx:* --print-label",
     "dev": "pnpm dx:next",
+    "next-dev": "next dev",
     "prebuild": "run-s generate migrate",
     "build": "next build",
     "lint": "eslint --cache src",
