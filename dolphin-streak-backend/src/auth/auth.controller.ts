@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   HttpCode,
-  HttpException,
   HttpStatus,
   Post,
   Request,
@@ -26,8 +25,8 @@ import {
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { RefreshTokenGuard } from "./guard/refresh-jwt-auth.guard";
-import { UsersService } from "src/users/users.service";
 import { CreateUserDto } from "src/users/dto/create-user.dto";
+import * as argon2 from "argon2";
 
 @Controller("/api/auth")
 @ApiInternalServerErrorResponse({
@@ -162,9 +161,11 @@ export class AuthController {
     },
   })
   async register(@Body() createUserDto: BaseCreateUserDto) {
+    const hashedPassword = await argon2.hash(createUserDto.password);
     const registrationData = {
       ...createUserDto,
       provider: Provider.LOCAL,
+      password: hashedPassword,
     } satisfies CreateUserDto & { provider: Provider.LOCAL };
 
     const registeredUser = await this.authService.register(registrationData);
