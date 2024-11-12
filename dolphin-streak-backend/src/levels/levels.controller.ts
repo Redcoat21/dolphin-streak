@@ -15,7 +15,7 @@ import {
 import { LevelsService } from "./levels.service";
 import { CreateLevelDto } from "./dto/create-level.dto";
 import { UpdateLevelDto } from "./dto/update-level.dto";
-import { FindAllQuery } from "./dto/find-all-query.dto";
+import { FindAllLevelsQuery } from "./dto/find-all-query.dto";
 import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
 import { JwtAuthGuard } from "src/auth/guard/jwt-auth.guard";
 import { RoleGuard } from "src/lib/guard/role.guard";
@@ -123,7 +123,7 @@ export class LevelsController {
     },
   })
   @Get()
-  async findAll(@Query() query: FindAllQuery) {
+  async findAll(@Query() query: FindAllLevelsQuery) {
     const foundedLevels = await this.levelsService.findAll(
       query.language ? { language: query.language } : undefined,
     )
