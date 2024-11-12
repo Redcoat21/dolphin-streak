@@ -5,6 +5,11 @@ import { Level } from "src/levels/schemas/level.schema";
 
 export type CourseDocument = HydratedDocument<Course>;
 
+export enum CourseType {
+    Daily,
+    Weekly,
+}
+
 @Schema()
 export class Course {
     @Prop({ required: true, maxlength: 255 })
@@ -24,8 +29,8 @@ export class Course {
     })
     language: Language;
 
-    @Prop({ required: true, maxlength: 255 })
-    type: string;
+    @Prop({ required: true, maxlength: 255, enum: CourseType })
+    type: CourseType;
 
     @Prop({ required: false, maxlength: 255 })
     thumbnail: string;
