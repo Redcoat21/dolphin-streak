@@ -1,9 +1,10 @@
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import type { SSRConfig } from 'next-i18next';
-import { appWithTranslation } from 'next-i18next';
-import type { AppProps } from 'next/app';
-import type { ComponentProps } from 'react';
-import { trpc } from '../utils/trpc';
+import "../styles/globals.css";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import type { SSRConfig } from "next-i18next";
+import { appWithTranslation } from "next-i18next";
+import type { AppProps } from "next/app";
+import type { ComponentProps } from "react";
+import { trpc } from "../utils/trpc";
 
 const I18nextAdapter = appWithTranslation<
   AppProps<SSRConfig> & { children: React.ReactNode }
@@ -25,6 +26,7 @@ const I18nProvider = (props: AppProps) => {
     },
     router: locale ? { locale } : props.router,
   } as unknown as ComponentProps<typeof I18nextAdapter>;
+
   return <I18nextAdapter {...passedProps} />;
 };
 
