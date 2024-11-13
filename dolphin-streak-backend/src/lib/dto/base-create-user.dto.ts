@@ -11,7 +11,7 @@ import {
 } from "class-validator";
 import { Type } from "class-transformer";
 import { DateTime } from "luxon";
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class BaseCreateUserDto {
     @ApiProperty({
@@ -25,11 +25,9 @@ export class BaseCreateUserDto {
     @IsString()
     firstName: string;
 
-    @ApiProperty({
+    @ApiPropertyOptional({
         description: "The user's last name",
         example: "Doe",
-        nullable: true,
-        required: false,
     })
     @IsOptional()
     @IsString()
@@ -39,7 +37,7 @@ export class BaseCreateUserDto {
         description: "The user's email",
         example: "john@email.com",
         nullable: false,
-        required: true
+        required: true,
     })
     @IsNotEmpty()
     @IsDefined()
@@ -47,7 +45,8 @@ export class BaseCreateUserDto {
     email: string;
 
     @ApiProperty({
-        description: "The user's password, it should be a strong password, meaning it should contain at least 8 characters, 2 lowercase letters, 2 uppercase letters, 2 numbers, and 2 symbols",
+        description:
+            "The user's password, it should be a strong password, meaning it should contain at least 8 characters, 2 lowercase letters, 2 uppercase letters, 2 numbers, and 2 symbols",
         example: "Password123!@",
         nullable: false,
         required: true,
@@ -72,8 +71,9 @@ export class BaseCreateUserDto {
     @IsUrl()
     profilePicture: string;
 
-    @ApiProperty({
-        description: "The user's birth date, the given date should be at least 5 years ago, the given string date should be a valid ISO 8601 date",
+    @ApiPropertyOptional({
+        description:
+            "The user's birth date, the given date should be at least 5 years ago, the given string date should be a valid ISO 8601 date",
         example: "1996-01-01",
         nullable: true,
         required: false,

@@ -5,10 +5,10 @@ export type LanguageDocument = HydratedDocument<Language>;
 
 @Schema()
 export class Language {
-    @Prop({ required: true, length: 255 })
+    @Prop({ required: true, maxlength: 255 })
     name: string;
 
-    @Prop({ required: true, length: 255 })
+    @Prop({ required: true, maxlength: 255 })
     image: string;
 }
 
