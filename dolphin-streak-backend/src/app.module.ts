@@ -11,7 +11,9 @@ import { QuestionsModule } from './questions/questions.module';
 import { CoursesModule } from './courses/courses.module';
 import { LanguagesModule } from './languages/languages.module';
 import { LevelsModule } from './levels/levels.module';
-import { ViewController } from './views/view.controller'; // Import the new views controller
+import { ViewController } from './views/view.controller';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -24,6 +26,11 @@ import { ViewController } from './views/view.controller'; // Import the new view
       useFactory: (configService: ConfigService) => ({
         uri: configService.get<string>('DB_URI'),
       }),
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      serveRoot: '/public',
+      
     }),
     ScheduleModule.forRoot(),
     AuthModule,
