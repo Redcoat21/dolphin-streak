@@ -1,12 +1,17 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
-import { verify } from "argon2";
+import * as argon2 from "argon2";
 import { AuthResponse } from "src/lib/types/response.type";
 import { CreateUserDto } from "src/users/dto/create-user.dto";
 import { Provider, User } from "src/users/schemas/user.schema";
 import { UsersService } from "src/users/users.service";
 import { extractPassword } from "src/lib/utils/user";
+import * as crypto from "crypto";
+import { InjectModel } from "@nestjs/mongoose";
+import { ResetPassword } from "./schemas/reset-password.schema";
+import { Model } from "mongoose";
+import { MailService } from "src/mail/mail.service";
 
 @Injectable()
 export class AuthService {
@@ -14,6 +19,10 @@ export class AuthService {
         private usersService: UsersService,
         private jwtService: JwtService,
         private configService: ConfigService,
+        @InjectModel(ResetPassword.name) private resetPasswordModel: Model<
+            ResetPassword
+        >,
+        private mailService: MailService,
     ) {}
 
     async validateUser(
@@ -26,7 +35,7 @@ export class AuthService {
             throw new HttpException("User not found", HttpStatus.NOT_FOUND);
         }
 
-        const passwordMatched = await verify(user?.password, password);
+        const passwordMatched = await argon2.verify(user?.password, password);
         if (passwordMatched) {
             const result = extractPassword(user);
             return result;
@@ -90,5 +99,25 @@ export class AuthService {
         } catch (error) {
             throw new HttpException("Invalid token", HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    async sendPasswordResetEmail(email: string): Promise<void> {
+        const user = await this.usersService.findOne({ email: email });
+
+        if (!user) {
+            throw new HttpException("User not found", HttpStatus.NOT_FOUND);
+        }
+
+        const token = crypto.randomBytes(32).toString("hex");
+
+        // Find the record and delete if if it exists.
+        await this.resetPasswordModel.findOneAndDelete({ user: user.id });
+
+        await this.resetPasswordModel.create({
+            user: user.id,
+            token: await argon2.hash(token),
+        });
+
+        await this.mailService.sendPasswordResetMail(email, token);
     }
 }

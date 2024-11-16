@@ -5,9 +5,21 @@ import { UsersModule } from "src/users/users.module";
 import { LocalStrategy } from "./strategy/local.strategy";
 import { JwtService } from "@nestjs/jwt";
 import { RefreshTokenStrategy } from "./strategy/jwt-refresh.strategy";
+import { MailerModule } from "@nestjs-modules/mailer";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { MongooseModule } from "@nestjs/mongoose";
+import { ResetPasswordSchema } from "./schemas/reset-password.schema";
+import { MailModule } from "src/mail/mail.module";
 
 @Module({
-  imports: [UsersModule, AuthModule],
+  imports: [
+    UsersModule,
+    MongooseModule.forFeature([{
+      name: "ResetPassword",
+      schema: ResetPasswordSchema,
+    }]),
+    MailModule,
+  ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtService, RefreshTokenStrategy],
 })
