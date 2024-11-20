@@ -6,12 +6,13 @@ export type LevelDocument = HydratedDocument<Level>;
 
 @Schema()
 export class Level {
-    @Prop({ required: true, length: 255 })
+    @Prop({ required: true, maxlength: 255 }) // Replaced length with maxlength
     name: string;
 
     @Prop({
         required: true,
-        type: { type: mongoose.Schema.Types.ObjectId, ref: "Language" },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Language",
     })
     language: Language;
 }

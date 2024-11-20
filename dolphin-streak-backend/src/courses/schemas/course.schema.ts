@@ -1,13 +1,18 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
 import { Language } from "src/languages/schemas/language.schema";
-import { Level } from "src/levels/entities/level.entity";
+import { Level } from "src/levels/schemas/level.schema";
 
 export type CourseDocument = HydratedDocument<Course>;
 
+export enum CourseType {
+    Daily,
+    Weekly,
+}
+
 @Schema()
 export class Course {
-    @Prop({ required: true, length: 255 })
+    @Prop({ required: true, maxlength: 255 })
     name: string;
 
     @Prop({
@@ -19,15 +24,16 @@ export class Course {
 
     @Prop({
         required: true,
-        type: { type: mongoose.Schema.Types.ObjectId, ref: "Language" },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Language", // Remove the extra `{ type: ... }` object
     })
     language: Language;
 
-    @Prop({ required: true, length: 255 })
-    type: string;
+    @Prop({ required: true, maxlength: 255, enum: CourseType })
+    type: CourseType;
 
-    @Prop({ required: false, length: 255 })
-    thumbnail: 255;
+    @Prop({ required: false, maxlength: 255 })
+    thumbnail: string;
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);

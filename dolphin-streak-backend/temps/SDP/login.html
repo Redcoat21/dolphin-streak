@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        /* Container utama */
+        .container {
+            background-color: #0e88bc;
+            margin: 2%;
+            width: 93%;
+            height: 800px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Lingkaran untuk gambar lumba-lumba */
+        .circle {
+            background-color: #21a9c4;
+            width: 300px;
+            height: 300px;
+            margin-top: 1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 5%;
+            margin-bottom: 10%;
+        }
+
+        /* Gambar lumba-lumba */
+        .circle img {
+            height: 200px;
+        }
+
+        /* Gaya untuk teks label */
+        .label {
+            color: #ffffff;
+            font-size: 1rem;
+            margin-bottom: 5px;
+            text-align: left; /* Ditambahkan untuk memusatkan teks */
+            width: 80%; /*  Agar lebar label sama dengan input field */
+        }
+
+        /* Gaya input */
+        .input-field {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 10px;
+            background-color: #d28b87;
+            color: #333333;
+            font-size: 1rem;
+        }
+
+        /* Gaya tombol login */
+        .login-button {
+            width: 50%;
+            padding: 10px;
+            background-color: #d28b87;
+            color: #ffffff;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- container -->
+    <div class="container">
+        <!-- circle -->
+        <div class="circle">
+            <!-- gambar -->
+            <img src="./image/dolphine.png" alt="dolphine">
+        </div>
+        
+        <!-- label dan input field -->
+        <div class="label">Email Address</div>
+        <input type="email" class="input-field" placeholder="Enter your email">
+
+        <div class="label">Password</div>
+        <input type="password" class="input-field" placeholder="Enter your password">
+
+        <!-- <div> -->
+            <button class="login-button">
+                <a href="homepage.html" style="color: white; text-decoration: none;">
+                    <div>
+                        Login
+                    </div>
+                </a>
+            </button>
+    </div>
+</body>
+</html>

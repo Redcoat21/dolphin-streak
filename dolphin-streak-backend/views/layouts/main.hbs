@@ -1,18 +1,50 @@
 <html>
-  <head>
-    <meta charset='utf-8' />
-    <title>{{title}}</title>
-    <script src='https://cdn.tailwindcss.com'></script>
-  </head>
-    <div class='bg-[#0288d1] min-h-screen flex items-center justify-center p-4'>
-    {{{body}}}
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const currentPath = window.location.pathname;
-        if (!localStorage.getItem('accesstoken') && currentPath !== '/login') {
-          window.location.href = '/login';
+
+<head>
+  <meta charset='utf-8' />
+  <title>{{title}}</title>
+  <script src='/public/scripts/tailwindcss-3.4.14.js'></script>
+</head>
+<div>
+  {{{body}}}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentPath = window.location.pathname;
+      if (!localStorage.getItem('secure_dolphin_streak_usr_access_token') && currentPath !== '/login') {
+        window.location.href = '/login';
+      }
+    });
+  </script>
+  <script>
+    async function fetchAPI(url, method, data = {}) {
+      const options = {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('secure_dolphin_streak_usr_access_token')}`
         }
-      });
-    </script>
+      };
+
+      if (method === 'GET' || method === 'DELETE') {
+        url += '?' + new URLSearchParams(data).toString();
+      } else {
+        options.body = JSON.stringify(data);
+      }
+
+      try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('Error:', error);
+        throw error;
+      }
+    }
+  </script>
+  {{!-- https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.14/tailwindcss-windows-x64.exe --}}
+  <script src="/public/scripts/chart.js"></script>
   </body>
+
 </html>

@@ -17,7 +17,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import argon2 from "argon2";
 import { FindUserQuery } from "./dto/find-user.query";
 import { ApiResponse } from "src/lib/types/response.type";
-import { extractPassword } from "src/utils/user";
+import { extractPassword } from "src/lib/utils/user";
 import { JwtAuthGuard } from "src/auth/guard/jwt-auth.guard";
 import { HasRoles } from "src/lib/decorators/has-role.decorator";
 import { Provider, Role } from "./schemas/user.schema";
@@ -26,6 +26,7 @@ import {
   ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -35,6 +36,8 @@ import {
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
 import { RoleGuard } from "src/lib/guard/role.guard";
+import { aw } from "vitest/dist/chunks/reporters.anwo7Y6a";
+import { formatGetAllMessages } from "src/lib/utils/response";
 
 //TODO: Implement some kind of IP checker, so admin can only access this route from authorized IP.
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -64,6 +67,14 @@ import { RoleGuard } from "src/lib/guard/role.guard";
     "Happen when the user is not authorized, it can either be no bearer token or the role is not allowed",
   example: {
     message: "Unauthorized",
+    data: null,
+  },
+})
+@ApiForbiddenResponse({
+  description:
+    "Happen because the user doesn't have the right role to access this endpoint",
+  example: {
+    message: "Forbidden resource",
     data: null,
   },
 })
@@ -138,33 +149,33 @@ export class UsersController {
       messages: "2 users founded",
       data: [
         {
-          "_id": "67230cbd0b53c9081bc2b1c8",
-          "firstName": "Johnson",
-          "lastName": "Doe",
-          "email": "johnsondoe@email.com",
-          "provider": 0,
-          "profilePicture": "https://placehold.jp/150x150.png",
-          "loginHistories": [],
-          "role": 1,
-          "languages": [],
-          "completedCourses": [],
-          "createdAt": "2024-10-31T04:51:09.436Z",
-          "updatedAt": "2024-10-31T04:51:09.436Z",
-          "__v": 0,
+          _id: "67230cbd0b53c9081bc2b1c8",
+          firstName: "Johnson",
+          lastName: "Doe",
+          email: "johnsondoe@email.com",
+          provider: 0,
+          profilePicture: "https://placehold.jp/150x150.png",
+          loginHistories: [],
+          role: 1,
+          languages: [],
+          completedCourses: [],
+          createdAt: "2024-10-31T04:51:09.436Z",
+          updatedAt: "2024-10-31T04:51:09.436Z",
+          __v: 0,
         },
         {
-          "_id": "67243a4a7507ac0c0d0b56c2",
-          "firstName": "Jonathan",
-          "email": "joken.e22@mhs.istts.ac.id",
-          "provider": 0,
-          "profilePicture": "https://placehold.jp/150x150.png",
-          "loginHistories": [],
-          "role": 1,
-          "languages": [],
-          "completedCourses": [],
-          "createdAt": "2024-11-01T02:17:46.343Z",
-          "updatedAt": "2024-11-01T02:17:46.343Z",
-          "__v": 0,
+          _id: "67243a4a7507ac0c0d0b56c2",
+          firstName: "Jonathan",
+          email: "joken.e22@mhs.istts.ac.id",
+          provider: 0,
+          profilePicture: "https://placehold.jp/150x150.png",
+          loginHistories: [],
+          role: 1,
+          languages: [],
+          completedCourses: [],
+          createdAt: "2024-11-01T02:17:46.343Z",
+          updatedAt: "2024-11-01T02:17:46.343Z",
+          __v: 0,
         },
       ],
     },
@@ -194,9 +205,7 @@ export class UsersController {
     const foundedUsersLength = foundedUsers.length;
 
     return {
-      messages: `${foundedUsersLength} user${
-        foundedUsersLength > 1 ? "s" : ""
-      } founded`,
+      messages: formatGetAllMessages(foundedUsersLength, "user"),
       data: foundedUsers,
     };
   }
@@ -212,19 +221,19 @@ export class UsersController {
     example: {
       messages: "User founded",
       data: {
-        "_id": "67230cbd0b53c9081bc2b1c8",
-        "firstName": "Johnson",
-        "lastName": "Doe",
-        "email": "johnsondoe@email.com",
-        "provider": 0,
-        "profilePicture": "https://placehold.jp/150x150.png",
-        "loginHistories": [],
-        "role": 1,
-        "languages": [],
-        "completedCourses": [],
-        "createdAt": "2024-10-31T04:51:09.436Z",
-        "updatedAt": "2024-10-31T04:51:09.436Z",
-        "__v": 0,
+        _id: "67230cbd0b53c9081bc2b1c8",
+        firstName: "Johnson",
+        lastName: "Doe",
+        email: "johnsondoe@email.com",
+        provider: 0,
+        profilePicture: "https://placehold.jp/150x150.png",
+        loginHistories: [],
+        role: 1,
+        languages: [],
+        completedCourses: [],
+        createdAt: "2024-10-31T04:51:09.436Z",
+        updatedAt: "2024-10-31T04:51:09.436Z",
+        __v: 0,
       },
     },
   })
@@ -232,6 +241,15 @@ export class UsersController {
     description: "Happen when the user is not found",
     example: {
       messages: "User not founded",
+      data: null,
+    },
+  })
+  @ApiBadRequestResponse({
+    description: "Happen when the given id is not a valid mongodb id",
+    example: {
+      messages: [
+        "id must be a mongodb id",
+      ],
       data: null,
     },
   })
@@ -288,6 +306,15 @@ export class UsersController {
       data: null,
     },
   })
+  @ApiBadRequestResponse({
+    description: "Happen when the given id is not a valid mongodb id",
+    example: {
+      messages: [
+        "id must be a mongodb id",
+      ],
+      data: null,
+    },
+  })
   async update(
     @Param() findOneParam: FindByIdParam,
     @Body() updateUserDto: UpdateUserDto,
@@ -340,6 +367,15 @@ export class UsersController {
     description: "Happen when the user is not found",
     example: {
       messages: "User not founded",
+      data: null,
+    },
+  })
+  @ApiBadRequestResponse({
+    description: "Happen when the given id is not a valid mongodb id",
+    example: {
+      messages: [
+        "id must be a mongodb id",
+      ],
       data: null,
     },
   })

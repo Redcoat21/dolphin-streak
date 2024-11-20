@@ -25,6 +25,8 @@ import {
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { RefreshTokenGuard } from "./guard/refresh-jwt-auth.guard";
+import { CreateUserDto } from "src/users/dto/create-user.dto";
+import * as argon2 from "argon2";
 
 @Controller("/api/auth")
 @ApiInternalServerErrorResponse({
@@ -36,7 +38,9 @@ import { RefreshTokenGuard } from "./guard/refresh-jwt-auth.guard";
   },
 })
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+  ) {}
 
   @UseGuards(LocalAuthGuard)
   @Post("login")
@@ -49,12 +53,12 @@ export class AuthController {
   @ApiBody({
     schema: {
       type: "object",
-      required: ["username", "password"],
+      required: ["email", "password"],
       properties: {
-        username: {
+        email: {
           type: "string",
           example: "johndoe@example.com",
-          description: "User email or username",
+          description: "User email",
         },
         password: {
           type: "string",
@@ -157,11 +161,12 @@ export class AuthController {
     },
   })
   async register(@Body() createUserDto: BaseCreateUserDto) {
+    const hashedPassword = await argon2.hash(createUserDto.password);
     const registrationData = {
       ...createUserDto,
-      role: Role.USER,
       provider: Provider.LOCAL,
-    };
+      password: hashedPassword,
+    } satisfies CreateUserDto & { provider: Provider.LOCAL };
 
     const registeredUser = await this.authService.register(registrationData);
     const { provider, role, ...result } = registeredUser;

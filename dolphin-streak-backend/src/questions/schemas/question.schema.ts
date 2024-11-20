@@ -1,14 +1,14 @@
 import { Prop, raw, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
-import { Course } from "src/courses/entities/course.entity";
+import { Course } from "src/courses/schemas/course.schema";
 import { QuestionDetail } from "src/lib/types/question.type";
 
 export enum QuestionType {
-    MULTIPLE_CHOICE = "MultipleChoice",
-    ESSAY = "Essay",
-    FILL_IN = "FillIn",
-    VOICE = "Voice",
-    WRITING = "Writing",
+    MULTIPLE_CHOICE,
+    ESSAY,
+    FILL_IN,
+    VOICE,
+    WRITING,
 }
 
 export type QuestionDocument = HydratedDocument<Question>;
@@ -16,9 +16,9 @@ export type QuestionDocument = HydratedDocument<Question>;
 @Schema()
 export class Question {
     @Prop(raw({
-        type: { type: String, length: 50 },
-        text: { type: String, length: 500 },
-        voice: { type: Object },
+        type: { type: String, maxlength: 50 },
+        text: { type: String, maxlength: 500 },
+        voice: { type: String, maxlength: 500 },
     }))
     question: QuestionDetail;
 
