@@ -4,11 +4,11 @@ import { Course } from "src/courses/schemas/course.schema";
 import { QuestionDetail } from "src/lib/types/question.type";
 
 export enum QuestionType {
-    MULTIPLE_CHOICE = "MultipleChoice",
-    ESSAY = "Essay",
-    FILL_IN = "FillIn",
-    VOICE = "Voice",
-    WRITING = "Writing",
+    MULTIPLE_CHOICE,
+    ESSAY,
+    FILL_IN,
+    VOICE,
+    WRITING,
 }
 
 export type QuestionDocument = HydratedDocument<Question>;
