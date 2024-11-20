@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: sans-serif;
+            display: flex;
+            margin: 1%; /* Margin diubah menjadi 1% */
+            gap: 1%; /* Tambahkan gap antara sidebar dan main content */
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #0e88bc;
+            padding: 20px;
+            color: white;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 2%); /* Sesuaikan tinggi dengan margin */
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-circle {
+            width: 120px;
+            height: 120px;
+            background-color: #21a9c4;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo-circle img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+        }
+
+        .sidebar h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-buttons {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar button {
+            width: 100%;
+            padding: 12px;
+            background-color: #21a9c4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar button:hover {
+            background-color: #198ea8;
+        }
+
+        .logout-button {
+            margin-top: auto;
+            width: 100%;
+        }
+
+        .logout-button button {
+            background-color: #d28b87 !important;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+            background-color: #f0f0f0;
+            border: 2px solid dodgerblue;
+            border-radius: 15px;
+            height: calc(100vh - 2%); /* Sesuaikan tinggi dengan margin */
+            overflow: auto;
+        }
+
+        .chart-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .chart-container h4 {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .pie-chart {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            border-radius: 50%;
+            background-image: conic-gradient(
+                #003f5c 0deg, 
+                #003f5c 25%,
+                #2f4b7c 25%,
+                #2f4b7c 50%,
+                #a05195 50%,
+                #a05195 100%
+            );
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pie-chart .inner-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pie-chart .percentage {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .language-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .language-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .language-color {
+            width: 10px;
+            height: 10px;
+        }
+
+        .line-chart {
+            height: 200px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .line-chart img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-container">
+            <div class="logo-circle">
+                <img src="image/dolphine.png" alt="Dolphin Logo">
+            </div>
+        </div>
+        
+        <h3>Welcome, Admin</h3>
+        
+        <div class="sidebar-buttons">
+            <a href="homepage.html">
+                <button>
+                    <i class="fa-solid fa-gauge"></i> Dashboard
+                </button>
+            </a>
+            <a href="userpage.html">
+                <button>
+                    <i class="fas fa-users"></i> Users
+                </button>
+            </a>
+            <a href="languagePage.html">
+                <button>
+                    <i class="fas fa-globe"></i> Languages
+                </button>
+            </a>
+            <a href="coursePage.html">
+                <button>
+                    <i class="fas fa-book"></i> Courses
+                </button>
+            </a>
+            <button>
+                <i class="fas fa-question"></i> Questions
+            </button>
+        </div>
+
+        <a href="./login.html">
+            <div class="logout-button">
+                <button>
+                    Log out
+                </button>
+            </div>
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="chart-container">
+            <h4>Most Used Languages</h4>
+            <div class="pie-chart">
+                <div class="inner-circle">
+                    <span class="percentage">73%</span>
+                </div>
+            </div>
+            <div class="language-legend">
+                <div class="language-item">
+                    <div class="language-color" style="background-color: #a05195;"></div>
+                    Chinese
+                </div>
+                <div class="language-item">
+                    <div class="language-color" style="background-color: #2f4b7c;"></div>
+                    Japanese
+                </div>
+                <div class="language-item">
+                    <div class="language-color" style="background-color: #003f5c;"></div>
+                    German
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h4>Average Subscription Payment</h4>
+            <div class="line-chart">
+                <img src="image/graph.png" alt="Line Graph"> 
+            </div>
+        </div>
+    </div>
+</body>
+</html>

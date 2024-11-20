@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: sans-serif;
+            display: flex;
+            margin: 1%;
+            gap: 1%;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #0e88bc;
+            padding: 20px;
+            color: white;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 2%);
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-circle {
+            width: 120px;
+            height: 120px;
+            background-color: #21a9c4;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo-circle img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+        }
+
+        .sidebar h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-buttons {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar button {
+            width: 100%;
+            padding: 12px;
+            background-color: #21a9c4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar button:hover {
+            background-color: #198ea8;
+        }
+
+        .logout-button {
+            margin-top: auto;
+            width: 100%;
+        }
+
+        .logout-button button {
+            background-color: #d28b87 !important;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+            background-color: #f0f0f0;
+            border: 2px solid dodgerblue;
+            border-radius: 15px;
+            height: calc(100vh - 2%);
+            overflow: auto;
+        }
+
+        .dashboard-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-card h4 {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .graph-container {
+            width: 100%;
+            height: 200px;
+            position: relative;
+        }
+
+        .bar-graph {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .bar {
+            flex: 1;
+            background-color: #0e88bc;
+            transition: height 0.5s ease;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0e88bc;
+            margin-top: 10px;
+        }
+
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .add-user-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0 ,0,0,0.1);
+        }
+
+        .user-table th, .user-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .user-table th {
+            background-color: #f2f2f2;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .edit-btn, .delete-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .edit-btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            display: none;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: black;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .save-btn, .cancel-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .save-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .cancel-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-container">
+            <div class="logo-circle">
+                <img src="image/dolphine.png" alt="Logo">
+            </div>
+        </div>
+        <h3>Welcome, Admin</h3>
+        
+        <div class="sidebar-buttons">
+            <a href="homepage.html">
+                <button>
+                    <i class="fa-solid fa-gauge"></i> Dashboard
+                </button>
+            </a>
+            <a href="userpage.html">
+                <button>
+                    <i class="fas fa-users"></i> Users
+                </button>
+            </a>
+            <a href="languagePage.html">
+                <button>
+                    <i class="fas fa-globe"></i> Languages
+                </button>
+            </a>
+            <a href="coursePage.html">
+                <button>
+                    <i class="fas fa-book"></i> Courses
+                </button>
+            </a>
+            <button>
+                <i class="fas fa-question"></i> Questions
+            </button>
+        </div>
+        <a href="./login.html">
+            <div class="logout-button">
+                <button>
+                    Log out
+                </button>
+            </div>
+        </a>
+    </div>
+    <div class="main-content">
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <h4>Total Users</h4>
+                <div class="graph-container">
+                    <div class="bar-graph">
+                        <div class="bar" style="height: 70%;"></div>
+                    </div>
+                </div>
+                <div class="stat-value">70</div>
+            </div>
+            <div class="stat-card">
+                <h4>Active Users</h4>
+                <div class="graph-container">
+                    <div class="bar-graph">
+                        <div class="bar" style="height: 50%;"></div>
+                    </div>
+                </div>
+                <div class="stat-value">50</div>
+            </div>
+        </div>
+        <div class="user-header">
+            <h2>User Management</h2>
+            <a href="adduser.html">
+                <button class="add-user-btn">
+                    <i class="fas fa-plus"></i> Add New User
+                </button>
+            </a>
+        </div>
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Profile</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <!-- ini yang di loop -->
+                    <td>
+                        <img src="image/dolphine.png" 
+                             alt="Profile" 
+                             style="width:50px;height:50px;border-radius:50%;object-fit:cover;">
+                    </td>
+                    <td>John Doe</td>
+                    <td>john@example.com</td>
+                    <td>Admin</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="editUser.html">
+                                <button class="edit-btn">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                            </a>
+                            <button class="delete-btn" onclick="confirmDelete()">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="image/dolphine.png" 
+                        alt="Profile" 
+                        style="width:50px;height:50px;border-radius:50%;object-fit:cover;">
+                    </td>
+                    <td>Jane Smith</td>
+                    <td>jane@example.com</td>
+                    <td>User</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="editUser.html">
+                                <button class="edit-btn">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                            </a>
+                            <button class="delete-btn" onclick="confirmDelete()">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Modal untuk Add/Edit User -->
+        <div id="userModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Add/Edit User</h2>
+                    <span class="close-btn" onclick="closeModal()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="userForm">
+                        <div class="form-group">
+                            <label>Profile Picture</label>
+                            <input type="file" accept="image/*">
+                        </div>
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Role</label>
+                            <select>
+                                <option value="user">User </option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="submit" class="save-btn">Save</button>
+                            <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
