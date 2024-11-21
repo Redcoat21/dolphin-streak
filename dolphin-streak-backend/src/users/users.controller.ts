@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -10,11 +11,12 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
-import argon2 from "argon2";
 import { FindUserQuery } from "./dto/find-user.query";
 import { ApiResponse } from "src/lib/types/response.type";
 import { extractPassword } from "src/lib/utils/user";
@@ -37,6 +39,8 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
 import { RoleGuard } from "src/lib/guard/role.guard";
 import { formatGetAllMessages } from "src/lib/utils/response";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { CloudinaryService } from "src/upload/cloudinary.service";
 
 //TODO: Implement some kind of IP checker, so admin can only access this route from authorized IP.
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -79,7 +83,10 @@ import { formatGetAllMessages } from "src/lib/utils/response";
 })
 @ApiBearerAuth()
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -393,5 +400,38 @@ export class UsersController {
       messages: "User deleted successfully",
       data: userResponse,
     };
+  }
+
+  @Patch(":id/profile-picture")
+  @UseInterceptors(
+    FileInterceptor("file", {
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.match(/^image\/(jpg|jpeg|png|gif)$/)) {
+          return callback(
+            new BadRequestException("Only image files are allowed!"),
+            false,
+          );
+        }
+        callback(null, true);
+      },
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB
+      },
+    }),
+  )
+  async uploadProfilePicture(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException("No file uploaded");
+    }
+
+    try {
+      const imageUrl = await this.cloudinaryService.uploadImage(file);
+      return {
+        message: "Profile picture uploaded successfully",
+        imageUrl,
+      };
+    } catch (error) {
+      throw new BadRequestException("Failed to upload image to Cloudinary");
+    }
   }
 }
