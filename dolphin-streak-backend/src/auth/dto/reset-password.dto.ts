@@ -1,6 +1,5 @@
 import {
     IsDefined,
-    IsMongoId,
     IsNotEmpty,
     IsString,
     IsStrongPassword,
@@ -8,8 +7,10 @@ import {
 
 export class ResetPasswordDto {
     @IsString()
-    @IsNotEmpty()
-    token: string;
+    encryptedPayload: string;
+
+    @IsString()
+    iv: string;
 
     @IsNotEmpty()
     @IsDefined()
@@ -21,8 +22,4 @@ export class ResetPasswordDto {
         minSymbols: 2,
     })
     newPassword: string;
-
-    @IsMongoId()
-    @IsNotEmpty()
-    userId: string;
 }
