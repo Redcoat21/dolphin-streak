@@ -12,6 +12,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { ResetPassword } from "./schemas/reset-password.schema";
 import { Model } from "mongoose";
 import { MailService } from "src/mail/mail.service";
+import { EncryptionService } from "src/security/encryption.service";
 
 @Injectable()
 export class AuthService {
@@ -23,6 +24,7 @@ export class AuthService {
             ResetPassword
         >,
         private mailService: MailService,
+        private encryptionService: EncryptionService,
     ) {}
 
     async validateUser(
@@ -109,9 +111,11 @@ export class AuthService {
             throw new HttpException("User not found", HttpStatus.NOT_FOUND);
         }
 
+        // Random token that will be used for password reset.
         const token = crypto.randomBytes(32).toString("hex");
 
         // Find the record and delete if if it exists.
+        // The goal is to ensure each user can only request a password reset once in a given time.
         await this.resetPasswordModel.findOneAndDelete({ user: user.id });
 
         await this.resetPasswordModel.create({
@@ -119,30 +123,53 @@ export class AuthService {
             token: token,
         });
 
-        await this.mailService.sendPasswordResetMail(email, token);
+        await this.mailService.sendPasswordResetMail(email, user.id, token);
     }
 
     async resetPassword(
-        token: string,
-        userId: string,
+        encryptedPayload: string,
+        iv: string,
         newPassword: string,
     ): Promise<void> {
+        const decryptedString = await this.encryptionService.decryptPayload(
+            encryptedPayload,
+            iv,
+        );
+
+        const [userId, token] = decryptedString.split(":");
+
         const resetPasswordRecord = await this.resetPasswordModel.findOne({
             user: userId,
         });
 
+        // Token here mean the payload in the url.
         if (!resetPasswordRecord) {
-            throw new HttpException("Invalid token", HttpStatus.UNAUTHORIZED);
+            throw new HttpException(
+                "Invalid token given!",
+                HttpStatus.UNAUTHORIZED,
+            );
         }
 
-        const user = await this.usersService.findOne({
-            _id: userId,
-        });
+        // Next verify if the token and the hashed token matched.
+        const tokenMatched = await argon2.verify(
+            resetPasswordRecord.token,
+            token,
+        );
 
-        await this.usersService.update(user.id, {
+        if (!tokenMatched) {
+            throw new HttpException(
+                "Invalid token given!",
+                HttpStatus.UNAUTHORIZED,
+            );
+        }
+
+        // If all things done, its time to update the password.
+
+        await this.usersService.update(userId, {
             password: await argon2.hash(newPassword),
         });
 
+        // Then we delete the token from the database to prevent misuse.
         await this.resetPasswordModel.findByIdAndDelete(resetPasswordRecord.id);
     }
 }

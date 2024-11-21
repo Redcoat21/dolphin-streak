@@ -260,13 +260,14 @@ export class AuthController {
       data: null,
     },
   })
+  @HttpCode(HttpStatus.OK)
   @Post("reset-password")
   async resetPassword(
     @Body() resetPasswordDto: ResetPasswordDto,
   ): Promise<ApiResponse> {
     await this.authService.resetPassword(
-      resetPasswordDto.token,
-      resetPasswordDto.userId,
+      resetPasswordDto.encryptedPayload,
+      resetPasswordDto.iv,
       resetPasswordDto.newPassword,
     );
 
