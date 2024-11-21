@@ -36,7 +36,6 @@ import {
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
 import { RoleGuard } from "src/lib/guard/role.guard";
-import { aw } from "vitest/dist/chunks/reporters.anwo7Y6a";
 import { formatGetAllMessages } from "src/lib/utils/response";
 
 //TODO: Implement some kind of IP checker, so admin can only access this route from authorized IP.
@@ -121,10 +120,8 @@ export class UsersController {
     },
   })
   async create(@Body() createUserDto: CreateUserDto): Promise<ApiResponse> {
-    const hashedPassword = await argon2.hash(createUserDto.password);
     const createdUser = await this.usersService.create({
       ...createUserDto,
-      password: hashedPassword,
       provider: Provider.LOCAL,
     });
 
@@ -319,9 +316,11 @@ export class UsersController {
     @Param() findOneParam: FindByIdParam,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<ApiResponse> {
+    // Extracted the password and role since this two should'have never been updated directly.
+    const { password, role, ...newUpdateUserDto } = updateUserDto;
     const updatedUser = await this.usersService.update(
       findOneParam.id,
-      updateUserDto,
+      newUpdateUserDto,
     );
 
     if (!updatedUser) {

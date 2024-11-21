@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
 import { Course } from "src/courses/schemas/course.schema";
 import { Language } from "src/languages/schemas/language.schema";
+import * as argon2 from "argon2";
 
 export enum Role {
     ADMIN,
@@ -74,3 +75,11 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.pre("save", async function (next) {
+    if (this.isModified("password")) {
+        const hashedPassword = await argon2.hash(this.password);
+        this.password = hashedPassword;
+    }
+    next();
+});
