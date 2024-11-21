@@ -3,6 +3,7 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  Patch,
   Post,
   Request,
   UseGuards,
@@ -27,6 +28,8 @@ import {
 import { RefreshTokenGuard } from "./guard/refresh-jwt-auth.guard";
 import { CreateUserDto } from "src/users/dto/create-user.dto";
 import * as argon2 from "argon2";
+import { ForgotPasswordDto } from "./dto/forgot-password.dto";
+import { ResetPasswordDto } from "./dto/reset-password.dto";
 
 @Controller("/api/auth")
 @ApiInternalServerErrorResponse({
@@ -177,7 +180,7 @@ export class AuthController {
     };
   }
 
-  @Post("/refresh")
+  @Post("refresh")
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(RefreshTokenGuard)
   @ApiOperation({
@@ -197,6 +200,33 @@ export class AuthController {
     return {
       messages: "New Access Token Generated",
       data: this.authService.refreshToken(req.user),
+    };
+  }
+
+  @Post("forgot-password")
+  async forgotPassword(
+    @Body() forgotPasswordDto: ForgotPasswordDto,
+  ): Promise<ApiResponse> {
+    await this.authService.sendPasswordResetEmail(forgotPasswordDto.email);
+    return {
+      messages: "Password reset instructions have been sent to your email",
+      data: null,
+    };
+  }
+
+  @Post("reset-password")
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ): Promise<ApiResponse> {
+    await this.authService.resetPassword(
+      resetPasswordDto.token,
+      resetPasswordDto.userId,
+      resetPasswordDto.newPassword,
+    );
+
+    return {
+      messages: "Password resetted successfully",
+      data: null,
     };
   }
 }

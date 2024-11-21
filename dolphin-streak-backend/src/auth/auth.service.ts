@@ -101,6 +101,7 @@ export class AuthService {
         }
     }
 
+    // Note: That this method does not update the password, it only sends the confirmation email.
     async sendPasswordResetEmail(email: string): Promise<void> {
         const user = await this.usersService.findOne({ email: email });
 
@@ -115,9 +116,33 @@ export class AuthService {
 
         await this.resetPasswordModel.create({
             user: user.id,
-            token: await argon2.hash(token),
+            token: token,
         });
 
         await this.mailService.sendPasswordResetMail(email, token);
+    }
+
+    async resetPassword(
+        token: string,
+        userId: string,
+        newPassword: string,
+    ): Promise<void> {
+        const resetPasswordRecord = await this.resetPasswordModel.findOne({
+            user: userId,
+        });
+
+        if (!resetPasswordRecord) {
+            throw new HttpException("Invalid token", HttpStatus.UNAUTHORIZED);
+        }
+
+        const user = await this.usersService.findOne({
+            _id: userId,
+        });
+
+        await this.usersService.update(user.id, {
+            password: await argon2.hash(newPassword),
+        });
+
+        await this.resetPasswordModel.findByIdAndDelete(resetPasswordRecord.id);
     }
 }

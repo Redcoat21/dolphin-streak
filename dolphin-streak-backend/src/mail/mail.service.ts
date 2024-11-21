@@ -34,6 +34,7 @@ export class MailService {
                 `Failed to send password reset email to ${email}`,
                 error.stack,
             );
+            console.log(error);
             throw new Error("Failed to send password reset email");
         }
     }
