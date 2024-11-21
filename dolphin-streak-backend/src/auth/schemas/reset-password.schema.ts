@@ -11,22 +11,21 @@ export class ResetPassword {
     @Prop({ required: true })
     token: string;
 
-    @Prop({
-        required: true,
-        type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    })
-    user: User;
+    @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: "User" })
+    user: mongoose.Types.ObjectId;
 
     // Default creation date will be now.
-    @Prop({ required: false, default: DateTime.now().toJSDate() })
+    @Prop({ required: false, default: () => DateTime.now().toJSDate() })
     createdAt: Date;
 
     // Default expiration date will be 15 minutes from now.
     @Prop({
         required: false,
-        default: DateTime.now().plus({ minute: 15 }).toJSDate(),
+        default: () => DateTime.now().plus({ minute: 15 }).toJSDate(),
     })
     expiredAt: Date;
 }
 
 export const ResetPasswordSchema = SchemaFactory.createForClass(ResetPassword);
+
+ResetPasswordSchema.index({ expiredAt: 1 }, { expireAfterSeconds: 0 });
