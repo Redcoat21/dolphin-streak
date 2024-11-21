@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { MailerService } from "@nestjs-modules/mailer";
 import { ConfigService } from "@nestjs/config";
+import { EncryptionService } from "src/security/encryption.service";
 
 @Injectable()
 export class MailService {
@@ -9,12 +10,22 @@ export class MailService {
     constructor(
         private readonly mailerService: MailerService,
         private readonly configService: ConfigService,
+        private readonly encryptionService: EncryptionService,
     ) {}
 
-    async sendPasswordResetMail(email: string, token: string): Promise<void> {
+    async sendPasswordResetMail(
+        email: string,
+        id: string,
+        token: string,
+    ): Promise<void> {
+        const encryptedPayload = this.encryptionService.encryptPayload(
+            id,
+            token,
+        );
+
         const resetUrl = `${
             this.configService.get<string>("FRONTEND_URL")
-        }/reset-password?token=${token}`;
+        }/reset-password?payload=${encryptedPayload.encryptedData}&iv=${encryptedPayload.iv}`;
 
         try {
             await this.mailerService.sendMail({
