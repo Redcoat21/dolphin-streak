@@ -1,20 +1,26 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
   HttpCode,
   HttpException,
   HttpStatus,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
+  UsePipes,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
-import argon2 from "argon2";
 import { FindUserQuery } from "./dto/find-user.query";
 import { ApiResponse } from "src/lib/types/response.type";
 import { extractPassword } from "src/lib/utils/user";
@@ -22,21 +28,28 @@ import { JwtAuthGuard } from "src/auth/guard/jwt-auth.guard";
 import { HasRoles } from "src/lib/decorators/has-role.decorator";
 import { Provider, Role } from "./schemas/user.schema";
 import {
+  ApiBadGatewayResponse,
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiBody,
   ApiConflictResponse,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiProperty,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
 import { RoleGuard } from "src/lib/guard/role.guard";
 import { formatGetAllMessages } from "src/lib/utils/response";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { CloudinaryService } from "src/upload/cloudinary.service";
+import { FileValidationPipe } from "./pipes/file-validation.pipe";
 
 //TODO: Implement some kind of IP checker, so admin can only access this route from authorized IP.
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -79,7 +92,10 @@ import { formatGetAllMessages } from "src/lib/utils/response";
 })
 @ApiBearerAuth()
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -393,5 +409,78 @@ export class UsersController {
       messages: "User deleted successfully",
       data: userResponse,
     };
+  }
+
+  @ApiOperation({
+    summary: "Upload a user's profile picture",
+    description: "Is used to upload a user's profile picture. Sorry that no body example in here, i don't know how",
+  })
+  @ApiOkResponse({
+    description: "Return the uploaded profile picture",
+    example: {
+      messages: "Profile picture uploaded successfully",
+      data: {
+        imageUrl: "https://placehold.jp/150x150.png",
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description:
+      "Happen when the user doesn't upload a file or the file MIME type is not allowed",
+    example: {
+      messages: "Validation failed (expected type is /(jpg|jpeg|png|webp)$/)",
+      data: null,
+    },
+  })
+  @ApiBadGatewayResponse({
+    description:
+      "Happen when the image failed to upload to Cloudinary, it can be because of the network or the image itself",
+    example: {
+      messages: "Failed to upload image to Cloudinary",
+      data: null,
+    },
+  })
+  @Patch(":id/profile-picture")
+  @UseInterceptors(FileInterceptor("profilePicture"))
+  @HasRoles(Role.ADMIN, Role.USER)
+  async uploadProfilePicture(
+    @Param() findOneParam: FindByIdParam,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          // 5 MB
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
+        ],
+        errorHttpStatusCode: 400,
+        exceptionFactory: (errors) => {
+          throw new HttpException(errors, 400);
+        },
+      }),
+    ) file: Express.Multer.File,
+  ): Promise<ApiResponse> {
+    if (!file) {
+      throw new BadRequestException("No file uploaded");
+    }
+
+    try {
+      const imageUrl = await this.cloudinaryService.uploadImage(
+        file,
+        findOneParam.id,
+      );
+
+      await this.update(findOneParam, { profilePicture: imageUrl });
+      return {
+        messages: "Profile picture uploaded successfully",
+        data: {
+          imageUrl,
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        "Failed to upload image to Cloudinary",
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
   }
 }

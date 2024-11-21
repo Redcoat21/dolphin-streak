@@ -65,11 +65,12 @@ export class BaseCreateUserDto {
     @ApiProperty({
         description: "The user's profile picture, it should be a valid URL",
         example: "https://example.com/profile-picture.jpg",
-        nullable: false,
-        required: true,
+        nullable: true,
+        required: false,
     })
+    @IsOptional()
     @IsUrl()
-    profilePicture: string;
+    profilePicture?: string;
 
     @ApiPropertyOptional({
         description:

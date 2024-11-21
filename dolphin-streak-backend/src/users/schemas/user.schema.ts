@@ -44,8 +44,13 @@ export class User {
     @Prop({ required: false, maxlength: 255 })
     sub?: string;
 
-    @Prop({ required: true, maxlength: 500 })
-    profilePicture: string;
+    @Prop({
+        required: true,
+        maxlength: 500,
+        default:
+            "https://res.cloudinary.com/dmzt7dywt/image/upload/v1732208251/ghozali-default_zgyths.jpg",
+    })
+    profilePicture?: string;
 
     @Prop({ required: true, default: [], type: [Date] })
     loginHistories: Date[];
