@@ -145,8 +145,8 @@ export class AuthService {
         // Token here mean the payload in the url.
         if (!resetPasswordRecord) {
             throw new HttpException(
-                "Invalid token given!",
-                HttpStatus.UNAUTHORIZED,
+                "Invalid token given! User not found",
+                HttpStatus.NOT_FOUND,
             );
         }
 
@@ -158,7 +158,7 @@ export class AuthService {
 
         if (!tokenMatched) {
             throw new HttpException(
-                "Invalid token given!",
+                "Invalid token given! Token doesn't match",
                 HttpStatus.UNAUTHORIZED,
             );
         }

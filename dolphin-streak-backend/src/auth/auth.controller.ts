@@ -241,7 +241,7 @@ export class AuthController {
   @ApiUnauthorizedResponse({
     description: "Happen when the provided token is invalid",
     example: {
-      messages: "Invalid token",
+      messages: "Invalid token! Token doesn't match",
       data: null,
     },
   })
@@ -253,10 +253,9 @@ export class AuthController {
     },
   })
   @ApiNotFoundResponse({
-    description: "Happen when the user with this id is not found",
+    description: "Happen when the user with this token is not found",
     example: {
-      messages:
-        "User not found, it should be near impossible for that to happen tho...",
+      messages: "Invalid token given! User not found",
       data: null,
     },
   })
