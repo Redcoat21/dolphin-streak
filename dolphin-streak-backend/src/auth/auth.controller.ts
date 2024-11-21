@@ -203,6 +203,25 @@ export class AuthController {
     };
   }
 
+  @ApiOperation({
+    summary: "Request for a password reset",
+    description:
+      "This endpoint will send a password reset instructions to the provided email",
+  })
+  @ApiOkResponse({
+    description: "Return a success message",
+    example: {
+      messages: "Password reset instructions have been sent to your email",
+      data: null,
+    },
+  })
+  @ApiNotFoundResponse({
+    description: "Happen when the user with this email is not found",
+    example: {
+      messages: "User not found",
+      data: null,
+    },
+  })
   @Post("forgot-password")
   async forgotPassword(
     @Body() forgotPasswordDto: ForgotPasswordDto,
@@ -214,6 +233,33 @@ export class AuthController {
     };
   }
 
+  @ApiOperation({
+    summary: "Reset the password",
+    description:
+      "This endpoint will reset the password using the provided token and new password",
+  })
+  @ApiUnauthorizedResponse({
+    description: "Happen when the provided token is invalid",
+    example: {
+      messages: "Invalid token",
+      data: null,
+    },
+  })
+  @ApiOkResponse({
+    description: "Return a success message",
+    example: {
+      messages: "Password resetted successfully",
+      data: null,
+    },
+  })
+  @ApiNotFoundResponse({
+    description: "Happen when the user with this id is not found",
+    example: {
+      messages:
+        "User not found, it should be near impossible for that to happen tho...",
+      data: null,
+    },
+  })
   @Post("reset-password")
   async resetPassword(
     @Body() resetPasswordDto: ResetPasswordDto,
