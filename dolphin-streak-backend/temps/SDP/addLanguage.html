@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add User</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: sans-serif;
+            display: flex;
+            margin: 1%; /* Margin diubah menjadi 1% */
+            gap: 1%; /* Tambahkan gap antara sidebar dan main content */
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #0e88bc;
+            padding: 20px;
+            color: white;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 2%); /* Sesuaikan tinggi dengan margin */
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-circle {
+            width: 120px;
+            height: 120px;
+            background-color: #21a9c4;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo-circle img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+        }
+
+        .sidebar h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-buttons {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar button {
+            width: 100%;
+            padding: 12px;
+            background-color: #21a9c4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar button:hover {
+            background-color: #198ea8;
+        }
+
+        .logout-button {
+            margin-top: auto;
+            width: 100%;
+        }
+
+        .logout-button button {
+            background-color: #d28b87 !important;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            padding: 20px;
+            background-color: #f0f0f0;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: calc(100vh - 2%);
+            overflow-y: auto;
+        }
+
+        .form-wrapper {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            width: 100%;
+
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-header h1 {
+            font-size: 24px;
+            color: #0e88bc;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: #6c757d;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #0e88bc;
+            outline: none;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row > .form-group {
+            flex: 1;
+        }
+
+        .submit-btn {
+            width: 50%;
+            height: 50%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            background-color: #0e88bc;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 25px;
+        }
+
+        .submit-btn:hover {
+            background-color: #198ea8;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            background-color: transparent;
+            color: #0e88bc;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .back-btn:hover {
+            background-color: rgba(14, 136, 188, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-container">
+            <div class="logo-circle">
+                <img src="image/dolphine.png" alt="Dolphin Logo">
+            </div>
+        </div>
+        
+        <h3>Welcome, Admin</h3>
+        
+        <div class="sidebar-buttons">
+            <a href="homepage.html">
+                <button>
+                    <i class="fa-solid fa-gauge"></i> Dashboard
+                </button>
+            </a>
+            <a href="userpage.html">
+                <button>
+                    <i class="fas fa-users"></i> Users
+                </button>
+            </a>
+            <a href="languagePage.html">
+                <button>
+                    <i class="fas fa-globe"></i> Languages
+                </button>
+            </a>
+            <a href="coursePage.html">
+                <button>
+                    <i class="fas fa-book"></i> Courses
+                </button>
+            </a>
+            <button>
+                <i class="fas fa-question"></i> Questions
+            </button>
+        </div>
+
+        <a href="./login.html">
+            <div class="logout-button">
+                <button>
+                    Log out
+                </button>
+            </div>
+        </a>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="form-wrapper">
+            <div class="form-header">
+                <h1>Create New Language</h1>
+            </div>
+            
+            <form>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Current Language Image</label>
+                        <img src="image/blank.jpg" alt="blank" style="height: 300px; width: 400px;">
+                    </div>
+                    <div class="form-group">
+                        <input type="file" name="" id="" style="margin-top: 26px; height: 300px;">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Language Name</label>
+                        <input type="text" placeholder="English" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Add Language</button>
+                </div>
+            </form>
+            <a href="languagePage.html">
+                <button type="button" class="back-btn">Back</button>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
