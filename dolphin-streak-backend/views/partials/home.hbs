@@ -1,92 +1,98 @@
-<div class='flex h-screen'>
-  <div class='bg-blue-500 p-4 text-white'>
-    <div class='flex flex-col items-center'>
-      <div class='text-2xl font-bold'>Welcome, Admin</div>
-      <div class='mt-4'>
-        <button
-          class='bg-gray-200 text-gray-700 px-4 py-2 rounded'
-        >Users</button>
+<div class="flex gap-4 m-2">
+  <div class="w-64 bg-[#0e88bc] p-6 text-white rounded-lg flex flex-col h-[calc(100vh-1rem)]">
+    <div class="flex justify-center mb-6">
+      <div class="w-32 h-32 bg-[#21a9c4] rounded-full flex items-center justify-center">
+        <img src="/public/images/dolphine.png" alt="Dolphin Logo" class="w-20 h-20 object-contain">
       </div>
-      <div class='mt-4'>
+    </div>
+    <h3 class="text-center mb-6 text-xl font-bold">Welcome, Admin</h3>
+    <div class="flex-grow flex flex-col gap-4">
+      <a href="homepage.html">
         <button
-          class='bg-gray-200 text-gray-700 px-4 py-2 rounded'
-        >Languages</button>
-      </div>
-      <div class='mt-4'>
+          class="w-full py-3 bg-[#21a9c4] hover:bg-blue-500 rounded text-white flex items-center justify-center gap-2">
+          <i class="fa-solid fa-gauge"></i> Dashboard
+        </button>
+      </a>
+      <a href="userpage.html">
         <button
-          class='bg-gray-200 text-gray-700 px-4 py-2 rounded'
-        >Courses</button>
-      </div>
-      <div class='mt-4'>
+          class="w-full py-3 bg-[#21a9c4] hover:bg-blue-500 rounded text-white flex items-center justify-center gap-2">
+          <i class="fas fa-users"></i> Users
+        </button>
+      </a>
+      <a href="languagePage.html">
         <button
-          class='bg-gray-200 text-gray-700 px-4 py-2 rounded'
-        >Questions</button>
+          class="w-full py-3 bg-[#21a9c4] hover:bg-blue-500 rounded text-white flex items-center justify-center gap-2">
+          <i class="fas fa-globe"></i> Languages
+        </button>
+      </a>
+      <a href="coursePage.html">
+        <button
+          class="w-full py-3 bg-[#21a9c4] hover:bg-blue-500 rounded text-white flex items-center justify-center gap-2">
+          <i class="fas fa-book"></i> Courses
+        </button>
+      </a>
+      <button
+        class="w-full py-3 bg-[#21a9c4] hover:bg-blue-500 rounded text-white flex items-center justify-center gap-2">
+        <i class="fas fa-question"></i> Questions
+      </button>
+    </div>
+
+    <a href="./login.html" class="mt-auto w-full">
+      <button class="w-full py-3 bg-[#d28b87] hover:bg-red-500 rounded text-white">
+        Log out
+      </button>
+    </a>
+  </div>
+
+  <div class="flex-1 bg-gray-200 p-8 rounded-lg h-[calc(100vh-1rem)] overflow-y-auto">
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+      <h4 class="text-center text-lg font-bold mb-4">Most Used Languages</h4>
+      <div class="flex justify-center">
+        <div class="relative w-40 h-40">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="text-2xl font-bold">73%</span>
+          </div>
+          <canvas id="pieChart" width="40" height="40"></canvas>
+        </div>
       </div>
-      <div class='mt-8'>
-        <button class='bg-gray-200 text-gray-700 px-4 py-2 rounded'>Log out</button>
+      <div class="flex justify-center gap-4 mt-4">
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 bg-[#a05195] rounded-full"></div> Chinese
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 bg-[#2f4b7c] rounded-full"></div> Japanese
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 bg-[#003f5c] rounded-full"></div> German
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <h4 class="text-center text-lg font-bold mb-4">Average Subscription Payment</h4>
+      <div class="flex flex-col items-center">
+        <img src="image/graph.png" alt="Line Graph" class="w-full">
       </div>
     </div>
   </div>
-  <div class='flex-1 bg-gray-200 p-8'>
-    <div class='bg-white rounded-lg shadow p-4'>
-      <div class='text-lg font-bold'>Most Used Languages</div>
-      <div class='mt-4'>
-        <div class='flex items-center'>
-          <div class='w-3/4'>
-            <div class='h-6 bg-blue-500' style='width: 73%;'></div>
-          </div>
-          <div class='ml-4 text-gray-600'>Chinese</div>
-        </div>
-        <div class='flex items-center mt-2'>
-          <div class='w-3/4'>
-            <div class='h-6 bg-blue-400'></div>
-          </div>
-          <div class='ml-4 text-gray-600'>Japanese</div>
-        </div>
-        <div class='flex items-center mt-2'>
-          <div class='w-3/4'>
-            <div class='h-6 bg-blue-300'></div>
-          </div>
-          <div class='ml-4 text-gray-600'>German</div>
-        </div>
-      </div>
-    </div>
-    <div class='bg-white rounded-lg shadow p-4 mt-8'>
-      <div class='text-lg font-bold'>Average Subcription Payment</div>
-      <div class='mt-4'>
-        <div class='flex flex-col items-center'>
-          <div class='w-full'>
-            <div class='flex justify-between'>
-              <div class='text-gray-600'>Jan</div>
-              <div class='text-gray-600'>Feb</div>
-              <div class='text-gray-600'>Mar</div>
-              <div class='text-gray-600'>Apr</div>
-              <div class='text-gray-600'>May</div>
-              <div class='text-gray-600'>Jun</div>
-              <div class='text-gray-600'>Jul</div>
-              <div class='text-gray-600'>Aug</div>
-              <div class='text-gray-600'>Sep</div>
-              <div class='text-gray-600'>Oct</div>
-              <div class='text-gray-600'>Nov</div>
-              <div class='text-gray-600'>Dec</div>
-            </div>
-            <div class='flex justify-between mt-2'>
-              <div class='h-4 bg-blue-500' style='width: 20%;'></div>
-              <div class='h-4 bg-blue-500' style='width: 25%;'></div>
-              <div class='h-4 bg-blue-500' style='width: 22%;'></div>
-              <div class='h-4 bg-blue-500' style='width: 18%;'></div>
-              <div class='h-4 bg-blue-500' style='width: 15%;'></div>
-              <div class='h-4 bg-blue-500' style='width: 14%;'></div>
-              <div class='h-4 bg-blue-500' style='width: 18%;'></div>
-              <div class='h-4 bg-blue-500' style='width: 19%;'></div>
-              <div class='h-4 bg-blue-500' style='width: 22%;'></div>
-              <div class='h-4 bg-blue-500' style='width: 24%;'></div>
-              <div class='h-4 bg-blue-500' style='width: 25%;'></div>
-              <div class='h-4 bg-blue-500' style='width: 28%;'></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+
+
+  <script>
+    const ctx = document.getElementById('pieChart').getContext('2d');
+    const data = [
+      { value: 73, color: '#a05195' }, // Chinese
+      { value: 18, color: '#2f4b7c' }, // Japanese
+      { value: 9, color: '#003f5c' },   // German
+    ];
+    let startAngle = -0.5 * Math.PI;
+    data.forEach(item => {
+      const endAngle = startAngle + (item.value / 100) * 2 * Math.PI;
+      ctx.beginPath();
+      ctx.moveTo(20, 20); // Center of the pie chart
+      ctx.arc(20, 20, 20, startAngle, endAngle);
+      ctx.fillStyle = item.color;
+      ctx.fill();
+      startAngle = endAngle;
+    });
+  </script>
 </div>

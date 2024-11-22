@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fill in the Blanks</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    function checkAnswer() {
+      const answer = document.getElementById('answer').value;
+      const correctAnswer = '20'; // Replace with the actual correct answer
+      if (answer.trim() === correctAnswer) {
+        alert('Correct!');
+      } else {
+        alert('Incorrect. Try again.');
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-800 text-white h-screen flex flex-col items-center justify-center">
+  <div class="w-full max-w-md p-6 bg-gray-700 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold mb-4">Fill In The Blanks (ONGOING FIXING)</h1>
+    <div class="bg-blue-500 p-4 rounded-lg mb-4">
+      <p class="text-xl font-medium">Course 10 - Chapter 7/10</p>
+    </div>
+    <div class="bg-gray-600 p-4 rounded-lg mb-4">
+      <p class="text-3xl font-bold">我叫小明，今年<input type="text" id="answer" class="bg-gray-700 text-white p-2 rounded-lg w-16 text-center" />岁。</p>
+      <p class="text-sm">Wõ jiào Xiǎomíng, jinnián èrshí suì.</p>
+    </div>
+    <button onclick="checkAnswer()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
+      Continue
+    </button>
+  </div>
+</body>
+</html>
