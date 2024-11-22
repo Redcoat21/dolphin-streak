@@ -1,0 +1,86 @@
+<div class="flex h-screen overflow-hidden m-2 gap-2 font-sans">
+  {{> sidebar}}
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col gap-6 p-6 bg-gray-200 rounded-lg h-[calc(100vh-1rem)] overflow-auto">
+    <!-- Dashboard Stats -->
+    <div class="flex gap-6 mb-6">
+      <div class="flex-1 bg-white rounded-lg shadow p-6 flex flex-col items-center">
+        <h4 class="text-center text-lg font-bold mb-4">Total Users</h4>
+        <div class="w-full h-40 flex items-end">
+          <div class="w-full h-full bg-[#0e88bc]" style="height: 70%;"></div>
+        </div>
+        <div class="text-2xl font-bold text-[#0e88bc] mt-4">70</div>
+      </div>
+      <div class="flex-1 bg-white rounded-lg shadow p-6 flex flex-col items-center">
+        <h4 class="text-center text-lg font-bold mb-4">Active Users</h4>
+        <div class="w-full h-40 flex items-end">
+          <div class="w-full h-full bg-[#0e88bc]" style="height: 50%;"></div>
+        </div>
+        <div class="text-2xl font-bold text-[#0e88bc] mt-4">50</div>
+      </div>
+    </div>
+
+    <!-- User Management -->
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold">User Management</h2>
+      <a href="adduser.html">
+        <button class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">
+          <i class="fas fa-plus"></i> Add New User
+        </button>
+      </a>
+    </div>
+    <table class="w-full bg-white shadow rounded-lg">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="py-2 px-4 text-left">Profile</th>
+          <th class="py-2 px-4 text-left">Name</th>
+          <th class="py-2 px-4 text-left">Email</th>
+          <th class="py-2 px-4 text-left">Role</th>
+          <th class="py-2 px-4 text-left">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="py-2 px-4">
+            <img src="image/dolphine.png" alt="Profile" class="w-12 h-12 rounded-full object-cover">
+          </td>
+          <td class="py-2 px-4">John Doe</td>
+          <td class="py-2 px-4">john@example.com</td>
+          <td class="py-2 px-4">Admin</td>
+          <td class="py-2 px-4">
+            <div class="flex gap-2">
+              <a href="editUser.html">
+                <button class="bg-[#0e88bc] text-white py-1 px-2 rounded hover:bg-blue-600">
+                  <i class="fas fa-edit"></i> Edit
+                </button>
+              </a>
+              <button class="bg-[#d28b87] text-white py-1 px-2 rounded hover:bg-red-600" onclick="confirmDelete()">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="py-2 px-4">
+            <img src="image/dolphine.png" alt="Profile" class="w-12 h-12 rounded-full object-cover">
+          </td>
+          <td class="py-2 px-4">Jane Smith</td>
+          <td class="py-2 px-4">jane@example.com</td>
+          <td class="py-2 px-4">User</td>
+          <td class="py-2 px-4">
+            <div class="flex gap-2">
+              <a href="editUser.html">
+                <button class="bg-[#0e88bc] text-white py-1 px-2 rounded hover:bg-blue-600">
+                  <i class="fas fa-edit"></i> Edit
+                </button>
+              </a>
+              <button class="bg-[#d28b87] text-white py-1 px-2 rounded hover:bg-red-600" onclick="confirmDelete()">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
