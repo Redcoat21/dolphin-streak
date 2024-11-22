@@ -9,11 +9,12 @@ import { UsersModule } from './users/users.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { QuestionsModule } from './questions/questions.module';
 import { CoursesModule } from './courses/courses.module';
-import { LanguagesModule } from './languages/languages.module';
 import { LevelsModule } from './levels/levels.module';
 import { ViewController } from './views/view.controller';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { LanguagesModule } from './languages/languages.module';
+import { LanguagesService } from './languages/languages.service';
 
 @Module({
   imports: [
@@ -30,7 +31,6 @@ import { join } from 'path';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/public',
-      
     }),
     ScheduleModule.forRoot(),
     AuthModule,
@@ -42,6 +42,6 @@ import { join } from 'path';
     LevelsModule,
   ],
   controllers: [AppController, ViewController],
-  providers: [AppService],
+  providers: [AppService, LanguagesService],
 })
 export class AppModule {}
