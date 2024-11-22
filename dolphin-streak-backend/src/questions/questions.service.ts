@@ -1,26 +1,81 @@
-import { Injectable } from '@nestjs/common';
-import { CreateQuestionDto } from './dto/create-question.dto';
-import { UpdateQuestionDto } from './dto/update-question.dto';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { Question } from "./schemas/question.schema";
+import { CreateQuestionDto } from "./dto/create-question.dto";
+import { UpdateQuestionDto } from "./dto/update-question.dto";
+import { QueryQuestionDto } from "./dto/query-question.dto";
 
 @Injectable()
 export class QuestionsService {
-  create(createQuestionDto: CreateQuestionDto) {
-    return 'This action adds a new question';
+  constructor(
+    @InjectModel(Question.name) private questionModel: Model<Question>,
+  ) {}
+
+  async create(createQuestionDto: CreateQuestionDto): Promise<Question> {
+    const createdQuestion = new this.questionModel(createQuestionDto);
+    return createdQuestion.save();
   }
 
-  findAll() {
-    return `This action returns all questions`;
+  async findAll(query: QueryQuestionDto): Promise<Question[]> {
+    const filter: any = {};
+
+    if (query.type) {
+      filter.type = query.type;
+    }
+
+    if (typeof query.useAi !== "undefined") {
+      filter.useAi = query.useAi;
+    }
+
+    if (query.courseId) {
+      filter.courses = query.courseId;
+    }
+
+    return this.questionModel
+      .find(filter)
+      .populate("courses")
+      .exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} question`;
+  async findOne(id: string): Promise<Question> {
+    const question = await this.questionModel
+      .findById(id)
+      .populate("courses")
+      .exec();
+
+    if (!question) {
+      throw new NotFoundException(`Question with ID ${id} not found`);
+    }
+
+    return question;
   }
 
-  update(id: number, updateQuestionDto: UpdateQuestionDto) {
-    return `This action updates a #${id} question`;
+  async update(
+    id: string,
+    updateQuestionDto: UpdateQuestionDto,
+  ): Promise<Question> {
+    const updatedQuestion = await this.questionModel
+      .findByIdAndUpdate(id, updateQuestionDto, { new: true })
+      .populate("courses")
+      .exec();
+
+    if (!updatedQuestion) {
+      throw new NotFoundException(`Question with ID ${id} not found`);
+    }
+
+    return updatedQuestion;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} question`;
+  async remove(id: string): Promise<Question> {
+    const deletedQuestion = await this.questionModel
+      .findByIdAndDelete(id)
+      .exec();
+
+    if (!deletedQuestion) {
+      throw new NotFoundException(`Question with ID ${id} not found`);
+    }
+
+    return deletedQuestion;
   }
 }

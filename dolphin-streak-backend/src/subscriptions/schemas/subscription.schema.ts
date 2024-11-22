@@ -15,10 +15,10 @@ export class Subscription {
     })
     user: User;
 
-    @Prop({ required: true, length: 200 })
+    @Prop({ required: true, maxlengt: 200 })
     paymentType: string;
 
-    @Prop({ required: true, min: 1 })
+    @Prop({ required: true, minlength: 1 })
     price: number;
 
     @Prop({ required: true })

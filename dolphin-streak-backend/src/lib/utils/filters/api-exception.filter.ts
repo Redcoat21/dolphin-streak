@@ -14,18 +14,16 @@ export class ApiExceptionFilter implements ExceptionFilter {
         const request = ctx.getRequest<Request>();
         const status = exception.getStatus();
 
-        const errorMessage = status === 400
-            //@ts-ignore
-            ? exception.getResponse().message.reduce(
-                (acc: string, curr: string) => acc += curr + " ",
-                "",
-            )
-            : exception.message;
-
+        // exception.getResponse().message will give out the error like the validation error.
+        // If it doesnt exist, than means it must be not a validation error.
+        //@ts-ignore
+        const errorMessage = exception.getResponse().message ??
+            exception.message;
         response
             .status(status)
             .json({
-                message: errorMessage,
+                //@ts-ignore
+                messages: errorMessage,
                 data: null,
             });
     }
