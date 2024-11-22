@@ -1,6 +1,7 @@
 import { Controller, Get, Render } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 import { LanguagesService } from 'src/languages/languages.service';
+import { Language } from 'src/languages/schemas/language.schema';
 
 @Controller()
 @ApiExcludeController()
@@ -26,8 +27,8 @@ export class ViewController {
 
   @Get('/languages')
   @Render('languages/index')
-  async getLanguages(): {
-    const languages = await this.languagesService.findAll(); // Fetch languages data
+  async getLanguages(): Promise<{ languages: Language[] }> {
+    const languages: Language[] = await this.languagesService.findAll(); // Fetch languages data
     return { languages };
   }
 }

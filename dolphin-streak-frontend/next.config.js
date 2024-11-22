@@ -7,8 +7,8 @@ const config = {
   // async redirects() {
   //   return [
   //     {
-  //       source: '/forum',
-  //       destination: '/forum/',
+  //       source: '/',
+  //       destination: '/all',
   //       permanent: false,
   //     },
   //   ];

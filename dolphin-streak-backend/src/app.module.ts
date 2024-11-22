@@ -10,11 +10,10 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { QuestionsModule } from './questions/questions.module';
 import { CoursesModule } from './courses/courses.module';
 import { LevelsModule } from './levels/levels.module';
-import { ViewController } from './views/view.controller';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { LanguagesModule } from './languages/languages.module';
-import { LanguagesService } from './languages/languages.service';
+import { ViewController } from './views/view.controller';
 
 @Module({
   imports: [
@@ -42,6 +41,6 @@ import { LanguagesService } from './languages/languages.service';
     LevelsModule,
   ],
   controllers: [AppController, ViewController],
-  providers: [AppService, LanguagesService],
+  providers: [AppService],
 })
 export class AppModule {}
