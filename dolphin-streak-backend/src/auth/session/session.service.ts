@@ -11,6 +11,7 @@ import mongoose, {
 import { CreateSessionDto } from "./dto/create-session.dto";
 import crypto from "crypto";
 import { DateTime } from "luxon";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 export enum TokenType {
     ACCESS,
@@ -65,5 +66,19 @@ export class SessionService {
         return this.updateOne(id, {
             isActive: false,
         });
+    }
+
+    deleteMany(filter: FilterQuery<Session>) {
+        return this.sessionModel.deleteMany(filter);
+    }
+
+    @Cron(CronExpression.EVERY_HOUR)
+    private async removeExpiredSessions() {
+        // For now it only removes the inactive sessions based on the isActive flag, it doesn't check token expiry.
+        const count = await this.sessionModel.deleteMany({
+            isActive: false,
+        });
+
+        console.log(`Removed ${count.deletedCount} sessions`);
     }
 }
