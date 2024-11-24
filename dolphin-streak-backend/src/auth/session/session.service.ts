@@ -1,4 +1,4 @@
-import { Body, Injectable } from "@nestjs/common";
+import { Body, Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Session } from "./schemas/session.schema";
 import mongoose, {
@@ -25,6 +25,7 @@ export type TokenData = {
 
 @Injectable()
 export class SessionService {
+    private readonly logger = new Logger(SessionService.name);
     constructor(
         @InjectModel(Session.name) private sessionModel: Model<Session>,
     ) {}
@@ -72,13 +73,13 @@ export class SessionService {
         return this.sessionModel.deleteMany(filter);
     }
 
-    @Cron(CronExpression.EVERY_HOUR)
+    @Cron(CronExpression.EVERY_SECOND)
     private async removeExpiredSessions() {
         // For now it only removes the inactive sessions based on the isActive flag, it doesn't check token expiry.
         const count = await this.sessionModel.deleteMany({
             isActive: false,
         });
 
-        console.log(`Removed ${count.deletedCount} sessions`);
+        this.logger.log(`Removed ${count.deletedCount} expired sessions`);
     }
 }
