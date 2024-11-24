@@ -9,6 +9,8 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { ResetPasswordSchema } from "./schemas/reset-password.schema";
 import { MailModule } from "src/mail/mail.module";
 import { EncryptionModule } from "src/security/encryption.module";
+import { SessionModule } from "./session/session.module";
+import { BearerTokenStrategy } from "./strategy/bearer-token.strategy";
 
 @Module({
   imports: [
@@ -19,8 +21,15 @@ import { EncryptionModule } from "src/security/encryption.module";
     }]),
     MailModule,
     EncryptionModule,
+    SessionModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtService, RefreshTokenStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtService,
+    RefreshTokenStrategy,
+    BearerTokenStrategy,
+  ],
 })
 export class AuthModule {}

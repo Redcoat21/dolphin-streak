@@ -51,13 +51,19 @@ export class SessionService {
         filter: FilterQuery<Session>,
         projection?: ProjectionType<Session>,
     ) {
-        return this.sessionModel.findOne(filter, projection);
+        return this.sessionModel.findOne(filter, projection).populate("user");
     }
 
     updateOne(
         id: string,
         update: UpdateQuery<Session>,
     ) {
-        return this.sessionModel.findByIdAndUpdate(id, update);
+        return this.sessionModel.findByIdAndUpdate(id, update, { new: true });
+    }
+
+    invalidateSession(id: string) {
+        return this.updateOne(id, {
+            isActive: false,
+        });
     }
 }
