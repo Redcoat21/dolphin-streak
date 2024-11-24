@@ -17,7 +17,6 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
-  UsePipes,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -31,16 +30,13 @@ import {
   ApiBadGatewayResponse,
   ApiBadRequestResponse,
   ApiBearerAuth,
-  ApiBody,
   ApiConflictResponse,
-  ApiConsumes,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiProperty,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -49,11 +45,10 @@ import { RoleGuard } from "src/lib/guard/role.guard";
 import { formatGetAllMessages } from "src/lib/utils/response";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { CloudinaryService } from "src/upload/cloudinary.service";
-import { FileValidationPipe } from "./pipes/file-validation.pipe";
 
 //TODO: Implement some kind of IP checker, so admin can only access this route from authorized IP.
-@UseGuards(JwtAuthGuard, RoleGuard)
 // If no role are listed, meaning everyone can access it. But just to be safe, write the role that can access the route.
+@UseGuards(JwtAuthGuard, RoleGuard)
 @Controller("/api/users")
 @ApiInternalServerErrorResponse({
   description:
@@ -193,7 +188,9 @@ export class UsersController {
       ],
     },
   })
-  async findAll(@Query() queryParam: FindUserQuery): Promise<ApiResponse> {
+  async findAll(
+    @Query() queryParam: FindUserQuery,
+  ): Promise<ApiResponse> {
     const filterConditions = [];
 
     if (queryParam.firstName) {
@@ -413,7 +410,8 @@ export class UsersController {
 
   @ApiOperation({
     summary: "Upload a user's profile picture",
-    description: "Is used to upload a user's profile picture. Sorry that no body example in here, i don't know how",
+    description:
+      "Is used to upload a user's profile picture. Sorry that no body example in here, i don't know how",
   })
   @ApiOkResponse({
     description: "Return the uploaded profile picture",
