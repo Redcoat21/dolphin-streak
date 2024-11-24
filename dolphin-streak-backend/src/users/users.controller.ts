@@ -23,7 +23,6 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { FindUserQuery } from "./dto/find-user.query";
 import { ApiResponse } from "src/lib/types/response.type";
 import { extractPassword } from "src/lib/utils/user";
-import { JwtAuthGuard } from "src/auth/guard/jwt-auth.guard";
 import { HasRoles } from "src/lib/decorators/has-role.decorator";
 import { Provider, Role } from "./schemas/user.schema";
 import {
@@ -45,10 +44,11 @@ import { RoleGuard } from "src/lib/guard/role.guard";
 import { formatGetAllMessages } from "src/lib/utils/response";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { CloudinaryService } from "src/upload/cloudinary.service";
+import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
 
 //TODO: Implement some kind of IP checker, so admin can only access this route from authorized IP.
 // If no role are listed, meaning everyone can access it. But just to be safe, write the role that can access the route.
-@UseGuards(JwtAuthGuard, RoleGuard)
+@UseGuards(BearerTokenGuard, RoleGuard)
 @Controller("/api/users")
 @ApiInternalServerErrorResponse({
   description:
