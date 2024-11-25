@@ -17,7 +17,6 @@ import { CreateLevelDto } from "./dto/create-level.dto";
 import { UpdateLevelDto } from "./dto/update-level.dto";
 import { FindAllLevelsQuery } from "./dto/find-all-query.dto";
 import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
-import { JwtAuthGuard } from "src/auth/guard/jwt-auth.guard";
 import { RoleGuard } from "src/lib/guard/role.guard";
 import { checkIfExist, formatGetAllMessages } from "src/lib/utils/response";
 import {
@@ -32,9 +31,10 @@ import {
 } from "@nestjs/swagger";
 import { HasRoles } from "src/lib/decorators/has-role.decorator";
 import { Role } from "src/users/schemas/user.schema";
+import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
 
 @Controller("/api/levels")
-@UseGuards(JwtAuthGuard, RoleGuard)
+@UseGuards(BearerTokenGuard, RoleGuard)
 @HasRoles(Role.ADMIN)
 @ApiUnauthorizedResponse({
   description:

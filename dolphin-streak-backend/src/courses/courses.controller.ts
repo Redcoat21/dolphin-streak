@@ -20,7 +20,6 @@ import { FilterQuery } from "mongoose";
 import { Course } from "./schemas/course.schema";
 import { FindAllCoursesQuery } from "./dto/find-all-query.dto";
 import { RoleGuard } from "src/lib/guard/role.guard";
-import { JwtAuthGuard } from "src/auth/guard/jwt-auth.guard";
 import { HasRoles } from "src/lib/decorators/has-role.decorator";
 import { Role } from "src/users/schemas/user.schema";
 import {
@@ -33,9 +32,10 @@ import {
   ApiOperation,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
 
 @Controller("/api/courses")
-@UseGuards(JwtAuthGuard, RoleGuard)
+@UseGuards(BearerTokenGuard, RoleGuard)
 @HasRoles(Role.ADMIN)
 @ApiUnauthorizedResponse({
   description:
