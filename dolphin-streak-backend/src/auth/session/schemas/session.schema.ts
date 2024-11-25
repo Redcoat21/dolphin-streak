@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { Document } from "mongoose";
+import mongoose, { Document, HydratedDocument } from "mongoose";
 import { User } from "src/users/schemas/user.schema";
-import { IBrowser, ICPU, IDevice, IEngine, IOS, IResult } from "ua-parser-js";
 
 export type Token = {
     token: string;
@@ -17,6 +16,8 @@ export type DeviceInfo = {
     os?: string;
     ip: string;
 };
+
+export type SessionDocument = HydratedDocument<Session>;
 
 @Schema({ timestamps: true })
 export class Session extends Document {
