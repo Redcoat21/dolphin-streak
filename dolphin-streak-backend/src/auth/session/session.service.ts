@@ -73,7 +73,8 @@ export class SessionService {
         return this.sessionModel.deleteMany(filter);
     }
 
-    @Cron(CronExpression.EVERY_SECOND)
+    //TODO: Change the cron expression to be a longer time in production.
+    @Cron(CronExpression.EVERY_MINUTE)
     private async removeExpiredSessions() {
         // For now it only removes the inactive sessions based on the isActive flag, it doesn't check token expiry.
         const count = await this.sessionModel.deleteMany({
