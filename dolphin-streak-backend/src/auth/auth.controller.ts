@@ -138,8 +138,6 @@ export class AuthController {
         lastName: "Doe",
         email: "john0@email.com",
         birthDate: "1996-01-01T00:00:00.000Z",
-        profilePicture:
-          "https://docs.nestjs.com/assets/logo-small-gradient.svg",
         loginHistories: [],
         languages: [],
         completedCourses: [],

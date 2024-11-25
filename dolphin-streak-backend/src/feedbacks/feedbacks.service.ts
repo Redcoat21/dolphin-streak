@@ -14,15 +14,21 @@ export class FeedbacksService {
   }
 
   findAll(filter: FilterQuery<Feedback> = {}) {
-    return this.feedbackModel.find(filter);
+    return this.feedbackModel.find(filter).populate({
+      path: 'user',
+      select: 'email'
+    });
   }
 
   findOne(id: string) {
-    return this.feedbackModel.findById(id);
+    return this.feedbackModel.findById(id).populate({
+      path: 'user',
+      select: 'email'
+    });
   }
 
   update(id: string, updateFeedbackDto: UpdateFeedbackDto) {
-    return this.feedbackModel.findByIdAndUpdate(id);
+    return this.feedbackModel.findByIdAndUpdate(id, { new: true });
   }
 
   remove(id: string) {

@@ -21,6 +21,7 @@ import { HasRoles } from "src/lib/decorators/has-role.decorator";
 import { Role } from "src/users/schemas/user.schema";
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
@@ -58,6 +59,7 @@ import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
     data: null,
   },
 })
+@ApiBearerAuth()
 export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
 
