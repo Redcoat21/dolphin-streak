@@ -15,6 +15,7 @@ import { ViewController } from "./views/view.controller"; // Import the new view
 import { MailModule } from "./mail/mail.module";
 import { FeedbacksModule } from "./feedbacks/feedbacks.module";
 import { ForumsModule } from "./forums/forums.module";
+import { AiModule } from "./ai/ai.module";
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { ForumsModule } from "./forums/forums.module";
     MailModule,
     FeedbacksModule,
     ForumsModule,
+    AiModule,
   ],
   controllers: [AppController, ViewController],
   providers: [AppService],
