@@ -3,16 +3,15 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  Patch,
   Post,
-  Request,
+  Req,
   UseGuards,
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./guard/local-auth.guard";
 import { ApiResponse } from "src/lib/types/response.type";
 import { BaseCreateUserDto } from "src/lib/dto/base-create-user.dto";
-import { Provider, Role } from "src/users/schemas/user.schema";
+import { Provider, User } from "src/users/schemas/user.schema";
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -25,11 +24,12 @@ import {
   ApiOperation,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
-import { RefreshTokenGuard } from "./guard/refresh-jwt-auth.guard";
 import { CreateUserDto } from "src/users/dto/create-user.dto";
-import * as argon2 from "argon2";
 import { ForgotPasswordDto } from "./dto/forgot-password.dto";
 import { ResetPasswordDto } from "./dto/reset-password.dto";
+import { Request } from "express";
+import mongoose from "mongoose";
+import { RefreshTokenDto } from "./session/dto/refresh-token.dto";
 
 @Controller("/api/auth")
 @ApiInternalServerErrorResponse({
@@ -77,9 +77,9 @@ export class AuthController {
       messages: "Logged in succesfully",
       data: {
         accessToken:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG43QGVtYWlsLmNvbSIsInN1YiI6IjY3MjY2OTY0NzcxZTc2MTM4Mzk5ZGQ4MCIsInJvbGUiOjEsImlhdCI6MTczMTEzODA2NiwiZXhwIjoxNzMxMTM4MzY2fQ.VtUQAhDTeyB0c3N7ewOOOBlUMWKH9mRwLRTLuXWyvN0",
+          "4c0f56ce318b455b8e6d50411448f8f25b9e5b2d010d895095a7de3fd09f39eb50c90c95dc4a20f1fd38694a23b6ab3298ba56e6d74bb95d634980948321e362",
         refreshToken:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG43QGVtYWlsLmNvbSIsInN1YiI6IjY3MjY2OTY0NzcxZTc2MTM4Mzk5ZGQ4MCIsInJvbGUiOjEsImlhdCI6MTczMTEzODA2NiwiZXhwIjoxNzMxMjI0NDY2fQ.SqxxKMqDxGaCM5uRUR5Gg13oV09kWyBv32C5bO6Mtjw",
+          "c43d6350daa4f8c4b6bdd8d8b58836516f97a03bbae9ee17a21a5d117efc110ee70817cad05b37b249b3569842be021e318490f897d07966ff73267b1d5cae13",
       },
     },
   })
@@ -109,11 +109,16 @@ export class AuthController {
       data: null,
     },
   })
-  async login(@Request() req): Promise<ApiResponse> {
-    // Where does req.user came from? It came from the LocalAuthGuard or specifically from the LocalStrategy.
+  async login(
+    @Req() req: Request & {
+      user: Omit<User, "password"> & { _id: mongoose.Types.ObjectId };
+    },
+    @Body("rememberMe") rememberMe?: boolean,
+  ): Promise<ApiResponse> {
+    const data = await this.authService.login(req, rememberMe);
     return {
       messages: "Logged in succesfully",
-      data: this.authService.login(req.user),
+      data: data,
     };
   }
 
@@ -164,11 +169,9 @@ export class AuthController {
     },
   })
   async register(@Body() createUserDto: BaseCreateUserDto) {
-    const hashedPassword = await argon2.hash(createUserDto.password);
     const registrationData = {
       ...createUserDto,
       provider: Provider.LOCAL,
-      password: hashedPassword,
     } satisfies CreateUserDto & { provider: Provider.LOCAL };
 
     const registeredUser = await this.authService.register(registrationData);
@@ -182,11 +185,10 @@ export class AuthController {
 
   @Post("refresh")
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(RefreshTokenGuard)
   @ApiOperation({
     summary: "Request for a new access token using a refresh token",
     description:
-      "This endpoint will return a new access token using a refresh token. Refresh token should be included in the Authorization header with the Bearer scheme",
+      "This endpoint will return a new access token using a refresh token. Refresh token should be included in the body",
   })
   @ApiUnauthorizedResponse({
     description: "Happen when the provided refresh token is invalid",
@@ -195,11 +197,21 @@ export class AuthController {
       data: null,
     },
   })
+  @ApiOkResponse({
+    description: "Return a new access token",
+    example: {
+      messages: "New Access Token Generated",
+      data: {
+        accessToken:
+          "08834bfeac5691a6cbf3a505f1e38773a36889d2b7324fb206aa55dc194b08fd718b411fc419fa5ef95febe160a6c202c482490df755bf64fa6fefe3f6c47ff2",
+      },
+    },
+  })
   @ApiBearerAuth()
-  async refreshToken(@Request() req) {
+  async refreshToken(@Body() refreshToken: RefreshTokenDto) {
     return {
       messages: "New Access Token Generated",
-      data: this.authService.refreshToken(req.user),
+      data: await this.authService.refreshToken(refreshToken.refreshToken),
     };
   }
 

@@ -24,7 +24,7 @@ export class RoleGuard implements CanActivate {
         }
 
         const request = context.switchToHttp().getRequest();
-        const user = request.user; // The user should be added to the request by the JwtAuthGuard
+        const user = request.user; // The user should be added to the request by the BearerTokenAuthGuard
         return requiredRoles.some((role) => role === user?.role);
     }
 }
