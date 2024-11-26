@@ -30,6 +30,7 @@ import { ResetPasswordDto } from "./dto/reset-password.dto";
 import { Request } from "express";
 import mongoose from "mongoose";
 import { RefreshTokenDto } from "./session/dto/refresh-token.dto";
+import { BearerTokenGuard } from "./guard/bearer-token.guard";
 
 @Controller("/api/auth")
 @ApiInternalServerErrorResponse({
@@ -282,6 +283,18 @@ export class AuthController {
 
     return {
       messages: "Password resetted successfully",
+      data: null,
+    };
+  }
+
+  @Post("logout")
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(BearerTokenGuard)
+  async logout(@Req() req: Request): Promise<ApiResponse> {
+    //@ts-ignore
+    await this.authService.logout(req.user._id.toString());
+    return {
+      messages: "Logged out successfully",
       data: null,
     };
   }
