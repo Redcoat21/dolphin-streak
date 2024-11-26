@@ -1,56 +1,31 @@
-import { Injectable } from '@nestjs/common';
+import { BadGatewayException, Injectable } from '@nestjs/common';
 import { CreateAiDto } from './dto/create-ai.dto';
 import { UpdateAiDto } from './dto/update-ai.dto';
 import { PromptDto } from './dto/prompt-ai.dto';
-import { HttpService } from '@nestjs/axios';
-import { lastValueFrom, Observable } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
-// @Injectable()
-// export class AiService {
-//   create(createAiDto: CreateAiDto) {
-//     return 'This action adds a new ai';
-//   }
-
-//   findAll() {
-//     return `This action returns all ai`;
-//   }
-
-//   findOne(id: number) {
-//     return `This action returns a #${id} ai`;
-//   }
-
-//   update(id: number, updateAiDto: UpdateAiDto) {
-//     return `This action updates a #${id} ai`;
-//   }
-
-//   remove(id: number) {
-//     return `This action removes a #${id} ai`;
-//   }
-
-//   prompting(PromptDto: PromptDto) {
-//     return `${PromptDto}`;
-//   }
-// }
 
 @Injectable()
 export class AiService {
   private readonly geminiApiKey: string;
-  private readonly genAI;
   private readonly modelName: string;
+  private readonly genAI;
   private readonly model;
 
   constructor(
-    private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {
     this.geminiApiKey = this.configService.get<string>('GEMINI_API_KEY');
-    this.genAI = new GoogleGenerativeAI(this.geminiApiKey);
     this.modelName = "gemini-1.5-flash";
+    this.genAI = new GoogleGenerativeAI(this.geminiApiKey);
     this.model = this.genAI.getGenerativeModel({model: this.modelName})
   }
 
+    /**
+   * Request evaluation from AI.
+   * @param {PromptDto} promptDto - Data transfer object for requesting an evaluation from AI.
+   * @returns {Promise<any>} The response from AI.
+   */
   async fetchGeminiData(promptDto: PromptDto): Promise<any> {
     const { theme, essay } = promptDto;
     let basePrompt  = `Gemini, you are a language professor, you are the one who is going to evaluate an essay from a student. You must analyze the grammar and how the student convey their feeling into word, the theme for the essay is ${theme}.
@@ -76,7 +51,6 @@ export class AiService {
 
     try {
       const result = await this.model.generateContent(basePrompt)
-      console.log(result);
       
       const geminiRes = result.response.candidates[0].content.parts[0].text
 
@@ -87,14 +61,13 @@ export class AiService {
         const jsonRes = JSON.parse(cleanedRes);
         return {
           modelName: this.modelName,
-          res: jsonRes
+          data: jsonRes
         };
       } catch (error) {
-        console.error('Error parsing AI response to JSON:', error);
-        throw new Error('Invalid JSON format in AI response');
+        throw new BadGatewayException('Invalid JSON format in AI response from Gemini API');
       }
     } catch (error) {
-      throw new Error(`Failed to fetch data from ${this.modelName}: ${error.message}`);
+      throw new BadGatewayException(`Failed to fetch data from ${this.modelName}: ${error.message}`);
     }
   }
 }
