@@ -287,6 +287,25 @@ export class AuthController {
     };
   }
 
+  @ApiOperation({
+    summary: "Logout the user",
+    description:
+      "This endpoint will logout the user. Note that this route will also delete the refresh token to prevent reuse.",
+  })
+  @ApiOkResponse({
+    description: "Logged out succesfully",
+    example: {
+      messages: "Logged out successfully",
+      data: null,
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: "Happen when the access token is no longer valid.",
+    example: {
+      messages: "Invalid or expired token",
+      data: null,
+    },
+  })
   @Post("logout")
   @HttpCode(HttpStatus.OK)
   @UseGuards(BearerTokenGuard)

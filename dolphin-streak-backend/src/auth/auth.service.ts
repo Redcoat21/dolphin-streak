@@ -248,6 +248,9 @@ export class AuthService {
     const session = await this.sessionService.findOne({
       user: userId,
     });
-    return await this.sessionService.invalidateSession(session._id.toString());
+    return await this.sessionService.updateOne(session._id.toString(), {
+      isActive: false,
+      refreshToken: null,
+    });
   }
 }
