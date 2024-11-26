@@ -208,9 +208,10 @@ export class UsersController {
       ? { $and: filterConditions }
       : filterConditions[0] || {};
 
-    const foundedUsers = (await this.usersService.findAll(filter)).map((
-      user,
-    ) => extractPassword(user));
+    const foundedUsers =
+      (await this.usersService.findAll({ ...filter, role: Role.USER })).map((
+        user,
+      ) => extractPassword(user));
 
     const foundedUsersLength = foundedUsers.length;
 
