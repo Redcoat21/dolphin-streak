@@ -1,19 +1,21 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
-import { ScheduleModule } from '@nestjs/schedule';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { SubscriptionsModule } from './subscriptions/subscriptions.module';
-import { QuestionsModule } from './questions/questions.module';
-import { CoursesModule } from './courses/courses.module';
-import { LevelsModule } from './levels/levels.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
-import { LanguagesModule } from './languages/languages.module';
-import { ViewController } from './views/view.controller';
+import { Module } from "@nestjs/common";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { MongooseModule } from "@nestjs/mongoose";
+import { ScheduleModule } from "@nestjs/schedule";
+import { AuthModule } from "./auth/auth.module";
+import { UsersModule } from "./users/users.module";
+import { SubscriptionsModule } from "./subscriptions/subscriptions.module";
+import { QuestionsModule } from "./questions/questions.module";
+import { CoursesModule } from "./courses/courses.module";
+import { LanguagesModule } from "./languages/languages.module";
+import { LevelsModule } from "./levels/levels.module";
+import { ViewController } from "./views/view.controller"; // Import the new views controller
+import { MailModule } from "./mail/mail.module";
+import { FeedbacksModule } from "./feedbacks/feedbacks.module";
+import { ForumsModule } from "./forums/forums.module";
+import { AiModule } from "./ai/ai.module";
 
 @Module({
   imports: [
@@ -24,7 +26,7 @@ import { ViewController } from './views/view.controller';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>('DB_URI'),
+        uri: configService.get<string>("DB_URI"),
       }),
     }),
     ServeStaticModule.forRoot({
@@ -39,6 +41,10 @@ import { ViewController } from './views/view.controller';
     CoursesModule,
     LanguagesModule,
     LevelsModule,
+    MailModule,
+    FeedbacksModule,
+    ForumsModule,
+    AiModule,
   ],
   controllers: [AppController, ViewController],
   providers: [AppService],

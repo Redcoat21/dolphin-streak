@@ -9,14 +9,13 @@ import { ApiExceptionFilter } from "./lib/utils/filters/api-exception.filter";
 import { engine } from "express-handlebars";
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    cors: {
-      credentials: true,
-      origin: "http://localhost:3000",
-    },
-  });
-
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
+
+  app.enableCors({
+    credentials: true,
+    origin: configService.get<string>("FRONTEND_URL"),
+  });
 
   app.useStaticAssets(join(__dirname, "..", "public"));
   app.setBaseViewsDir(join(__dirname, "..", "views"));

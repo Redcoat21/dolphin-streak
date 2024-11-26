@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpException,
   HttpStatus,
   Param,
   Patch,
@@ -18,10 +17,10 @@ import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
 import { HasRoles } from "src/lib/decorators/has-role.decorator";
 import { Role } from "src/users/schemas/user.schema";
 import { RoleGuard } from "src/lib/guard/role.guard";
-import { JwtAuthGuard } from "src/auth/guard/jwt-auth.guard";
 import { checkIfExist, formatGetAllMessages } from "src/lib/utils/response";
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
@@ -30,9 +29,10 @@ import {
   ApiOperation,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
 
 @Controller("/api/languages")
-@UseGuards(JwtAuthGuard, RoleGuard)
+@UseGuards(BearerTokenGuard, RoleGuard)
 @HasRoles(Role.ADMIN)
 @ApiUnauthorizedResponse({
   description:
@@ -58,6 +58,7 @@ import {
     data: null,
   },
 })
+@ApiBearerAuth()
 export class LanguagesController {
   constructor(private readonly languagesService: LanguagesService) {}
 

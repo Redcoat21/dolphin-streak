@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
 import { Course } from "src/courses/schemas/course.schema";
 import { Language } from "src/languages/schemas/language.schema";
+import * as argon2 from "argon2";
 
 export enum Role {
     ADMIN,
@@ -43,8 +44,13 @@ export class User {
     @Prop({ required: false, maxlength: 255 })
     sub?: string;
 
-    @Prop({ required: true, maxlength: 500 })
-    profilePicture: string;
+    @Prop({
+        required: true,
+        maxlength: 500,
+        default:
+            "https://res.cloudinary.com/dmzt7dywt/image/upload/v1732208251/ghozali-default_zgyths.jpg",
+    })
+    profilePicture?: string;
 
     @Prop({ required: true, default: [], type: [Date] })
     loginHistories: Date[];
@@ -74,3 +80,11 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.pre("save", async function (next) {
+    if (this.isModified("password")) {
+        const hashedPassword = await argon2.hash(this.password);
+        this.password = hashedPassword;
+    }
+    next();
+});
