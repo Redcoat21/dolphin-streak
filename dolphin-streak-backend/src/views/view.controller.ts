@@ -1,17 +1,14 @@
 import { Controller, Get, Render } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
-import { LanguagesService } from 'src/languages/languages.service';
-import { Language } from 'src/languages/schemas/language.schema';
-import { CoursesService } from 'src/courses/courses.service';
-import { Course } from 'src/courses/schemas/course.schema';
+import { ConfigService } from '@nestjs/config';
 
 @Controller()
 @ApiExcludeController()
 export class ViewController {
-  constructor(
-    private readonly languagesService: LanguagesService,
-    private readonly coursesService: CoursesService,
-  ) {}
+  private readonly backendUrl: string;
+  constructor(private readonly configService: ConfigService) {
+    this.backendUrl = this.configService.get<string>('BACKEND_URL');
+  }
 
   @Get(['/', '/homepage'])
   @Render('index')
@@ -25,23 +22,37 @@ export class ViewController {
     return;
   }
 
+  @Get('/users/add-user')
+  @Render('users/add-user/index')
+  getAddUser(): void {
+    // console.log({ backendUrl: this.backendUrl })
+    // return { backendUrl: this.backendUrl };
+    return;
+  }
+
   @Get('/users')
   @Render('users/index')
   getUsers(): void {
+    // console.log({ backendUrl: this.backendUrl })
+    // return { backendUrl: this.backendUrl };
     return;
   }
 
   @Get('/languages')
   @Render('languages/index')
-  async getLanguages(): Promise<{ languages: Language[] }> {
-    const languages: Language[] = await this.languagesService.findAll(); // Fetch languages data
-    return { languages };
+  getLanguages(): { backendUrl: string } {
+    return { backendUrl: this.backendUrl };
   }
 
   @Get('/courses')
   @Render('courses/index')
-  async getCourses(): Promise<{ courses: Course[] }> {
-    const courses: Course[] = await this.coursesService.findAll(); // Fetch courses data
-    return { courses };
+  getCourses(): { backendUrl: string } {
+    return { backendUrl: this.backendUrl };
+  }
+
+  @Get('/questions')
+  @Render('questions/index')
+  getQuestions(): { backendUrl: string } {
+    return { backendUrl: this.backendUrl };
   }
 }
