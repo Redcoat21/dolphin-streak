@@ -45,6 +45,7 @@ import { formatGetAllMessages } from "src/lib/utils/response";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { CloudinaryService } from "src/upload/cloudinary.service";
 import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
+import { SessionService } from "src/auth/session/session.service";
 
 //TODO: Implement some kind of IP checker, so admin can only access this route from authorized IP.
 // If no role are listed, meaning everyone can access it. But just to be safe, write the role that can access the route.
@@ -90,6 +91,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly sessionService: SessionService,
   ) {}
 
   @Post()
@@ -218,6 +220,20 @@ export class UsersController {
     return {
       messages: formatGetAllMessages(foundedUsersLength, "user"),
       data: foundedUsers,
+    };
+  }
+
+  @Get("active")
+  @HasRoles(Role.ADMIN)
+  async getActiveUsers(): Promise<ApiResponse> {
+    // We get the active users count from the number of active token.
+    const users = await this.sessionService.find({
+      isActive: true,
+    });
+
+    return {
+      messages: formatGetAllMessages(users.length, "active user"),
+      data: users,
     };
   }
 
