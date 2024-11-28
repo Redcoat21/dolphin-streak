@@ -16,7 +16,6 @@ import { MailController } from "./mail/mail.controller";
 import { MailService } from "./mail/mail.service";
 import { MailModule } from "./mail/mail.module";
 import { AiModule } from './ai/ai.module';
-import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
