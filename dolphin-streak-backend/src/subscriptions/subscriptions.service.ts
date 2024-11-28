@@ -72,6 +72,10 @@ export class SubscriptionsService {
     // console.log(payload);
     // console.log(response.data);
 
+    if(!token){
+      return { subscriptionId: null };
+    }
+
     const now = new Date();
     const futureTime = new Date(now.getTime() +  (7 * 60 + 2) * 60 * 1000); // Add 15 minutes to current time
     const formattedStartTime = futureTime.toISOString()

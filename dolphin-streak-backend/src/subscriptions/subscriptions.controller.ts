@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, ConflictException, NotFoundException, BadRequestException, BadGatewayException } from '@nestjs/common';
 import { SubscriptionsService } from './subscriptions.service';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { BearerTokenGuard } from 'src/auth/guard/bearer-token.guard';
@@ -75,6 +75,12 @@ export class SubscriptionsController {
     const user = req.user;
     if(!user.subscriptionId){
       const {subscriptionId} = await this.subscriptionsService.createSubscription(cardDetails, user);
+      console.log(subscriptionId);
+      
+      if(subscriptionId === null){
+        throw new BadRequestException('your credit card information is not valid. Please try another credit card.')
+      }
+  
       await this.userService.updateUserSubscription(user._id, subscriptionId);
   
       return {
