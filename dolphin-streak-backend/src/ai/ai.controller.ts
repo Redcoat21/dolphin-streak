@@ -3,7 +3,7 @@ import { AiService } from './ai.service';
 import { CreateAiDto } from './dto/create-ai.dto';
 import { UpdateAiDto } from './dto/update-ai.dto';
 import { PromptDto } from './dto/prompt-ai.dto';
-import { ApiAcceptedResponse, ApiBadRequestResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiAcceptedResponse, ApiBadRequestResponse, ApiForbiddenResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { BearerTokenGuard } from 'src/auth/guard/bearer-token.guard';
 
 @Controller('/api/ai')
@@ -13,6 +13,14 @@ import { BearerTokenGuard } from 'src/auth/guard/bearer-token.guard';
     "Happen because the user is not authorized (doesn't have a valid access token)",
   example: {
     message: "Unauthorized",
+    data: null,
+  },
+})
+@ApiForbiddenResponse({
+  description:
+    "Happen because the user doesn't have the right role to access this endpoint",
+  example: {
+    message: "Forbidden resource",
     data: null,
   },
 })

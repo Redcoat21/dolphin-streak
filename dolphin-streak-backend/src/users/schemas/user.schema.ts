@@ -77,6 +77,9 @@ export class User {
         type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Course" }],
     })
     completedCourses: Course[];
+
+    @Prop({ required: false, maxlength: 100 })
+    subscriptionId?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
