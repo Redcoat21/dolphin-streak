@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Page</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            display: flex;
+        }
+
+        .sidebar {
+            background-color: #0E88BC;
+            color: white;
+            padding: 20px;
+            width: 200px;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 20px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Slightly transparent white */
+            display: flex;
+            align-items: center; /* Vertically center the icon and text */
+        }
+
+
+        .sidebar li i {
+            margin-right: 10px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #EEEEEE;
+        }
+
+        .add-language {
+            background-color: #BA8585;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .ranking-container {
+            background-color: #886464;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .ranking-container h3{
+            color: white;
+        }
+
+
+        .language-list {
+          
+        }
+
+        .language-item {
+            background-color: #0E88BC;
+            color: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+
+        .language-item .logo {
+            background-color: #21A9C5;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+        }
+
+        .language-item .logo img {  /* Adjust image size if needed */
+            max-width: 30px;
+            max-height: 30px;
+        }
+
+        .language-item .actions {
+            margin-left: auto; /* Push actions to the right */
+
+        }
+
+        .language-item button {
+            background-color: #BA8585;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+
+        }
+
+        .language-item button.delete {
+            background-color: #FF0000;
+        }
+
+        .ranking-bar{
+            background-color: blue;
+            height: 20px;
+            margin-bottom: 5px;
+
+
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo" style="background-color: #21A9C5; width: 80px; height: 80px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
+            <img src="dolphin.svg" alt="Dolphin Logo" style="max-width: 50px; max-height: 50px;"> </div>
+        <h2>Welcome, Admin</h2>
+        <ul>
+            <li><i class="fas fa-users"></i> Users</li>
+            <li><i class="fas fa-globe"></i> Languages</li>
+            <li><i class="fas fa-book"></i> Courses</li>
+            <li><i class="fas fa-question"></i> Questions</li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <button class="add-language">+ Add Language</button>
+
+        <div class="ranking-container">
+            <h3>Language Usage Ranking</h3>
+            <div class="ranking-bar" style="width:90%; background-color: navy;">Noruega</div>
+            <div class="ranking-bar" style="width:80%; background-color: blue;">Australia</div>
+            <div class="ranking-bar" style="width:70%; background-color: lightblue;">Suiza</div>
+            <div class="ranking-bar" style="width:60%; background-color: aqua;">Paises Bajos</div>
+            <div class="ranking-bar" style="width:50%; background-color: turquoise;">Estados Unidos</div>
+            <div class="ranking-bar" style="width:40%; background-color: teal;">Alemania</div>
+            <div class="ranking-bar" style="width:30%; background-color: lightseagreen;">Nueva Zelanda</div>
+            <div class="ranking-bar" style="width:20%; background-color: mediumspringgreen;">Canada</div>
+
+        </div>
+
+        <div class="language-list">
+            <div class="language-item">
+                <div class="logo" ><img src="dolphin.svg" alt="Dolphin Logo" style="max-width: 30px; max-height: 30px;"></div>
+                English
+                <div class="actions">
+                    <button>Edit</button>
+                    <button class="delete">Delete</button>
+                </div>
+            </div>
+            <div class="language-item">
+                <div class="logo"><img src="dolphin.svg" alt="Dolphin Logo" style="max-width: 30px; max-height: 30px;"></div>                Chinese
+                <div class="actions">
+                    <button>Edit</button>
+                    <button class="delete">Delete</button>
+                </div>
+            </div>
+            <div class="language-item">
+                <div class="logo"><img src="dolphin.svg" alt="Dolphin Logo" style="max-width: 30px; max-height: 30px;"></div>                Bahasa Indonesia
+                <div class="actions">
+                    <button>Edit</button>
+                    <button class="delete">Delete</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+  <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>  </body>
+</html>

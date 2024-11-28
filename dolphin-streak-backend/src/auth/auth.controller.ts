@@ -30,6 +30,7 @@ import { ResetPasswordDto } from "./dto/reset-password.dto";
 import { Request } from "express";
 import mongoose from "mongoose";
 import { RefreshTokenDto } from "./session/dto/refresh-token.dto";
+import { BearerTokenGuard } from "./guard/bearer-token.guard";
 
 @Controller("/api/auth")
 @ApiInternalServerErrorResponse({
@@ -138,8 +139,6 @@ export class AuthController {
         lastName: "Doe",
         email: "john0@email.com",
         birthDate: "1996-01-01T00:00:00.000Z",
-        profilePicture:
-          "https://docs.nestjs.com/assets/logo-small-gradient.svg",
         loginHistories: [],
         languages: [],
         completedCourses: [],
@@ -284,6 +283,37 @@ export class AuthController {
 
     return {
       messages: "Password resetted successfully",
+      data: null,
+    };
+  }
+
+  @ApiOperation({
+    summary: "Logout the user",
+    description:
+      "This endpoint will logout the user. Note that this route will also delete the refresh token to prevent reuse.",
+  })
+  @ApiOkResponse({
+    description: "Logged out succesfully",
+    example: {
+      messages: "Logged out successfully",
+      data: null,
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: "Happen when the access token is no longer valid.",
+    example: {
+      messages: "Invalid or expired token",
+      data: null,
+    },
+  })
+  @Post("logout")
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(BearerTokenGuard)
+  async logout(@Req() req: Request): Promise<ApiResponse> {
+    //@ts-ignore
+    await this.authService.logout(req.user._id.toString());
+    return {
+      messages: "Logged out successfully",
       data: null,
     };
   }

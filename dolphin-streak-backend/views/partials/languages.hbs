@@ -1,0 +1,98 @@
+<div class="flex h-screen overflow-hidden m-2 gap-2 font-sans">
+    {{> sidebar}}
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col gap-6 p-6 bg-gray-200 rounded-lg h-[calc(100vh-1rem)] overflow-auto">
+        <!-- Language Usage Ranking -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h4 class="text-center text-lg font-bold mb-4">Language Usage Ranking</h4>
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center">
+                    <div style="background-color: #000a66; width: 90%; height: 20px; margin-right: 10px;"></div> Norway
+                </div>
+                <div class="flex items-center">
+                    <div style="background-color: #002d84; width: 75%; height: 20px; margin-right: 10px;"></div>
+                    Australia
+                </div>
+                <div class="flex items-center">
+                    <div style="background-color: #0066a6; width: 65%; height: 20px; margin-right: 10px;"></div> Swiss
+                </div>
+                <div class="flex items-center">
+                    <div style="background-color: #0091c1; width: 55%; height: 20px; margin-right: 10px;"></div> Poland
+                </div>
+                <div class="flex items-center">
+                    <div style="background-color: #00b3d6; width: 45%; height: 20px; margin-right: 10px;"></div> United
+                    Kingdom
+                </div>
+                <div class="flex items-center">
+                    <div style="background-color: #52cce6; width: 35%; height: 20px; margin-right: 10px;"></div> Germany
+                </div>
+                <div class="flex items-center">
+                    <div style="background-color: #8ee0ed; width: 25%; height: 20px; margin-right: 10px;"></div> New
+                    Zealand
+                </div>
+                <div class="flex items-center">
+                    <div style="background-color: #c1eff4; width: 15%; height: 20px; margin-right: 10px;"></div> Canada
+                </div>
+            </div>
+        </div>
+
+        <!-- List Language -->
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold">List Language</h2>
+            <a href="addLanguage.html">
+                <button class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">
+                    <i class="fas fa-plus"></i> Add New Language
+                </button>
+            </a>
+        </div>
+        <table class="w-full bg-white shadow rounded-lg">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="py-2 px-4 text-left">Profile</th>
+                    <th class="py-2 px-4 text-left">Languages</th>
+                    <th class="py-2 px-4 text-left">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="py-2 px-4">
+                        <img src="image/dolphine.png" alt="Profile" class="w-12 h-12 rounded-full object-cover">
+                    </td>
+                    <td class="py-2 px-4">English</td>
+                    <td class="py-2 px-4">
+                        <div class="flex gap-2">
+                            <a href="editLanguage.html">
+                                <button class="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                            </a>
+                            <button class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600"
+                                onclick="confirmDelete()">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="py-2 px-4">
+                        <img src="image/dolphine.png" alt="Profile" class="w-12 h-12 rounded-full object-cover">
+                    </td>
+                    <td class="py-2 px-4">Chinese</td>
+                    <td class="py-2 px-4">
+                        <div class="flex gap-2">
+                            <a href="editLanguage.html">
+                                <button class="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                            </a>
+                            <button class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600"
+                                onclick="confirmDelete()">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
