@@ -1,0 +1,55 @@
+<div class="flex gap-4 m-2">
+  {{> sidebar}}
+
+  <div class="flex-1 bg-gray-200 p-8 rounded-lg h-[calc(100vh-1rem)] overflow-y-auto">
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+      <h4 class="text-center text-lg font-bold mb-4">Most Used Languages</h4>
+      <div class="flex justify-center">
+        <div class="relative w-40 h-40">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="text-2xl font-bold">73%</span>
+          </div>
+          <canvas id="pieChart" width="40" height="40"></canvas>
+        </div>
+      </div>
+      <div class="flex justify-center gap-4 mt-4">
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 bg-[#a05195] rounded-full"></div> Chinese
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 bg-[#2f4b7c] rounded-full"></div> Japanese
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 bg-[#003f5c] rounded-full"></div> German
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <h4 class="text-center text-lg font-bold mb-4">Average Subscription Payment</h4>
+      <div class="flex flex-col items-center">
+        <img src="image/graph.png" alt="Line Graph" class="w-full">
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    const ctx = document.getElementById('pieChart').getContext('2d');
+    const data = [
+      { value: 73, color: '#a05195' }, // Chinese
+      { value: 18, color: '#2f4b7c' }, // Japanese
+      { value: 9, color: '#003f5c' },   // German
+    ];
+    let startAngle = -0.5 * Math.PI;
+    data.forEach(item => {
+      const endAngle = startAngle + (item.value / 100) * 2 * Math.PI;
+      ctx.beginPath();
+      ctx.moveTo(20, 20); // Center of the pie chart
+      ctx.arc(20, 20, 20, startAngle, endAngle);
+      ctx.fillStyle = item.color;
+      ctx.fill();
+      startAngle = endAngle;
+    });
+  </script>
+</div>

@@ -1,0 +1,113 @@
+<div class="flex h-screen overflow-hidden m-2 gap-2 font-sans">
+  {{> sidebar}}
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col gap-6 p-6 bg-gray-200 rounded-lg h-[calc(100vh-1rem)] overflow-auto">
+    <!-- Dashboard Stats -->
+    <div class="flex gap-6 mb-6">
+      <div class="flex-1 bg-white rounded-lg shadow p-6 flex flex-col items-center">
+        <h4 class="text-center text-lg font-bold mb-4">Total Users</h4>
+        <div class="w-full h-40 flex items-end">
+          <div class="w-full h-full bg-[#0e88bc] total-users-bar"></div>
+        </div>
+        <div class="text-2xl font-bold text-[#0e88bc] mt-4 total-users"></div>
+      </div>
+      <div class="flex-1 bg-white rounded-lg shadow p-6 flex flex-col items-center">
+        <h4 class="text-center text-lg font-bold mb-4">Active Users</h4>
+        <div class="w-full h-40 flex items-end">
+          <div class="w-full h-full bg-[#0e88bc] active-users-bar"></div>
+        </div>
+        <div class="text-2xl font-bold text-[#0e88bc] mt-4 active-users"></div>
+      </div>
+    </div>
+
+    <!-- User Management -->
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold">User Management</h2>
+      <a id="add-user-link">
+        <button class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">
+          <i class="fas fa-plus"></i> Add New User
+        </button>
+      </a>
+    </div>
+    <table class="w-full bg-white shadow rounded-lg">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="py-2 px-4 text-left">Profile</th>
+          <th class="py-2 px-4 text-left">Name</th>
+          <th class="py-2 px-4 text-left">Email</th>
+          <th class="py-2 px-4 text-left">Role</th>
+          <th class="py-2 px-4 text-left">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="users-list">
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const addUserLink = document.getElementById('add-user-link');
+    const currentPath = window.location.pathname;
+    addUserLink.href = `${currentPath}/add-user`;
+  });
+  // Elements
+  const totalUserElement = document.querySelector(".total-users");
+  const activeUserElement = document.querySelector(".active-users");
+  const totalUsersBarElement = document.querySelector(".total-users-bar");
+  const activeUsersBarElement = document.querySelector(".active-users-bar");
+  const userListElement = document.querySelector(".users-list");
+  const roles = ["Admin", "User"];
+
+  // Fetch data
+  Promise.all([
+    fetchAPI('/api/users', 'GET'),
+    fetchAPI('/api/users/active', 'GET')
+  ])
+    .then(([allUsersResponse, activeUsersResponse]) => {
+      const allUsers = allUsersResponse.data;
+      const activeUsers = activeUsersResponse.data;
+
+      const totalUsersCount = allUsers.length;
+      const activeUsersCount = activeUsers.length;
+
+      // Update counts
+      totalUserElement.textContent = totalUsersCount;
+      activeUserElement.textContent = activeUsersCount;
+
+      // Calculate bar heights
+      const totalUsersHeight = totalUsersCount > 0 ? 100 : 0;
+      const activeUsersHeight = totalUsersCount > 0 ? (activeUsersCount / totalUsersCount) * 100 : 0;
+
+      totalUsersBarElement.style.height = `${totalUsersHeight}%`;
+      activeUsersBarElement.style.height = `${activeUsersHeight}%`;
+
+      // Render user list
+      allUsers.forEach(user => {
+        userListElement.innerHTML += `
+        <tr>
+          <td class="py-2 px-4">
+            <img src="${user.profilePicture || '/public/default-profile.png'}" alt="Profile" class="w-12 h-12 rounded-full object-cover">
+          </td>
+          <td class="py-2 px-4">${user.firstName} ${user.lastName ? user.lastName : ''}</td>
+          <td class="py-2 px-4">${user.email}</td>
+          <td class="py-2 px-4">${roles[user.role]}</td>
+          <td class="py-2 px-4">
+            <div class="flex gap-2">
+              <a href="/editUser/${user._id}">
+                <button class="bg-[#0e88bc] text-white py-1 px-2 rounded hover:bg-blue-600">
+                  <i class="fas fa-edit"></i> Edit
+                </button>
+              </a>
+              <button class="bg-[#d28b87] text-white py-1 px-2 rounded hover:bg-red-600" onclick="confirmDelete('${user._id}')">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </div>
+          </td>
+        </tr>`;
+      });
+    })
+    .catch(error => {
+      console.error('Error fetching users:', error);
+    });
+</script>
