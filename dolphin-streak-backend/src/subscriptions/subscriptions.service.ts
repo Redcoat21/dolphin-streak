@@ -5,6 +5,7 @@ import { MidtransService } from '@ruraim/nestjs-midtrans';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
+import { User } from 'src/users/schemas/user.schema';
 
 // @Injectable()
 // export class SubscriptionsService {
@@ -38,8 +39,7 @@ export class SubscriptionsService {
     private readonly midtransService: MidtransService
   ) {}
 
-  async createSubscription(cardDetails:CreateSubscriptionDto): Promise<any> {
-
+  async createSubscription(cardDetails:CreateSubscriptionDto, user: User): Promise<{ subscriptionId: string }> {
     const serverKey = this.configService.get<string>('MIDTRANS_SERVER_KEY');
       if (!serverKey) {
         throw new Error('MIDTRANS_SERVER_KEY is not configured in .env');
@@ -69,6 +69,7 @@ export class SubscriptionsService {
       );
 
     const token = response.data.token_id;
+    // console.log(payload);
     // console.log(response.data);
 
     const now = new Date();
@@ -77,7 +78,9 @@ export class SubscriptionsService {
       .replace('T', ' ')
       .split('.')[0] + ' +0700';
 
-      console.log(formattedStartTime);
+      // console.log(user);
+      // console.log(token);
+      // console.log(formattedStartTime);
       
 
     const result = await this.midtransService.createSubscription({
@@ -94,7 +97,7 @@ export class SubscriptionsService {
       },
     })
     // console.log(result)
-    return result
+    return { subscriptionId: result.id };
   }
 
   async findOne(id: string): Promise<any> {
@@ -104,14 +107,26 @@ export class SubscriptionsService {
   }
 
   async enableSubs(id: string): Promise<any> {
-    const result = await this.midtransService.enableSubscription(id);
-    console.log(result)
-    return result
+    const subs = await this.midtransService.getSubscription(id);
+    // console.log(subs);
+    if(subs.status == 'inactive'){
+      const result = await this.midtransService.enableSubscription(id);
+      return result;
+    }
+    else{
+      return null;
+    }
   }
 
   async disableSubs(id: string): Promise<any> {
+    const subs = await this.midtransService.getSubscription(id);
+    // console.log(subs);
+    if(subs.status == 'active'){
     const result = await this.midtransService.disableSubscription(id);
-    console.log(result)
-    return result
+    return result;
+    }
+    else{
+      return null;
+    }
   }
 }

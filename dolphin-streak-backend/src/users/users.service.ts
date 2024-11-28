@@ -7,6 +7,7 @@ import { FindUserQuery } from "./dto/find-user.query";
 import { Provider as UserProvider } from "./schemas/user.schema";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { extractPassword } from "src/lib/utils/user";
+import { log } from "console";
 
 @Injectable()
 /**
@@ -88,4 +89,20 @@ export class UsersService {
    remove(id: string) {
       return this.userModel.findByIdAndDelete(id);
    }
+
+   async updateUserSubscription(userId: string, subscriptionId: string): Promise<void> {
+      // Update the user's subscription ID in the database
+      const result = await this.userModel.findByIdAndUpdate(
+         userId,
+         {subscriptionId},
+         {new: true},
+      );
+
+      // console.log(result);
+      
+
+      if(!result){
+         throw new Error(`User with ID ${userId} not found`);
+      }
+    }
 }

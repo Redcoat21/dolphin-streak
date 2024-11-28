@@ -4,6 +4,9 @@ import { SubscriptionsController } from './subscriptions.controller';
 import { MidtransModule } from '@ruraim/nestjs-midtrans';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
+import { UserSchema } from 'src/users/schemas/user.schema';
+import { MongooseModule } from '@nestjs/mongoose';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
@@ -19,15 +22,10 @@ import { HttpModule } from '@nestjs/axios';
         imports: [ConfigModule],
         isGlobal: true // default: false, register module globally
     }),
+    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]), // Import Mongoose models
     ConfigModule, // For environment variables
-    HttpModule,  
-    // MidtransModule.register({
-    //   clientKey: 'client-key',
-    //   serverKey: 'server-key',
-    //   merchantId: 'merchant-id',
-    //   sandbox: true, // default: false,
-    //   isGlobal: true // default: false, register module globally
-    // })
+    HttpModule,
+    UsersModule
   ],
   controllers: [SubscriptionsController],
   providers: [SubscriptionsService],
