@@ -80,7 +80,6 @@ export class User {
 
     @Prop({ required: false, maxlength: 100 })
     subscriptionId?: string;
-  private _id: unknown;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
