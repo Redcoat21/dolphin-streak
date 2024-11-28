@@ -118,7 +118,7 @@ export class SubscriptionsController {
     }
   }
 
-  @Post('disable')
+  @Delete('disable')
   async disableSubs(@Req() req: Request & { user: User }){
     const user = req.user;
 

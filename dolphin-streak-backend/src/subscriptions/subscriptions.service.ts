@@ -73,7 +73,7 @@ export class SubscriptionsService {
     // console.log(response.data);
 
     if(!token){
-      return { subscriptionId: null };
+      return { subscriptionId: nullF };
     }
 
     const now = new Date();
