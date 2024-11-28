@@ -4,8 +4,6 @@ import { SubscriptionsController } from './subscriptions.controller';
 import { MidtransModule } from '@ruraim/nestjs-midtrans';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
-import { UserSchema } from 'src/users/schemas/user.schema';
-import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from 'src/users/users.module';
 
 @Module({
@@ -17,13 +15,11 @@ import { UsersModule } from 'src/users/users.module';
         merchantId: config.get<string>('MIDTRANS_MERCHANT_ID'),
         sandbox: config.get<string>('MIDTRANS_MODE') === 'sandbox',
       }),
-        // using ConfigService from @nestjs/config to get .env value
         inject: [ConfigService],
         imports: [ConfigModule],
-        isGlobal: true // default: false, register module globally
+        isGlobal: true
     }),
-    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]), // Import Mongoose models
-    ConfigModule, // For environment variables
+    ConfigModule,
     HttpModule,
     UsersModule
   ],

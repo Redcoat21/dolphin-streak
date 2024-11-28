@@ -55,12 +55,6 @@ export class User {
     @Prop({ required: true, default: [], type: [Date] })
     loginHistories: Date[];
 
-    @Prop({ required: false, maxlength: 255 })
-    accessToken?: string;
-
-    @Prop({ required: false, maxlength: 255 })
-    refreshToken?: string;
-
     @Prop({ required: true, enum: Role, default: Role.USER })
     role: Role;
 
