@@ -28,11 +28,11 @@ export class Question {
     })
     type: QuestionType;
 
-    @Prop({ required: true, type: [String] })
+    @Prop({ required: false, type: [String] })
     answerOptions: string[];
 
-    @Prop({ required: true, type: [String, Number] })
-    correctAnswer: number | string;
+    @Prop({ required: false, type: [String, Number] })
+    correctAnswer?: number | string;
 
     @Prop({ required: true })
     useAi: boolean;
