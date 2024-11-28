@@ -12,9 +12,10 @@ import { CoursesModule } from "./courses/courses.module";
 import { LanguagesModule } from "./languages/languages.module";
 import { LevelsModule } from "./levels/levels.module";
 import { ViewController } from "./views/view.controller"; // Import the new views controller
-import { MailController } from "./mail/mail.controller";
-import { MailService } from "./mail/mail.service";
 import { MailModule } from "./mail/mail.module";
+import { FeedbacksModule } from "./feedbacks/feedbacks.module";
+import { ForumsModule } from "./forums/forums.module";
+import { AiModule } from "./ai/ai.module";
 
 @Module({
   imports: [
@@ -37,6 +38,9 @@ import { MailModule } from "./mail/mail.module";
     LanguagesModule,
     LevelsModule,
     MailModule,
+    FeedbacksModule,
+    ForumsModule,
+    AiModule,
   ],
   controllers: [AppController, ViewController],
   providers: [AppService],

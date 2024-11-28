@@ -49,6 +49,13 @@ export class SessionService {
         };
     }
 
+    find(filter: FilterQuery<Session>, projection?: ProjectionType<Session>) {
+        return this.sessionModel.find(filter, projection).populate({
+            path: "user",
+            select: "email",
+        });
+    }
+
     findOne(
         filter: FilterQuery<Session>,
         projection?: ProjectionType<Session>,

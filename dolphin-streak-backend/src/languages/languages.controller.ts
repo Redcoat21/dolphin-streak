@@ -20,6 +20,7 @@ import { RoleGuard } from "src/lib/guard/role.guard";
 import { checkIfExist, formatGetAllMessages } from "src/lib/utils/response";
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
@@ -57,6 +58,7 @@ import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
     data: null,
   },
 })
+@ApiBearerAuth()
 export class LanguagesController {
   constructor(private readonly languagesService: LanguagesService) {}
 

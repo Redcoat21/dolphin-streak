@@ -243,4 +243,14 @@ export class AuthService {
     // Then we delete the token from the database to prevent misuse.
     await this.resetPasswordModel.findByIdAndDelete(resetPasswordRecord.id);
   }
+
+  async logout(userId: string) {
+    const session = await this.sessionService.findOne({
+      user: userId,
+    });
+    return await this.sessionService.updateOne(session._id.toString(), {
+      isActive: false,
+      refreshToken: null,
+    });
+  }
 }

@@ -45,6 +45,7 @@ import { formatGetAllMessages } from "src/lib/utils/response";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { CloudinaryService } from "src/upload/cloudinary.service";
 import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
+import { SessionService } from "src/auth/session/session.service";
 
 //TODO: Implement some kind of IP checker, so admin can only access this route from authorized IP.
 // If no role are listed, meaning everyone can access it. But just to be safe, write the role that can access the route.
@@ -90,6 +91,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly sessionService: SessionService,
   ) {}
 
   @Post()
@@ -208,15 +210,99 @@ export class UsersController {
       ? { $and: filterConditions }
       : filterConditions[0] || {};
 
-    const foundedUsers = (await this.usersService.findAll(filter)).map((
-      user,
-    ) => extractPassword(user));
+    const foundedUsers =
+      (await this.usersService.findAll({ ...filter, role: Role.USER })).map((
+        user,
+      ) => extractPassword(user));
 
     const foundedUsersLength = foundedUsers.length;
 
     return {
       messages: formatGetAllMessages(foundedUsersLength, "user"),
       data: foundedUsers,
+    };
+  }
+
+  @Get("active")
+  @HasRoles(Role.ADMIN)
+  @ApiOperation({
+    summary: "Get the active user's session",
+    description: "This can be used to get the number of active users.",
+  })
+  @ApiOkResponse({
+    example: {
+      "messages": "2 active users found",
+      "data": [
+        {
+          "_id": "6744990dfe670457cdab5fb5",
+          "user": {
+            "_id": "67436ff03081ffddd696a86d",
+            "email": "john90@email.com",
+          },
+          "accessToken": {
+            "token":
+              "eb2d6eaeed2dafc8a78def078ee79fea23f87732cdbe4c23db2f9c81c6ca44e85bcb236b3d5caf92c908f289d4ca8c38493a2d615074183ba2a3af1b70ec91fa",
+            "expires": "2024-11-25T16:04:37.378Z",
+            "_id": "6744990dfe670457cdab5fb6",
+          },
+          "refreshToken": {
+            "token":
+              "0edcd40f34a30c25b2083d874aa2d3d59fc0525463e83015df955f7d774910891609ced391dc9e0784b9ea5f3f8d39983e354ccc4b9bec51c1a8220349867765",
+            "expires": "2024-11-26T15:34:37.380Z",
+            "_id": "6744990dfe670457cdab5fb7",
+          },
+          "isActive": true,
+          "deviceInfo": {
+            "userAgent": "bruno-runtime/1.33.1",
+            "ip": "::1",
+            "_id": "6744990dfe670457cdab5fb8",
+          },
+          "lastActive": "2024-11-25T15:34:37.483Z",
+          "createdAt": "2024-11-25T15:34:37.493Z",
+          "updatedAt": "2024-11-25T15:34:37.493Z",
+          "__v": 0,
+        },
+        {
+          "_id": "6746d1b3b7af28a58743e4df",
+          "user": {
+            "_id": "672f0d291a890f507777cb0e",
+            "email": "admin1234@email.com",
+          },
+          "accessToken": {
+            "token":
+              "c628417e90d06bab93a8d6161fae47e807e085f56a6de62b276cf7a15aa3780151b6fbd6194513c5f2c4c03356a599bb8c1c828be03607469492522cf61c406d",
+            "expires": "2024-11-27T08:30:51.543Z",
+            "_id": "6746d1b3b7af28a58743e4e0",
+          },
+          "refreshToken": {
+            "token":
+              "2e204bf83569f8b6057a9dcdbd714f7a344e75d4c46fc2b98df9cb540d5c0a2842c990365f9c6a0758fdf61a0ee04f5170611677a64f5a777e1ecb062cd359ec",
+            "expires": "2024-11-28T08:00:51.545Z",
+            "_id": "6746d1b3b7af28a58743e4e1",
+          },
+          "isActive": true,
+          "deviceInfo": {
+            "userAgent": "bruno-runtime/1.33.1",
+            "ip": "::1",
+            "_id": "6746d1b3b7af28a58743e4e2",
+          },
+          "lastActive": "2024-11-27T08:00:51.654Z",
+          "createdAt": "2024-11-27T08:00:51.661Z",
+          "updatedAt": "2024-11-27T08:00:51.661Z",
+          "__v": 0,
+        },
+      ],
+    },
+  })
+  async getActiveUsers(): Promise<ApiResponse> {
+    // We get the active users count from the number of active token.
+    const users = await this.sessionService.find({
+      isActive: true,
+    });
+
+    return {
+      messages: formatGetAllMessages(users.length, "active user"),
+      data: users,
     };
   }
 
