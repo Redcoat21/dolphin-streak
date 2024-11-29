@@ -1,0 +1,77 @@
+<div class="content-wrapper">
+    <div class="form-wrapper">
+        <div class="form-header">
+            <h1>Edit Language</h1>
+        </div>
+        <form id="editLanguageForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Language Image</label>
+                    <img id="languageImage" src="image/blank.jpg" alt="Language Image"
+                        style="height: 300px; width: 400px;">
+                    <input type="file" id="languageImageInput" style="margin-top: 26px; height: 300px;">
+                </div>
+                <div class="form-group">
+                    <label>Language Name</label>
+                    <input type="text" id="languageName" placeholder="Language Name" required>
+                </div>
+            </div>
+            <button type="submit" class="submit-btn">Update Language</button>
+        </form>
+        <a href="/languages">
+            <button type="button" class="back-btn">Back</button>
+        </a>
+    </div>
+</div>
+<script>
+    const form = document.getElementById('editLanguageForm');
+    const languageId = window.location.pathname.split('/').pop(); // Extract language ID from URL
+
+    async function fetchLanguageData(id) {
+        try {
+            const response = await fetchAPI(`/api/languages/${id}`, 'GET');
+            if (response.messages) {
+                const languageData = response.data;
+                document.getElementById('languageName').value = languageData.name;
+                document.getElementById('languageImage').src = languageData.image;
+            } else {
+                showToaster('danger', { message: 'Failed to fetch language data.' });
+            }
+        } catch (error) {
+            console.error('Error fetching language data:', error);
+            showToaster('danger', { message: 'An error occurred while fetching language data.' });
+        }
+    }
+
+    async function updateLanguage(id, data) {
+        try {
+            const response = await fetchAPI(`/api/languages/${id}`, 'PUT', data);
+            if (response.messages) {
+                showToaster('success', { message: response.messages });
+            } else {
+                showToaster('danger', { message: 'Failed to update language.' });
+            }
+        } catch (error) {
+            console.error('Error updating language:', error);
+            showToaster('danger', { message: 'An error occurred while updating the language.' });
+        }
+    }
+
+    async function init() {
+        await fetchLanguageData(languageId);
+    }
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const name = document.getElementById('languageName').value;
+        const image = document.getElementById('languageImageInput').files[0];
+        let formData = new FormData();
+        formData.append('name', name);
+        if (image) {
+            formData.append('image', image);
+        }
+        await updateLanguage(languageId, formData);
+    });
+
+    init();
+</script>

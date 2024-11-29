@@ -51,6 +51,17 @@ export class ViewController {
     });
   }
 
+  @Get('/languages/add')
+  getAddLanguage(@Res() res: Response): void {
+    this.handleAdminAccess(res, 'languages/add');
+  }
+
+  @Get('/languages/edit/:id')
+  getEditLanguage(@Param('id') id: string, @Res() res: Response): void {
+    this.handleAdminAccess(res, 'languages/edit', { id });
+  }
+
+
   @Get('/courses')
   getCourses(@Res() res: Response): void {
     this.handleAdminAccess(res, 'courses/index', {

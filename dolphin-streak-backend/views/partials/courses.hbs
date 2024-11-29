@@ -33,53 +33,52 @@
                             <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <% courses.forEach(function(course) { %>
-                        <tr class="hover:bg-gray-50 transition duration-200">
-                            <td class="p-3">
-                                <img 
-                                    src="<%= course.thumbnail || '/images/default-course.png' %>" 
-                                    alt="Course Profile" 
-                                    class="w-12 h-12 rounded-full object-cover"
-                                >
-                            </td>
-                            <td class="p-3 text-sm text-gray-700"><%= course.name %></td>
-                            <td class="p-3 text-sm text-gray-700"><%= course.language.name %></td>
-                            <td class="p-3 text-sm text-gray-700">
-                                <%= course.levels.map(level => level.name).join(', ') %>
-                            </td>
-                            <td class="p-3">
-                                <div class="flex space-x-2">
-                                    <a 
-                                        href="/courses/edit/<%= course._id %>" 
-                                        class="btn btn-sm btn-primary"
-                                    >
-                                        Edit
-                                    </a>
-                                    <button 
-                                        onclick="confirmDelete('<%= course._id %>')" 
-                                        class="btn btn-sm btn-danger"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <% }); %>
+                    <tbody id="course-list">
                     </tbody>
                 </table>
-
-                <% if (courses.length === 0) { %>
-                <div class="text-center py-6 text-gray-500">
-                    No courses available. Add a new course to get started.
-                </div>
-                <% } %>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const response = await fetchAPI('/api/courses', 'GET');
+            if (response.messages === '3 courses found') {
+                const courses = response.data;
+                const courseListElement = document.getElementById('course-list');
+                courses.forEach(course => {
+                    const row = `
+                    <tr>
+                        <td class="p-3">
+                            <img src="${course.thumbnail || '/images/default-course.png'}" alt="Course Profile" class="w-12 h-12 rounded-full object-cover">
+                        </td>
+                        <td class="p-3 text-sm text-gray-700">${course.name}</td>
+                        <td class="p-3 text-sm text-gray-700">${course.language.name}</td>
+                        <td class="p-3 text-sm text-gray-700">${course.levels.map(level => level.name).join(', ')}</td>
+                        <td class="p-3">
+                            <div class="flex space-x-2">
+                                <a href="/courses/edit/${course._id}" class="btn btn-sm btn-primary">
+                                    Edit
+                                </a>
+                                <button onclick="confirmDelete('${course._id}')" class="btn btn-sm btn-danger">
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
+                    courseListElement.insertAdjacentHTML('beforeend', row);
+                });
+            } else {
+                showToaster('danger', { message: 'Failed to fetch course data.' });
+            }
+        } catch (error) {
+            console.error('Error fetching course data:', error);
+            showToaster('danger', { message: 'An error occurred while fetching course data.' });
+        }
+    });
+
     function confirmDelete(courseId) {
         Swal.fire({
             title: 'Are you sure?',
@@ -121,20 +120,3 @@
         });
     }
 </script>
-
-<!-- Include SweetAlert for better confirmation -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<style>
-    .btn {
-        @apply inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none transition ease-in-out duration-150;
-    }
-    .btn-primary {
-        @apply bg-green-600 text-white hover:bg-green-700 active:bg-green-800;
-    }
-    .btn-danger {
-        @apply bg-red-600 text-white hover:bg-red-700 active:bg-red-800;
-    }
-    .btn-sm {
-        @apply px-2 py-1 text-xs;
-    }
-</style>
