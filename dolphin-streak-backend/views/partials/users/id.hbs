@@ -1,0 +1,63 @@
+{{#> layout title="Edit User"}}
+  <div class="flex-1 flex flex-col gap-6 p-6 bg-gray-200 rounded-lg h-[calc(100vh-1rem)] overflow-auto">
+    <div class="form-wrapper bg-white rounded-lg p-8 shadow-lg">
+      <div class="form-header text-center mb-6">
+        <h1 class="text-2xl font-bold text-[#0e88bc]">Edit User</h1>
+      </div>
+      <form id="edit-user-form">
+        <div class="form-row flex gap-4 mb-4">
+          <div class="form-group w-1/2">
+            <label for="firstName" class="block text-gray-700 font-bold mb-2">First Name</label>
+            <input type="text" id="firstName" name="firstName" class="w-full p-3 border border-gray-300 rounded-lg" required>
+          </div>
+          <div class="form-group w-1/2">
+            <label for="lastName" class="block text-gray-700 font-bold mb-2">Last Name</label>
+            <input type="text" id="lastName" name="lastName" class="w-full p-3 border border-gray-300 rounded-lg">
+          </div>
+        </div>
+        <div class="form-row flex gap-4 mb-4">
+          <div class="form-group w-full">
+            <label for="email" class="block text-gray-700 font-bold mb-2">Email</label>
+            <input type="email" id="email" name="email" class="w-full p-3 border border-gray-300 rounded-lg" required>
+          </div>
+        </div>
+        <div class="form-row flex gap-4 mb-4">
+          <div class="form-group w-full">
+            <label for="birthDate" class="block text-gray-700 font-bold mb-2">Birth Date</label>
+            <input type="date" id="birthDate" name="birthDate" class="w-full p-3 border border-gray-300 rounded-lg">
+          </div>
+        </div>
+        <button type="submit" class="submit-btn w-full py-3 bg-[#0e88bc] hover:bg-blue-500 rounded text-white mb-4">Update Account</button>
+        <a href="/users" class="back-btn w-full py-3 bg-transparent hover:bg-[#0e88bc] hover:text-white rounded text-[#0e88bc] flex items-center justify-center gap-2">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const userId = window.location.pathname.split('/').pop();
+      if (!userId) {
+        showToaster('danger', { message: 'User ID is required.' });
+        return;
+      }
+
+      try {
+        const response = await fetchAPI(`/api/users/${userId}`, 'GET');
+        if (response.messages === 'User founded') {
+          const user = response.data;
+          document.getElementById('firstName').value = user.firstName || '';
+          document.getElementById('lastName').value = user.lastName || '';
+          document.getElementById('email').value = user.email || '';
+          document.getElementById('birthDate').value = user.birthDate ? new Date(user.birthDate).toISOString().split('T')[0] : '';
+        } else {
+          showToaster('danger', { message: 'Failed to fetch user data.' });
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        showToaster('danger', { message: 'An error occurred while fetching user data.' });
+      }
+    });
+  </script>
+{{/layout}}
