@@ -56,7 +56,7 @@ export class ViewController {
     this.handleAdminAccess(res, 'languages/add');
   }
 
-  @Get('/languages/edit/:id')
+  @Get('/languages/:id')
   getEditLanguage(@Param('id') id: string, @Res() res: Response): void {
     this.handleAdminAccess(res, 'languages/edit', { id });
   }

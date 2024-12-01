@@ -1,0 +1,68 @@
+{{#> layout title="Add Course"}}
+{{> partials/sidebar }}
+
+<div class="content-wrapper">
+    <div class="form-wrapper">
+        <div class="form-header">
+            <h1>Create New Course</h1>
+        </div>
+        
+        <form action="/courses/add" method="POST">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" placeholder="Food" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Level</label>
+                    <select name="level" required>
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                        <option value="Expert">Expert</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Language</label>
+                    <select name="language" required>
+                        <option value="English">English</option>
+                        <option value="Chinese">Chinese</option>
+                        <option value="Indonesian">Indonesian</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label style="margin-bottom: 15px;">Available Language</label>
+                    <div class="checkbox-container">
+                        <input type="checkbox" name="availableLanguages" value="Chinese" id="chinese">
+                        <label for="chinese">Chinese</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox" name="availableLanguages" value="English" id="english">
+                        <label for="english">English</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox" name="availableLanguages" value="Indonesian" id="indonesian">
+                        <label for="indonesian">Indonesian</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Thumbnail</label>
+                    <input type="file" name="thumbnail" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <button type="submit" class="submit-btn">Add Course</button>
+            </div>
+        </form>
+        <a href="/courses">
+            <button type="button" class="back-btn">Back</button>
+        </a>
+    </div>
+</div>
+{{/layout}}

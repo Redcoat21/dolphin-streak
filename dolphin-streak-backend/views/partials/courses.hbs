@@ -26,11 +26,16 @@
                 <table class="w-full bg-white shadow-md rounded-lg overflow-hidden border border-gray-300">
                     <thead class="bg-gray-100 border-b">
                         <tr>
-                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Profile</th>
-                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Study Languages</th>
-                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Available Levels</th>
-                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Profile
+                            </th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Title
+                            </th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Study
+                                Languages</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                Available Levels</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Actions
+                            </th>
                         </tr>
                     </thead>
                     <tbody id="course-list">
@@ -59,11 +64,11 @@
                         <td class="p-3 text-sm text-gray-700">${course.levels.map(level => level.name).join(', ')}</td>
                         <td class="p-3">
                             <div class="flex space-x-2">
-                                <a href="/courses/edit/${course._id}" class="btn btn-sm btn-primary">
-                                    Edit
+                                <a href="/courses/edit/${course._id}" class="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 transition-colors">
+                                    <i class="fas fa-edit"></i> Edit
                                 </a>
-                                <button onclick="confirmDelete('${course._id}')" class="btn btn-sm btn-danger">
-                                    Delete
+                                <button onclick="confirmDelete('${course._id}')" class="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 transition-colors">
+                                    <i class="fas fa-trash"></i> Delete
                                 </button>
                             </div>
                         </td>
@@ -80,42 +85,18 @@
     });
 
     function confirmDelete(courseId) {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you want to delete this course?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/courses/delete/${courseId}`, { method: 'DELETE' })
-                    .then(response => {
-                        if (response.ok) {
-                            Swal.fire(
-                                'Deleted!',
-                                'The course has been deleted.',
-                                'success'
-                            ).then(() => {
-                                window.location.reload();
-                            });
-                        } else {
-                            Swal.fire(
-                                'Error!',
-                                'Failed to delete the course.',
-                                'error'
-                            );
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        Swal.fire(
-                            'Error!',
-                            'An error occurred while deleting the course.',
-                            'error'
-                        );
-                    });
+        showModal('warning', 'Are you sure?', 'Do you want to delete this course?', async () => {
+            try {
+                const response = await fetchAPI(`/api/courses/${courseId}`, 'DELETE');
+                if (response.ok) {
+                    showToaster('success', { message: 'Course deleted successfully.' });
+                    window.location.reload();
+                } else {
+                    showToaster('danger', { message: 'Failed to delete course.' });
+                }
+            } catch (error) {
+                console.error('Error deleting course:', error);
+                showToaster('danger', { message: 'An error occurred while deleting the course.' });
             }
         });
     }
