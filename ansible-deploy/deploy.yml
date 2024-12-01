@@ -1,0 +1,77 @@
+---
+- name: Deploy Dolphin Streak Application on Azure
+  hosts: azure
+  become: yes
+  vars:
+    # Node.js version to install
+    node_version: "20"
+    # Application directory on the target server
+    app_directory: "/usr/src/app"
+    # Backend repository URL
+    backend_repo_url: "https://github.com/your-repo/dolphin-streak-backend.git"
+    # Frontend repository URL
+    frontend_repo_url: "https://github.com/your-repo/dolphin-streak-frontend.git"
+    # Azure user and password (for SSH access)
+    azure_user: "azureuser"
+    azure_password: "yourpassword"
+
+  tasks:
+    - name: Ensure Node.js is installed
+      apt:
+        name: "nodejs"
+        state: present
+      become: yes
+
+    - name: Ensure npm is installed
+      apt:
+        name: "npm"
+        state: present
+      become: yes
+
+    - name: Clone the backend repository
+      git:
+        repo: "{{ backend_repo_url }}"
+        dest: "{{ app_directory }}/backend"
+        version: main
+      become: yes
+
+    - name: Clone the frontend repository
+      git:
+        repo: "{{ frontend_repo_url }}"
+        dest: "{{ app_directory }}/frontend"
+        version: main
+      become: yes
+
+    - name: Install backend dependencies
+      npm:
+        path: "{{ app_directory }}/backend"
+        state: present
+        production: no
+      become: yes
+
+    - name: Build and start the backend application
+      shell: npm run start:dev
+      args:
+        chdir: "{{ app_directory }}/backend"
+      become: yes
+
+    - name: Install frontend dependencies
+      npm:
+        path: "{{ app_directory }}/frontend"
+        state: present
+        production: no
+      become: yes
+
+    - name: Start the frontend application
+      shell: npm run next-dev
+      args:
+        chdir: "{{ app_directory }}/frontend"
+      become: yes
+
+    - name: Ensure the backend application is running
+      shell: curl -f http://localhost:3000 || exit 1
+      become: yes
+
+    - name: Ensure the frontend application is running
+      shell: curl -f http://localhost:3001 || exit 1
+      become: yes
