@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package.json ./
 
 # Install dependencies
-RUN npm install --legacy-peer-deps && echo "Dependencies installed successfully"
+RUN yarn install --frozen-lockfile && echo "Dependencies installed successfully"
 
 # Copy the rest of the application
 COPY . .
