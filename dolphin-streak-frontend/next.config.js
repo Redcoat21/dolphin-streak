@@ -1,9 +1,9 @@
-const { i18n } = require('./next-i18next.config');
+const { i18n } = require("./next-i18next.config");
 
 /** @type {import("next").NextConfig} */
 const config = {
   i18n,
-
+  reactStrictMode: true,
   // async redirects() {
   //   return [
   //     {
@@ -13,11 +13,10 @@ const config = {
   //     },
   //   ];
   // },
-
   /** We run eslint as a separate task in CI */
   eslint: {
     ignoreDuringBuilds: !!process.env.CI,
-  },
+  }
 };
 
 module.exports = config;

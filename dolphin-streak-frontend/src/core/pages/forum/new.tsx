@@ -5,7 +5,7 @@ import { useCallback } from "react";
 import dynamic from "next/dynamic";
 
 const Editor = dynamic(
-  () => import("@/core/components/shared/editor"),
+  () => import("@/core/components/shared/RichTextEditor"),
   { ssr: false }
 );
 
