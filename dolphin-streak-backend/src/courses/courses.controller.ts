@@ -1,28 +1,36 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
-} from "@nestjs/common";
-import { CoursesService } from "./courses.service";
-import { CreateCourseDto } from "./dto/create-course.dto";
-import { UpdateCourseDto } from "./dto/update-course.dto";
-import { checkIfExist, formatGetAllMessages } from "src/lib/utils/response";
-import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
-import { FilterQuery } from "mongoose";
-import { Course } from "./schemas/course.schema";
-import { FindAllCoursesQuery } from "./dto/find-all-query.dto";
-import { RoleGuard } from "src/lib/guard/role.guard";
-import { HasRoles } from "src/lib/decorators/has-role.decorator";
-import { Role } from "src/users/schemas/user.schema";
+  UseInterceptors,
+} from '@nestjs/common';
+import { CoursesService } from './courses.service';
+import { CreateCourseDto } from './dto/create-course.dto';
+import { UpdateCourseDto } from './dto/update-course.dto';
+import { checkIfExist, formatGetAllMessages } from 'src/lib/utils/response';
+import { FindByIdParam } from 'src/lib/dto/find-by-id-param.dto';
+import { FilterQuery } from 'mongoose';
+import { Course } from './schemas/course.schema';
+import { FindAllCoursesQuery } from './dto/find-all-query.dto';
+import { RoleGuard } from 'src/lib/guard/role.guard';
+import { HasRoles } from 'src/lib/decorators/has-role.decorator';
+import { Role } from 'src/users/schemas/user.schema';
 import {
+  ApiBadGatewayResponse,
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -32,17 +40,20 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiUnauthorizedResponse,
-} from "@nestjs/swagger";
-import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
+} from '@nestjs/swagger';
+import { BearerTokenGuard } from 'src/auth/guard/bearer-token.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiResponse } from 'src/lib/types/response.type';
+import { CloudinaryService } from 'src/upload/cloudinary.service';
 
-@Controller("/api/courses")
+@Controller('/api/courses')
 @UseGuards(BearerTokenGuard, RoleGuard)
 @HasRoles(Role.ADMIN)
 @ApiUnauthorizedResponse({
   description:
     "Happen because the user is not authorized (doesn't have a valid access token)",
   example: {
-    message: "Unauthorized",
+    message: 'Unauthorized',
     data: null,
   },
 })
@@ -50,58 +61,61 @@ import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
   description:
     "Happen because the user doesn't have the right role to access this endpoint",
   example: {
-    message: "Forbidden resource",
+    message: 'Forbidden resource',
     data: null,
   },
 })
 @ApiInternalServerErrorResponse({
   description:
-    "Happen when something went wrong, that is not handled by this API, e.g. database error",
+    'Happen when something went wrong, that is not handled by this API, e.g. database error',
   example: {
-    message: "Internal Server Error",
+    message: 'Internal Server Error',
     data: null,
   },
 })
 @ApiBearerAuth()
 export class CoursesController {
-  constructor(private readonly coursesService: CoursesService) {}
+  constructor(
+    private readonly coursesService: CoursesService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
-    summary: "Create a new course",
-    description: "Create a new course with the provided data.",
+    summary: 'Create a new course',
+    description: 'Create a new course with the provided data.',
   })
   @ApiCreatedResponse({
-    description: "The course has been successfully created.",
+    description: 'The course has been successfully created.',
     example: {
-      messages: "Course created succesfully",
+      messages: 'Course created succesfully',
       data: {
-        name: "Course 2",
+        name: 'Course 2',
         levels: [],
-        language: "6732299a3b7d4ef48a34278c",
+        language: '6732299a3b7d4ef48a34278c',
         type: 0,
-        thumbnail: "https://ivansantosokeren.webp",
-        _id: "6733798b5197083383500fdf",
+        thumbnail: 'https://ivansantosokeren.webp',
+        _id: '6733798b5197083383500fdf',
         __v: 0,
       },
     },
   })
   @ApiBadRequestResponse({
-    description: "Bad request, e.g. missing required fields",
+    description: 'Bad request, e.g. missing required fields',
     example: {
       messages: [
-        "name must be a string",
-        "language must be a mongodb id",
-        "type must be one of the following values: 0, 1",
-        "thumbnail must be a URL address",
+        'name must be a string',
+        'language must be a mongodb id',
+        'type must be one of the following values: 0, 1',
+        'thumbnail must be a URL address',
       ],
       data: null,
     },
   })
   async create(@Body() createCourseDto: CreateCourseDto) {
     return {
-      messages: "Course created succesfully",
+      messages: 'Course created succesfully',
       data: await this.coursesService.create(createCourseDto),
     };
   }
@@ -109,69 +123,67 @@ export class CoursesController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: "Find all courses",
-    description: "Find all courses that match the given filter.",
+    summary: 'Find all courses',
+    description: 'Find all courses that match the given filter.',
   })
   @ApiOkResponse({
-    description: "The courses have been successfully retrieved.",
+    description: 'The courses have been successfully retrieved.',
     example: {
-      messages: "3 courses found",
+      messages: '3 courses found',
       data: [
         {
-          _id: "67337d95efc0db11932081fb",
-          name: "Course 2",
+          _id: '67337d95efc0db11932081fb',
+          name: 'Course 2',
           levels: [],
           language: {
-            _id: "6732299a3b7d4ef48a34278c",
-            name: "Chineese",
-            image: "https://test.com.png",
+            _id: '6732299a3b7d4ef48a34278c',
+            name: 'Chineese',
+            image: 'https://test.com.png',
             __v: 0,
           },
           type: 0,
-          thumbnail: "https://joken.webp",
+          thumbnail: 'https://joken.webp',
           __v: 0,
         },
         {
-          _id: "67337db4efc0db1193208204",
-          name: "Course 2",
+          _id: '67337db4efc0db1193208204',
+          name: 'Course 2',
           levels: [],
           language: {
-            _id: "6732299a3b7d4ef48a34278c",
-            name: "Chineese",
-            image: "https://test.com.png",
+            _id: '6732299a3b7d4ef48a34278c',
+            name: 'Chineese',
+            image: 'https://test.com.png',
             __v: 0,
           },
           type: 0,
-          thumbnail: "https://joken.webp",
+          thumbnail: 'https://joken.webp',
           __v: 0,
         },
         {
-          _id: "67337dc0efc0db1193208206",
-          name: "Course 3",
+          _id: '67337dc0efc0db1193208206',
+          name: 'Course 3',
           levels: [],
           language: {
-            _id: "6732299a3b7d4ef48a34278c",
-            name: "Chineese",
-            image: "https://test.com.png",
+            _id: '6732299a3b7d4ef48a34278c',
+            name: 'Chineese',
+            image: 'https://test.com.png',
             __v: 0,
           },
           type: 1,
-          thumbnail: "https://joken2.webp",
+          thumbnail: 'https://joken2.webp',
           __v: 0,
         },
       ],
     },
   })
   @ApiBadRequestResponse({
-    description: "Bad request, e.g. invalid query parameters",
+    description: 'Bad request, e.g. invalid query parameters',
     example: {
-      messages: ["language must be a mongodb id"],
+      messages: ['language must be a mongodb id'],
       data: null,
     },
   })
-  async findAll(
-    @Query() findAllQuery: FindAllCoursesQuery,
-  ) {
+  async findAll(@Query() findAllQuery: FindAllCoursesQuery) {
     const filter: FilterQuery<Course> = {};
 
     if (findAllQuery.language) {
@@ -185,101 +197,99 @@ export class CoursesController {
     const foundedCourses = await this.coursesService.findAll(filter);
 
     return {
-      messages: formatGetAllMessages(foundedCourses.length, "course"),
+      messages: formatGetAllMessages(foundedCourses.length, 'course'),
       data: foundedCourses,
     };
   }
 
-  @Get(":id")
+  @Get(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: "Find a course by its ID",
-    description: "Find a course by its ID.",
+    summary: 'Find a course by its ID',
+    description: 'Find a course by its ID.',
   })
   @ApiOkResponse({
-    description: "The course has been successfully retrieved.",
+    description: 'The course has been successfully retrieved.',
     example: {
-      messages: "Course found",
+      messages: 'Course found',
       data: {
-        _id: "67337d95efc0db11932081fb",
-        name: "Course 2",
+        _id: '67337d95efc0db11932081fb',
+        name: 'Course 2',
         levels: [],
         language: {
-          _id: "6732299a3b7d4ef48a34278c",
-          name: "Chineese",
-          image: "https://test.com.png",
+          _id: '6732299a3b7d4ef48a34278c',
+          name: 'Chineese',
+          image: 'https://test.com.png',
           __v: 0,
         },
         type: 0,
-        thumbnail: "https://joken.webp",
+        thumbnail: 'https://joken.webp',
         __v: 0,
       },
     },
   })
   @ApiBadRequestResponse({
-    description: "Bad request, e.g. invalid course ID",
+    description: 'Bad request, e.g. invalid course ID',
     example: {
-      messages: "Course not found",
+      messages: 'Course not found',
       data: null,
     },
   })
   @ApiNotFoundResponse({
-    description: "Course not found",
+    description: 'Course not found',
     example: {
-      messages: "Course not found",
+      messages: 'Course not found',
       data: null,
     },
   })
   async findOne(@Param() findByIdParam: FindByIdParam) {
     const foundedLanguage = checkIfExist(
       await this.coursesService.findOne(findByIdParam.id),
-      "Course not found",
+      'Course not found',
     );
     return {
-      messages: "Course found",
+      messages: 'Course found',
       data: foundedLanguage,
     };
   }
 
-  @Patch(":id")
+  @Patch(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: "Update a course by its ID",
-    description: "Update a course by its ID with the provided data.",
+    summary: 'Update a course by its ID',
+    description: 'Update a course by its ID with the provided data.',
   })
   @ApiOkResponse({
-    description: "The course has been successfully updated.",
+    description: 'The course has been successfully updated.',
     example: {
-      messages: "Course updated succesfully",
+      messages: 'Course updated succesfully',
       data: {
-        _id: "67337d95efc0db11932081fb",
-        name: "Course 2 - Updated",
+        _id: '67337d95efc0db11932081fb',
+        name: 'Course 2 - Updated',
         levels: [],
         language: {
-          _id: "6732299a3b7d4ef48a34278c",
-          name: "Chineese",
-          image: "https://test.com.png",
+          _id: '6732299a3b7d4ef48a34278c',
+          name: 'Chineese',
+          image: 'https://test.com.png',
           __v: 0,
         },
         type: 0,
-        thumbnail: "https://joken.webp",
+        thumbnail: 'https://joken.webp',
         __v: 0,
       },
     },
   })
   @ApiNotFoundResponse({
-    description: "Course not found",
+    description: 'Course not found',
     example: {
-      messages: "Course not found",
+      messages: 'Course not found',
       data: null,
     },
   })
   @ApiBadRequestResponse({
-    description: "Bad request, e.g. invalid course ID",
+    description: 'Bad request, e.g. invalid course ID',
     example: {
-      messages: [
-        "id must be a valid mongodb id",
-      ],
+      messages: ['id must be a valid mongodb id'],
     },
   })
   async update(
@@ -288,64 +298,137 @@ export class CoursesController {
   ) {
     const updatedCourse = checkIfExist(
       await this.coursesService.update(findByIdParam.id, updateCourseDto),
-      "Course not found",
+      'Course not found',
     );
     return {
-      messages: "Course updated succesfully",
+      messages: 'Course updated succesfully',
       data: updatedCourse,
     };
   }
 
-  @Delete(":id")
+  @Delete(':id')
   @ApiOperation({
-    summary: "Delete a course by its ID",
-    description: "Delete a course by its ID.",
+    summary: 'Delete a course by its ID',
+    description: 'Delete a course by its ID.',
   })
   @ApiOkResponse({
     description:
-      "The course has been successfully deleted, it will return the deleted course.",
+      'The course has been successfully deleted, it will return the deleted course.',
     example: {
-      messages: "Course deleted succesfully",
+      messages: 'Course deleted succesfully',
       data: {
-        _id: "67337d95efc0db11932081fb",
-        name: "Course 2 - Updated",
+        _id: '67337d95efc0db11932081fb',
+        name: 'Course 2 - Updated',
         levels: [],
         language: {
-          _id: "6732299a3b7d4ef48a34278c",
-          name: "Chineese",
-          image: "https://test.com.png",
+          _id: '6732299a3b7d4ef48a34278c',
+          name: 'Chineese',
+          image: 'https://test.com.png',
           __v: 0,
         },
         type: 0,
-        thumbnail: "https://joken.webp",
+        thumbnail: 'https://joken.webp',
         __v: 0,
       },
     },
   })
   @ApiNotFoundResponse({
-    description: "Course not found",
+    description: 'Course not found',
     example: {
-      messages: "Course not found",
+      messages: 'Course not found',
       data: null,
     },
   })
   @ApiBadRequestResponse({
-    description: "Bad request, e.g. invalid course ID",
+    description: 'Bad request, e.g. invalid course ID',
     example: {
-      messages: [
-        "id must be a valid mongodb id",
-      ],
+      messages: ['id must be a valid mongodb id'],
     },
   })
   async remove(@Param() findByIdParam: FindByIdParam) {
     const deletedCourse = checkIfExist(
       await this.coursesService.remove(findByIdParam.id),
-      "Course not found",
+      'Course not found',
     );
 
     return {
-      messages: "Course deleted succesfully",
+      messages: 'Course deleted succesfully',
       data: deletedCourse,
     };
+  }
+
+  @ApiOperation({
+    summary: "Upload a course's thumbnail picture",
+    description:
+      "Is used to upload a course's thumbnail picture. Sorry that no body example in here, i don't know how",
+  })
+  @ApiOkResponse({
+    description: 'Return the uploaded thumbnail picture',
+    example: {
+      messages: 'Thumbnail picture uploaded successfully',
+      data: {
+        imageUrl: 'https://placehold.jp/150x150.png',
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description:
+      "Happen when the user doesn't upload a file or the file MIME type is not allowed",
+    example: {
+      messages: 'Validation failed (expected type is /(jpg|jpeg|png|webp)$/)',
+      data: null,
+    },
+  })
+  @ApiBadGatewayResponse({
+    description:
+      'Happen when the image failed to upload to Cloudinary, it can be because of the network or the image itself',
+    example: {
+      messages: 'Failed to upload image to Cloudinary',
+      data: null,
+    },
+  })
+  @Patch(':id/thumbnail')
+  @UseInterceptors(FileInterceptor('thumbnail'))
+  @HasRoles(Role.ADMIN)
+  async uploadThumbnailPicture(
+    @Param() findOneParam: FindByIdParam,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          // 5 MB
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
+        ],
+        errorHttpStatusCode: 400,
+        exceptionFactory: (errors) => {
+          throw new HttpException(errors, 400);
+        },
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<ApiResponse> {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    try {
+      const imageUrl = await this.cloudinaryService.uploadImage(
+        file,
+        findOneParam.id,
+      );
+
+      await this.update(findOneParam, { thumbnail: imageUrl });
+      return {
+        messages: 'Thumbnail picture uploaded successfully',
+        data: {
+          imageUrl,
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        'Failed to upload image to Cloudinary',
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
   }
 }
