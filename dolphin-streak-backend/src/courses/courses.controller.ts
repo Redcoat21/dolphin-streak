@@ -415,6 +415,7 @@ export class CoursesController {
       const imageUrl = await this.cloudinaryService.uploadImage(
         file,
         findOneParam.id,
+        'courses_thumbnail',
       );
 
       await this.update(findOneParam, { thumbnail: imageUrl });

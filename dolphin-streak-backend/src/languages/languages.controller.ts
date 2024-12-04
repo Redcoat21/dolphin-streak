@@ -338,6 +338,7 @@ export class LanguagesController {
       const imageUrl = await this.cloudinaryService.uploadImage(
         file,
         findOneParam.id,
+        'languages_thumbnail',
       );
 
       await this.update(findOneParam, { image: imageUrl });

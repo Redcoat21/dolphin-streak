@@ -542,6 +542,7 @@ export class UsersController {
       const imageUrl = await this.cloudinaryService.uploadImage(
         file,
         findOneParam.id,
+        'profile_pictures',
       );
 
       await this.update(findOneParam, { profilePicture: imageUrl });
