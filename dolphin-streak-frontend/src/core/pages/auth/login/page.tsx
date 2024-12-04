@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -6,13 +6,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Container } from "@/core/components/container";
-import { GoogleLogo } from "@/core/components/icons/google-logo";
-import { ArrowLeft } from "lucide-react";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Container } from '@/core/components/container';
+import { GoogleLogo } from '@/core/components/icons/google-logo';
+import { ArrowLeft } from 'lucide-react';
 
 export function LoginPage() {
   return (
@@ -70,8 +70,7 @@ export function LoginPage() {
               </div>
             </div>
             <Button variant="outline" className="w-full">
-              <GoogleLogo />
-              Google
+              <GoogleLogo /> Google
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               Not a member?{" "}

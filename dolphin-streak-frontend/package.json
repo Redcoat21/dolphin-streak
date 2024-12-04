@@ -24,9 +24,12 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.0",
     "@tanstack/react-query": "^5.60.2",
+    "@tippyjs/react": "^4.2.6",
     "@tiptap/extension-highlight": "^2.10.3",
+    "@tiptap/extension-image": "^2.10.3",
     "@tiptap/extension-link": "^2.10.3",
     "@tiptap/extension-subscript": "^2.10.3",
     "@tiptap/extension-superscript": "^2.10.3",
