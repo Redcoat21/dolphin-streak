@@ -1,6 +1,6 @@
+import { AuthContext } from "@/core/contexts/AuthContext";
 import { useRouter } from "next/router";
 import { useContext, useEffect } from "react";
-import { AuthContext } from "@/core/contexts/authContext";
 
 export function withAuth(Component: React.ComponentType) {
   return function AuthenticatedComponent(props: any) {
