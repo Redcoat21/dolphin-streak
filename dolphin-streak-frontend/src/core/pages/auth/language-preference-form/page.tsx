@@ -33,7 +33,7 @@ const formSchema = z.object({
   learningTime: z.string(),
 });
 
-const LanguagePreferenceForm: React.FC = () => {
+export const LanguagePreferenceForm: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [selections, setSelections] = useState<Selections>({
     motherLanguage: '',
@@ -133,4 +133,3 @@ const LanguagePreferenceForm: React.FC = () => {
   );
 };
 
-export default LanguagePreferenceForm;

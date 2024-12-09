@@ -8,3 +8,4 @@ const t = initTRPC.context<typeof createInnerTRPCContext>().create({
 
 export const router = t.router;
 export const baseProcedure = t.procedure;
+export const publicProcedure = baseProcedure;

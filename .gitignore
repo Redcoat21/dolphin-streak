@@ -1,3 +1,4 @@
+# Existing entries
 # Logs
 logs
 *.log
@@ -131,3 +132,13 @@ dist
 
 .vscode/
 .mise.toml
+.aider*
+
+*.log
+*.lock
+*.env
+*.env.local
+*.env.*.local
+
+# New entry for environment files
+.env.*

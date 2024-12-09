@@ -7,8 +7,8 @@ WORKDIR /usr/src/app
 # Copy package.json and package-lock.json before installing dependencies
 COPY package.json ./
 
-# Install dependencies
-RUN npm install && echo "Dependencies installed successfully"
+# Install dependencies using Yarn
+RUN yarn install --frozen-lockfile && echo "Dependencies installed successfully"
 
 
 RUN npm run build && echo "Build run successfully"

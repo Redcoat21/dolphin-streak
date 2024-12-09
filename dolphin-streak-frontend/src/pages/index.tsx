@@ -1,6 +1,7 @@
+import { withAuth } from "@/core/components/hoc/withAuth";
 import Head from "next/head";
 
-export default function HomePage() {
+function HomePage() {
   return (
     <>
       <Head>
@@ -12,3 +13,4 @@ export default function HomePage() {
     </>
   );
 }
+export default withAuth(HomePage);
