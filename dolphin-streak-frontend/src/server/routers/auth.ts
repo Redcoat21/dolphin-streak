@@ -1,5 +1,5 @@
 import { publicProcedure, router } from '../trpc';
-import { ZLoginInput } from '../types/auth';
+import { ZLoginInput, ZRegisterInput } from '../types/auth';
 import { AuthService } from '../services/auth.service';
 
 export const authRouter = router({
@@ -8,5 +8,11 @@ export const authRouter = router({
     .mutation(async ({ input }) => {
       const authService = new AuthService();
       return await authService.login(input.email, input.password);
+    }),
+  register: publicProcedure
+    .input(ZRegisterInput)
+    .mutation(async ({ input }) => {
+      const authService = new AuthService();
+      return await authService.register(input.firstName, input.lastName, input.email, input.password);
     }),
 });

@@ -7,10 +7,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Container } from '@/core/components/container';
-import { GoogleLogo } from '@/core/components/icons/google-logo';
 import { trpc } from '@/utils/trpc';
+import { Container } from '@/core/components/container';
+import { Separator } from '@/components/ui/separator';
+import { GoogleLogo } from '@/core/components/icons/google-logo';
 import { ArrowLeft } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -24,6 +24,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useRouter } from 'next/navigation';
+import { TLoginResponse } from '@/server/types/auth';
 
 // Define the form schema using Zod
 const formSchema = z.object({
@@ -34,13 +36,14 @@ const formSchema = z.object({
 });
 
 export function LoginPage() {
+  const router = useRouter();
   const {
     mutate: login,
     isSuccess,
     isError,
     error,
   } = trpc.auth.login.useMutation({
-    onSuccess: (response) => {
+    onSuccess: (response: TLoginResponse) => {
       const { accessToken, refreshToken } = response.data;
 
       // Store in local storage
@@ -51,11 +54,11 @@ export function LoginPage() {
       sessionStorage.setItem("accessToken", accessToken);
       sessionStorage.setItem("refreshToken", refreshToken);
 
-      // Optionally, you can redirect the user or show a success message
-      // window.location.href = '/dashboard';
+      // Redirect to the homepage
+      router.push('/');
     },
-    onError: (error) => {
-      console.error("Login error:", error);
+    onError: (error: { message: string }) => {
+      console.error("Login error:", error.message);
     },
   });
 
@@ -104,7 +107,7 @@ export function LoginPage() {
                 <FormField
                   control={form.control}
                   name="email"
-                  render={({ field }) => (
+                  render={({ field }: { field: { name: string; ref: (node: HTMLInputElement) => void; value: string; onChange: (event: React.ChangeEvent<HTMLInputElement>) => void } }) => (
                     <FormItem>
                       <FormLabel htmlFor="email">Email</FormLabel>
                       <FormControl>
@@ -122,7 +125,7 @@ export function LoginPage() {
                 <FormField
                   control={form.control}
                   name="password"
-                  render={({ field }) => (
+                  render={({ field }: { field: { name: string; ref: (node: HTMLInputElement) => void; value: string; onChange: (event: React.ChangeEvent<HTMLInputElement>) => void } }) => (
                     <FormItem>
                       <FormLabel htmlFor="password">Password</FormLabel>
                       <FormControl>
@@ -147,7 +150,7 @@ export function LoginPage() {
                 >
                   {isSuccess ? "Logged in" : "Login"}
                 </Button>
-                {isError && <p className="text-red-500">{error?.message}</p>}
+                {isError && <p className="text-red-500">{error.message}</p>}
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <Separator />
