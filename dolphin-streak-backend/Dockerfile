@@ -10,6 +10,8 @@ COPY package.json ./
 # Install dependencies
 RUN npm install && echo "Dependencies installed successfully"
 
+
+RUN npm run build && echo "Build run successfully"
 # Copy the rest of the application
 COPY . .
 
@@ -17,4 +19,4 @@ COPY . .
 EXPOSE 3000
 
 # Start the application in development mode (watch for file changes)
-CMD ["npm", "run", "start:dev"]
+CMD ["npm", "run", "start:prod"]

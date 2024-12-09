@@ -8,12 +8,14 @@
     # Application directory on the target server
     app_directory: "/usr/src/app"
     # Backend repository URL
-    backend_repo_url: "https://github.com/your-repo/dolphin-streak-backend.git"
+    backend_repo_url: "https://{{ github_pat }}@github.com/your-repo/dolphin-streak-backend.git"
     # Frontend repository URL
-    frontend_repo_url: "https://github.com/your-repo/dolphin-streak-frontend.git"
+    frontend_repo_url: "https://{{ github_pat }}@github.com/your-repo/dolphin-streak-frontend.git"
     # Azure user and password (for SSH access)
     azure_user: "azureuser"
     azure_password: "yourpassword"
+    # GitHub Personal Access Token
+    github_pat: "your-github-pat"
 
   tasks:
     - name: Ensure Node.js is installed

@@ -1,150 +1,136 @@
-import { useState } from "react";
-import { ArrowLeft, Clock } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { OptionButton } from "./subcomponents/OptionButton";
+import React, { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { trpc } from '@/utils/trpc';
+import { Button } from '@/components/ui/button';
 
-const steps = [
-  {
-    title: "What Is Your Mother Language",
-    options: [
-      { id: "english", label: "English", flag: "🇺🇸" },
-      { id: "indonesian", label: "Indonesian", flag: "🇮🇩" },
-      { id: "chinese", label: "Chinese", flag: "🇨🇳" },
-    ],
-  },
-  {
-    title: "Which language would you like to learn?",
-    options: [
-      { id: "english", label: "English", flag: "🇺🇸" },
-      { id: "indonesian", label: "Indonesian", flag: "🇮🇩" },
-      { id: "chinese", label: "Chinese", flag: "🇨🇳" },
-    ],
-  },
-  {
-    title: "How much do you know about Chinese",
-    options: [
-      { id: "beginner", label: "I am a Beginner, I am Just Starting Out" },
-      {
-        id: "intermediate",
-        label: "I have some Intermediate Experience with Chinese",
-      },
-      { id: "proficient", label: "I am Proficient with the Chinese Language" },
-    ],
-  },
-  {
-    title: "How much time do you want to learn Chinese",
-    options: [
-      {
-        id: "5min",
-        label: "5 Minutes / Day",
-        icon: <Clock className="h-5 w-5" />,
-      },
-      {
-        id: "10min",
-        label: "10 Minutes / Day",
-        icon: <Clock className="h-5 w-5" />,
-      },
-      {
-        id: "15min",
-        label: "15 Minutes / Day",
-        icon: <Clock className="h-5 w-5" />,
-      },
-      {
-        id: "20min",
-        label: "20 Minutes / Day",
-        icon: <Clock className="h-5 w-5" />,
-      },
-    ],
-  },
-];
+type Selections = {
+  motherLanguage: string;
+  learningLanguage: string;
+  proficiencyLevel: string;
+  learningTime: string;
+};
 
-export function LanguagePreferencesForm() {
+type SelectionKey = keyof Selections;
+
+const formSchema = z.object({
+  motherLanguage: z.string(),
+  learningLanguage: z.string(),
+  proficiencyLevel: z.string(),
+  learningTime: z.string(),
+});
+
+const LanguagePreferenceForm: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [selections, setSelections] = useState({
-    motherLanguage: "",
-    learningLanguage: "",
-    proficiencyLevel: "",
-    learningTime: "",
+  const [selections, setSelections] = useState<Selections>({
+    motherLanguage: '',
+    learningLanguage: '',
+    proficiencyLevel: '',
+    learningTime: '',
   });
 
-  const handleOptionSelect = (optionId: string) => {
-    const stepKey = Object.keys(selections)[currentStep];
-    setSelections((prev) => ({
-      ...prev,
-      [stepKey]: optionId,
+  const form = useForm<{ [K in SelectionKey]: string }>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      motherLanguage: '',
+      learningLanguage: '',
+      proficiencyLevel: '',
+      learningTime: '',
+    },
+  });
+
+  const { toast } = useToast();
+  const router = useRouter();
+  const pathname = usePathname();
+  const updateLanguagePreferences = trpc.auth.updateLanguagePreferences.useMutation();
+
+  const handleOptionSelect = (key: SelectionKey, value: string) => {
+    setSelections((prevSelections) => ({
+      ...prevSelections,
+      [key]: value,
     }));
+    setCurrentStep((prevStep) => prevStep + 1);
   };
 
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep((prev) => prev + 1);
+  const handleFormSubmit = async (data: { [K in SelectionKey]: string }) => {
+    try {
+      await updateLanguagePreferences.mutateAsync({
+        motherLanguage: data.motherLanguage,
+        learningLanguage: data.learningLanguage,
+        proficiencyLevel: data.proficiencyLevel,
+        learningTime: data.learningTime,
+      });
+      toast({
+        title: 'Success',
+        description: 'Language preferences updated successfully',
+      });
+      router.push('/auth/success');
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to update language preferences',
+        variant: 'destructive',
+      });
     }
   };
 
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
-    }
-  };
+  const options = [
+    { id: 'motherLanguage', label: 'Mother Language', options: ['English', 'Spanish', 'French', 'German'] },
+    { id: 'learningLanguage', label: 'Learning Language', options: ['English', 'Spanish', 'French', 'German'] },
+    { id: 'proficiencyLevel', label: 'Proficiency Level', options: ['Beginner', 'Intermediate', 'Advanced'] },
+    { id: 'learningTime', label: 'Learning Time', options: ['15 minutes', '30 minutes', '45 minutes', '60 minutes'] },
+  ];
 
-  const currentStepData = steps[currentStep];
+  const currentOption = options[currentStep];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-4">
-      <div className="max-w-md mx-auto space-y-6">
-        <div className="bg-blue-500 rounded-lg p-4 flex items-center">
-          <Button
-            variant="ghost"
-            className="text-white p-0 hover:bg-blue-600"
-            onClick={handleBack}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <span className="flex-1 text-center text-sm font-medium">
-            Completed {currentStep + 1}/4
-          </span>
-        </div>
-
-        <h1 className="text-xl font-semibold text-center">
-          {currentStepData.title}
-        </h1>
-
-        <div className="space-y-3">
-          {currentStepData.options.map((option) => (
-            <OptionButton
-              key={option.id}
-              option={option}
-              isSelected={
-                selections[Object.keys(selections)[currentStep]] === option.id
-              }
-              onOptionSelect={handleOptionSelect}
-            />
-            // <button
-            //   key={option.id}
-            //   onClick={() => handleOptionSelect(option.id)}
-            //   className={`w-full flex items-center p-4 rounded-lg transition-colors ${
-            //     selections[Object.keys(selections)[currentStep]] === option.id
-            //       ? "bg-blue-500"
-            //       : "bg-gray-900 hover:bg-gray-800"
-            //   }`}
-            // >
-            //   {option.flag && (
-            //     <span className="text-2xl mr-3">{option.flag}</span>
-            //   )}
-            //   {option.icon && <span className="mr-3">{option.icon}</span>}
-            //   <span className="text-sm font-medium">{option.label}</span>
-            // </button>
-          ))}
-        </div>
-
-        <Button
-          variant="custom-accented"
-          className="w-full h-12"
-          onClick={handleNext}
-        >
-          Next
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleFormSubmit)}>
+        <FormField
+          control={form.control}
+          name={currentOption.id as SelectionKey}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{currentOption.label}</FormLabel>
+              <Select
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  handleOptionSelect(currentOption.id as SelectionKey, value);
+                }}
+                defaultValue={field.value}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an option" />
+                </SelectTrigger>
+                <SelectContent>
+                  {currentOption.options.map((option) => (
+                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" disabled={currentStep < options.length - 1}>
+          {currentStep < options.length - 1 ? 'Next' : 'Submit'}
         </Button>
-      </div>
-    </div>
+      </form>
+    </Form>
   );
-}
+};
+
+export default LanguagePreferenceForm;
