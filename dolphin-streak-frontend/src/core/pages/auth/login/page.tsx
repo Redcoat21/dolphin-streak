@@ -7,14 +7,72 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Container } from '@/core/components/container';
 import { GoogleLogo } from '@/core/components/icons/google-logo';
+import { trpc } from '@/utils/trpc';
 import { ArrowLeft } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+
+// Define the form schema using Zod
+const formSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters" }),
+});
 
 export function LoginPage() {
+  const {
+    mutate: login,
+    isSuccess,
+    isError,
+    error,
+  } = trpc.auth.login.useMutation({
+    onSuccess: (response) => {
+      const { accessToken, refreshToken } = response.data;
+
+      // Store in local storage
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+
+      // Store in session storage
+      sessionStorage.setItem("accessToken", accessToken);
+      sessionStorage.setItem("refreshToken", refreshToken);
+
+      // Optionally, you can redirect the user or show a success message
+      // window.location.href = '/dashboard';
+    },
+    onError: (error) => {
+      console.error("Login error:", error);
+    },
+  });
+
+  // Initialize the form using useForm
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  // Handle form submission
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    login(values);
+  }
+
   return (
     <Container>
       <Button
@@ -40,45 +98,78 @@ export function LoginPage() {
               For free, join now and start learning
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="name@example.com" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" />
-            </div>
-            <div className="flex items-center justify-end">
-              <Button variant="link" className="px-0" asChild>
-                <a href="/forgot-password">Forgot password?</a>
-              </Button>
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <Button className="w-full" variant={"custom-accented"}>
-              Login
-            </Button>
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <Separator />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
-              </div>
-            </div>
-            <Button variant="outline" className="w-full">
-              <GoogleLogo /> Google
-            </Button>
-            <p className="text-center text-sm text-muted-foreground">
-              Not a member?{" "}
-              <Button variant="link" className="px-0" asChild>
-                <a href="/auth/register">Sign up</a>
-              </Button>
-            </p>
-          </CardFooter>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <CardContent className="grid gap-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="email">Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="name@example.com"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="password">Password</FormLabel>
+                      <FormControl>
+                        <Input id="password" type="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex items-center justify-end">
+                  <Button variant="link" className="px-0" asChild>
+                    <a href="/forgot-password">Forgot password?</a>
+                  </Button>
+                </div>
+              </CardContent>
+              <CardFooter className="flex flex-col gap-4">
+                <Button
+                  className="w-full"
+                  variant="custom-blue"
+                  type="submit"
+                  disabled={isSuccess}
+                >
+                  {isSuccess ? "Logged in" : "Login"}
+                </Button>
+                {isError && <p className="text-red-500">{error?.message}</p>}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <Separator />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      Or continue with
+                    </span>
+                  </div>
+                </div>
+                <Button variant="outline" className="w-full">
+                  <GoogleLogo /> Google
+                </Button>
+                <p className="text-center text-sm text-muted-foreground">
+                  Not a member?{" "}
+                  <Button variant="link" className="px-0" asChild>
+                    <a href="/auth/register">Sign up</a>
+                  </Button>
+                </p>
+              </CardFooter>
+            </form>
+          </Form>
         </Card>
       </div>
     </Container>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #080e1e;
+        }
+        .container {
+            width: 100%;
+            background-color: #080e1e;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            background-color: #0a84ff;
+            color: white;
+            padding: 15px;
+        }
+        .header img {
+            margin-right: 10px;
+        }
+        .header h2 {
+            flex-grow: 1;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+            color: white;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .input {
+            width: 90%;
+            margin-top: 3rem; /* Set width to 90% */
+            display: flex; /* Use flexbox */
+            flex-direction: column; /* Stack elements vertically */
+            align-items: center; /* Center align items */
+        }
+        .input-group {
+            width: 100%; /* Make input groups full width of the container */
+            margin-bottom: 1rem;
+        }
+        .input span {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .input input {
+            width: 100%; /* Make input fields take full width of their container */
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #1a1a1a;
+            color: white;
+            box-sizing: border-box; /* Include padding in width calculation */
+        }
+        .forgotpassword {
+            width: 100%;
+            text-align: left;
+        }
+        .button-container {
+            width: 100%; /* Make button container full width */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        .login-button, .google-button {
+            width: 100%; /* Make buttons take full width of their container */
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        .login-button {
+            background-color: #5B7BFE;
+            color: white;
+        }
+        .or-text {
+            margin: 1rem 0;
+        }
+        .google-button {
+            background-color: #1a1a1a;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .google-button img {
+            margin-right: 5px;
+            width: 1rem;
+        }
+        .member{
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="imgSource/back.png" alt="" style="height: 1.5rem;">
+            <h2>Login</h2>
+        </div>
+        <div class="content">
+            <div class="icon">
+                <img src="imgSource/learnathome.png" alt="" style="height: 8rem;">
+                <h3>For free, join now and</h3>
+                <h3>start learning</h3>
+            </div>
+            <div class="input">
+                <div class="input-group">
+                    <span>Email Address</span>
+                    <input type="text">
+                </div>
+                <div class="input-group">
+                    <span>Password</span>
+                    <input type="password">
+                </div>
+                <div class="forgotpassword">
+                    <span style="font-size: xx-small; color: #9e9e9e;">
+                        Forgot Password
+                    </span>
+                </div>
+                <div class="button-container">
+                    <button class="login-button">Login</button>
+                    <div class="or-text">
+                        <span style="color: #555555"> ------------------------------ Or ------------------------------ </span>
+                    </div>
+                    <button class="google-button">
+                        <img src="./imgSource/google.png" alt="">
+                        Google
+                    </button>
+                </div>
+                <div class="member">
+                    Now you member? <span style="color: #0a84ff; margin-left: 0.5rem;">Signup</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
