@@ -1,28 +1,35 @@
-import { selectBackendUrl } from './backend-selector';
+import { selectBackendUrl } from "./backend-selector";
 
-export async function fetchAPI<T = any>(
+export const fetchAPI = async <T>(
   endpoint: string,
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  method: "GET" | "POST" | "PUT" | "DELETE",
   body?: Record<string, any>
-): Promise<T> {
-  const headers = {
-    'Content-Type': 'application/json',
-  };
-
-  const options: RequestInit = {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  };
-
+): Promise<T> => {
   const backendUrl = selectBackendUrl();
-  const fullUrl = `${backendUrl}${endpoint}`;
+  const url = `${backendUrl}${endpoint}`;
 
-  const response = await fetch(fullUrl, options);
+  console.log(`Fetching from ${url} with method ${method} and body:`, body);
+
+  const response = await fetch(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const errorData = await response.json();
+    const errorMessage = Array.isArray(errorData.messages)
+      ? errorData.messages.join(", ")
+      : errorData.messages || "HTTP error!";
+    const error = new Error(errorMessage);
+    (error as any).status = response.status;
+    console.error(`Error fetching from ${url}: ${errorMessage}`);
+    throw error;
   }
 
-  return response.json();
-}
+  const data = await response.json();
+  console.log(`Fetched data from ${url}:`, data);
+  return data;
+};

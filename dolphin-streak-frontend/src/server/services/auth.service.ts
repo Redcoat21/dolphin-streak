@@ -1,5 +1,5 @@
-import { fetchAPI } from '@/utils/generic';
-import { ZRegisterInput, TLoginResponse } from '../types/auth';
+import { fetchAPI } from "@/utils/generic";
+import { ZRegisterInput, TLoginResponse } from "../types/auth";
 
 export class AuthService {
   async login(email: string, password: string): Promise<TLoginResponse> {
@@ -18,15 +18,27 @@ export class AuthService {
     }
   }
 
-  async register(firstName: string, lastName: string, email: string, password: string) {
-    // Call the fetchAPI function to register the user
-    const response = await fetchAPI("/api/auth/register", "POST", {
-      firstName,
-      lastName,
-      email,
-      password,
-    });
-
-    return response;
+  async register(
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string
+  ) {
+    try {
+      const response = await fetchAPI("/api/auth/register", "POST", {
+        firstName,
+        lastName,
+        email,
+        password,
+      });
+      console.log({ response });
+      return response;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Registration failed: ${JSON.stringify({ error })}`);
+      } else {
+        throw new Error("Registration failed: Unknown error");
+      }
+    }
   }
 }

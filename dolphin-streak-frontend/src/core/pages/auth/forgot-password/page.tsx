@@ -38,7 +38,7 @@ export function ForgotPasswordPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="w-full" variant="custom-accented">
+            <Button className="w-full" variant="custom-blue">
               Send Reset Link
             </Button>
           </CardFooter>

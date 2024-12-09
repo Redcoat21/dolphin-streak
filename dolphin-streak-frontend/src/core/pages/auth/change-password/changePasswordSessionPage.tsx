@@ -68,7 +68,7 @@ export function ChangePasswordSessionPage() {
             </div>
 
             <Button
-              variant={"custom-accented"}
+              variant={"custom-blue"}
               className="w-full h-12 text-white rounded-lg"
             >
               Confirm Password Change
