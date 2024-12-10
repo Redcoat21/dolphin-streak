@@ -1,53 +1,27 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, BadRequestException, UseInterceptors, UploadedFile, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { VoiceaiService } from './voiceai.service';
-import { CreateVoiceaiDto } from './dto/create-voiceai.dto';
-import { UpdateVoiceaiDto } from './dto/update-voiceai.dto';
-
-// @Controller('voiceai')
-// export class VoiceaiController {
-//   constructor(private readonly voiceaiService: VoiceaiService) {}
-
-//   @Post()
-//   create(@Body() createVoiceaiDto: CreateVoiceaiDto) {
-//     return this.voiceaiService.create(createVoiceaiDto);
-//   }
-
-//   @Get()
-//   findAll() {
-//     return this.voiceaiService.findAll();
-//   }
-
-//   @Get(':id')
-//   findOne(@Param('id') id: string) {
-//     return this.voiceaiService.findOne(+id);
-//   }
-
-//   @Patch(':id')
-//   update(@Param('id') id: string, @Body() updateVoiceaiDto: UpdateVoiceaiDto) {
-//     return this.voiceaiService.update(+id, updateVoiceaiDto);
-//   }
-
-//   @Delete(':id')
-//   remove(@Param('id') id: string) {
-//     return this.voiceaiService.remove(+id);
-//   }
-// }
+import { FileInterceptor } from '@nestjs/platform-express';
+import { RecognizeSpeechDto } from './dto/recognizeSpeech.dto';
+import { ApiConsumes, ApiForbiddenResponse, ApiInternalServerErrorResponse, ApiOperation, ApiUnauthorizedResponse, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
+import { BearerTokenGuard } from 'src/auth/guard/bearer-token.guard';
 
 @Controller('/api/voiceai')
 export class VoiceaiController {
   constructor(private readonly voiceaiService: VoiceaiService) {}
 
-  /**
-   * Endpoint to recognize speech from an audio file.
-   * @param {string} audioFilePath - Path to the audio file for speech-to-text conversion.
-   * @returns {Promise<any>} Transcription result from the audio file.
-   */
   @Post('transcribe')
-  async recognize(@Query('audioFilePath') audioFilePath: string): Promise<any> {
-    if (!audioFilePath) {
-      throw new BadRequestException('The "audioFilePath" query parameter is required.');
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data') 
+  async recognize(
+    @Body() RecognizeSpeechDto: RecognizeSpeechDto,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<any> {
+    const { format } = RecognizeSpeechDto;
+
+    if (!file) {
+      throw new BadRequestException('Audio file is required.');
     }
 
-    return this.voiceaiService.recognizeSpeech(audioFilePath);
+    return this.voiceaiService.recognizeSpeech(file.buffer, format);
   }
 }
