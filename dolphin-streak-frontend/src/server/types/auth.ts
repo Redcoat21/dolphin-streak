@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-
 export const ZLoginInput = z.object({
   email: z.string().email(),
   password: z.string().min(8),
@@ -45,3 +44,13 @@ export type TRegisterResponse = {
   messages: string;
   data: TUserData;
 };
+
+export const ZUpdateLanguagePreferencesInput = z.object({
+  language: z.string(),
+  motherLanguage: z.string().optional(),
+  learningLanguage: z.string().optional(),
+  proficiencyLevel: z.string().optional(),
+  learningTime: z.string().optional(),
+});
+
+export type TUpdateLanguagePreferencesInput = z.infer<typeof ZUpdateLanguagePreferencesInput>;
