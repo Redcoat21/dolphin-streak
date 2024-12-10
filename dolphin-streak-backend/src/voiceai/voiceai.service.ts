@@ -15,7 +15,6 @@ export class VoiceaiService {
   private readonly convertioApiKey: string;
 
   constructor(private readonly configService: ConfigService) {
-    // Load the Google credentials path from environment variables
     this.googleCredentials = this.configService.get<string>('GOOGLE_APPLICATION_CREDENTIALS_JSON');
     this.bucketName = this.configService.get<string>('GCP_BUCKET_NAME');
     this.convertioApiKey = this.configService.get<string>('CONVERTIO_API_KEY');
@@ -41,12 +40,8 @@ export class VoiceaiService {
         outputformat: 'wav',
       },
     );
-    console.log(fileIdResponse.data);
-    
-
     const fileId = fileIdResponse.data.data.id;
 
-    // Wait for the conversion to complete
     let conversionResult: any;
     while (true) {
       const statusResponse = await axios.get(`${apiUrl}/${fileId}/status`);
@@ -54,21 +49,18 @@ export class VoiceaiService {
       
       if (statusResponse.data.data.step === 'finish') {
         conversionResult = statusResponse.data.data;
-        console.log("conversionResult");
-        console.log(conversionResult);
-        
         break;
-      } else if (statusResponse.data.status === 'error') {
+      } 
+      else if (statusResponse.data.data.step === 'convert') {
+        console.log("still converting");
+      } 
+      else if (statusResponse.data.status === 'error') {
         throw new Error(`Convertio API error: ${statusResponse.data.error}`);
       }
-
-      if (statusResponse.data.data.step === 'convert') {
-        console.log("still converting");
-      }      
+      
       await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait 5 seconds
     }
 
-    // Download the converted file
     const fileResponse = await axios.get(conversionResult.output.url, {
       responseType: 'arraybuffer',
     });
@@ -87,7 +79,7 @@ export class VoiceaiService {
     const file = bucket.file(fileName);
     await file.save(fileBuffer);
     await file.makePublic(); // Make the file publicly accessible
-    console.log(`gs://${this.bucketName}/${fileName}`);
+    // console.log(`gs://${this.bucketName}/${fileName}`);
     return `gs://${this.bucketName}/${fileName}`;
   }
 
@@ -137,12 +129,11 @@ export class VoiceaiService {
           enableSeparateRecognitionPerChannel: true
         },
       };
+
       const response = await this.speechClient.recognize(request);
       const results = response[0].results.map((result) => { 
         return result.alternatives[0]
        })
-      
-      console.log(results);
 
       let confidence = 0;
       let transcript = "";
@@ -154,10 +145,9 @@ export class VoiceaiService {
         }
       }
 
-      console.log(transcript);
-
       return {
-        transcript
+        transcript,
+        confidence
       };
     } catch (error) {
       console.log(error.response.data.error);
