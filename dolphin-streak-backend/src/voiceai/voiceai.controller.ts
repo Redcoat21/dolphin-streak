@@ -46,7 +46,7 @@ export class VoiceaiController {
     example: {
       "messages": "Audio file successfully transripted",
       "data": {
-        "transcript": "I want slaves to be free you want slaves to be free we are not the same",
+        "transcript": "hi everyone good morning",
         "confidence": 0.9439936280250549
       }
     }
