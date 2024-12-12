@@ -88,10 +88,14 @@ export class VoiceaiService {
    * @param buffer buffer of the file to upload.
    * @returns {Promise<number>} the number of the sample rate.
    */
-  private async getSampleRate(buffer: Buffer): Promise<number> {
-    const wav = require('node-wav');
-    const result = wav.decode(buffer);
-    return result.sampleRate;
+  private async getWavProperties(buffer: Buffer): Promise<{ sampleRate: number; audioChannels: number }> {
+    const wav = require('node-wav'); // Import the 'node-wav' library
+    const result = wav.decode(buffer); // Decode the WAV buffer
+  
+    return {
+      sampleRate: result.sampleRate, // Extract the sample rate
+      audioChannels: result.channelData.length, // Count the number of audio channels
+    };
   }
   
   /**
@@ -113,11 +117,14 @@ export class VoiceaiService {
 
     try {
       const wavBuffer = await this.convertToWavWithConvertio(fileBuffer, inputFormat);
+      // console.log("converting done");
       
       const uri = await this.uploadToBucket(wavBuffer, bucketFileName);
+      // console.log("upload to bucket done");
 
-      const sampleRate = await this.getSampleRate(wavBuffer);
-
+      const { sampleRate, audioChannels } = await this.getWavProperties(wavBuffer);
+      // console.log("get properties done");
+      
       const audio = { uri: uri };
       const request = {
         audio: audio,
@@ -125,7 +132,7 @@ export class VoiceaiService {
           encoding: 'LINEAR16',
           sampleRateHertz: sampleRate,
           languageCode: 'en-US',
-          audioChannelCount: 2,
+          audioChannelCount: audioChannels,
           enableSeparateRecognitionPerChannel: true
         },
       };
@@ -150,7 +157,7 @@ export class VoiceaiService {
         confidence
       };
     } catch (error) {
-      console.log(error.response.data.error);
+      console.log(error);
       if(error.status == 422){
         throw new UnprocessableEntityException(`${error.response.data.error}. Wait for tomorrow for new convertion minutes`);
       }

@@ -44,8 +44,11 @@ export class VoiceaiController {
   @ApiOkResponse({
     description: "The response was successfully transcripted and returned",
     example: {
-      messages: "Audio file successfully transripted",
-      data: null
+      "messages": "Audio file successfully transripted",
+      "data": {
+        "transcript": "I want slaves to be free you want slaves to be free we are not the same",
+        "confidence": 0.9439936280250549
+      }
     }
   })
   @ApiUnprocessableEntityResponse({
@@ -78,7 +81,7 @@ export class VoiceaiController {
       throw new BadRequestException('Audio file is required.');
     }
 
-    const data = this.voiceaiService.recognizeSpeech(file.buffer, format);
+    const data = await this.voiceaiService.recognizeSpeech(file.buffer, format);
 
     return {
       messages: "Audio file successfully transripted",
