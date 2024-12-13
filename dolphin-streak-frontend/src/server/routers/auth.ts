@@ -6,7 +6,11 @@ export const authRouter = router({
   login: publicProcedure
     .input(ZLoginInput)
     .mutation(async ({ input }) => {
-      return await AuthService.login(input.email, input.password);
+      const result = await AuthService.login(input.email, input.password);
+      return {
+        success: true,
+        data: result.data
+      };
     }),
   register: publicProcedure
     .input(ZRegisterInput)

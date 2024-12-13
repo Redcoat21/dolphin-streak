@@ -61,7 +61,8 @@
     "tailwindcss-animate": "^1.0.7",
     "todomvc-app-css": "^2.4.3",
     "todomvc-common": "^1.0.5",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.2",

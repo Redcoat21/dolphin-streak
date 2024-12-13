@@ -5,9 +5,10 @@ import { useContext, useEffect } from "react";
 export function withAuth(Component: React.ComponentType) {
   return function AuthenticatedComponent(props: any) {
     const router = useRouter();
-    const { isAuthenticated } = useContext(AuthContext);
+    const { isAuthenticated, setAuthenticated } = useContext(AuthContext);
 
     useEffect(() => {
+      console.log("isAuthenticated:", isAuthenticated);
       if (!isAuthenticated) {
         const allowedPaths = [
           "/auth/login",

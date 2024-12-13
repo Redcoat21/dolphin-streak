@@ -5,6 +5,8 @@ import { appWithTranslation } from "next-i18next";
 import type { AppProps } from "next/app";
 import type { ComponentProps } from "react";
 import { trpc } from "../utils/trpc";
+import { AuthProvider } from "@/core/contexts/AuthContext";
+import { Toaster } from "@/components/ui/toaster";
 
 const I18nextAdapter = appWithTranslation<
   AppProps<SSRConfig> & { children: React.ReactNode }
@@ -33,7 +35,10 @@ const I18nProvider = (props: AppProps) => {
 const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
     <I18nProvider {...pageProps}>
-      <Component {...pageProps} />
+      <AuthProvider>
+        <Component {...pageProps} />
+        <Toaster />
+      </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </I18nProvider>
   );

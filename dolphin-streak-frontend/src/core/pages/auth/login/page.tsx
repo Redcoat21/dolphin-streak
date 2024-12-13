@@ -25,55 +25,52 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
-import { TLoginResponse } from '@/server/types/auth';
-
-// Define the form schema using Zod
-const formSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters" }),
-});
+import { useAuthStore } from '@/core/stores/authStore';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { ZLoginInput } from '@/server/types/auth';
 
 export function LoginPage() {
   const router = useRouter();
-  const {
-    mutate: login,
-    isSuccess,
-    isError,
-    error,
-  } = trpc.auth.login.useMutation({
-    onSuccess: (response: TLoginResponse) => {
+  const { toast } = useToast();
+  const { setAuth } = useAuthStore();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { mutate: login } = trpc.auth.login.useMutation({
+    onSuccess: (response) => {
       const { accessToken, refreshToken } = response.data;
-
-      // Store in local storage
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-
-      // Store in session storage
-      sessionStorage.setItem("accessToken", accessToken);
-      sessionStorage.setItem("refreshToken", refreshToken);
-
-      // Redirect to the homepage
-      router.push('/');
+      setAuth(accessToken, refreshToken);
+      toast({
+        title: "Login Successful",
+        description: "You have logged in successfully!",
+        variant: "default",
+      });
+      router.push('/dashboard');
     },
-    onError: (error: { message: string }) => {
-      console.error("Login error:", error.message);
+    onError: (error) => {
+      toast({
+        title: "Login Failed",
+        description: error.message || "An error occurred during login.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
     },
   });
 
-  // Initialize the form using useForm
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof ZLoginInput>>({
+    resolver: zodResolver(ZLoginInput),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  // Handle form submission
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    login(values);
+  async function onSubmit(values: z.infer<typeof ZLoginInput>) {
+    setIsLoading(true);
+    login({
+      email: values.email,
+      password: values.password,
+    });
   }
 
   return (
@@ -107,12 +104,11 @@ export function LoginPage() {
                 <FormField
                   control={form.control}
                   name="email"
-                  render={({ field }: { field: { name: string; ref: (node: HTMLInputElement) => void; value: string; onChange: (event: React.ChangeEvent<HTMLInputElement>) => void } }) => (
+                  render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="email">Email</FormLabel>
+                      <FormLabel>Email</FormLabel>
                       <FormControl>
                         <Input
-                          id="email"
                           type="email"
                           placeholder="name@example.com"
                           {...field}
@@ -125,32 +121,26 @@ export function LoginPage() {
                 <FormField
                   control={form.control}
                   name="password"
-                  render={({ field }: { field: { name: string; ref: (node: HTMLInputElement) => void; value: string; onChange: (event: React.ChangeEvent<HTMLInputElement>) => void } }) => (
+                  render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="password">Password</FormLabel>
+                      <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input id="password" type="password" {...field} />
+                        <Input type="password" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <div className="flex items-center justify-end">
-                  <Button variant="link" className="px-0" asChild>
-                    <a href="/forgot-password">Forgot password?</a>
-                  </Button>
-                </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
                 <Button
                   className="w-full"
                   variant="custom-blue"
                   type="submit"
-                  disabled={isSuccess}
+                  disabled={isLoading}
                 >
-                  {isSuccess ? "Logged in" : "Login"}
+                  {isLoading ? "Logging in..." : "Login"}
                 </Button>
-                {isError && <p className="text-red-500">{error.message}</p>}
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <Separator />
@@ -164,12 +154,6 @@ export function LoginPage() {
                 <Button variant="outline" className="w-full">
                   <GoogleLogo /> Google
                 </Button>
-                <p className="text-center text-sm text-muted-foreground">
-                  Not a member?{" "}
-                  <Button variant="link" className="px-0" asChild>
-                    <a href="/auth/register">Sign up</a>
-                  </Button>
-                </p>
               </CardFooter>
             </form>
           </Form>
