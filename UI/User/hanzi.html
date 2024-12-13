@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hanzi Exercise</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0B1121;
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+            padding: 0;
+        }
+        .header {
+            background-color: #0A84FF;
+            color: white;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .hanzi-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+        }
+        .hanzi-box {
+            width: 200px;
+            height: 200px;
+            background-color: #141A2B;
+            border: 2px solid #1B2335;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .hanzi-box::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background-color: #A0A0A0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .hanzi {
+            font-size: 10rem;
+            color: white;
+        }
+        .continue-button {
+            background-color: #0A84FF;
+            color: white;
+            font-size: 1.2rem;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            width: calc(100% - 40px);
+            max-width: 400px;
+            align-self: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">Course 10 - Chapter 8/10</div>
+    <div class="hanzi-container">
+        <div class="hanzi-box">
+            <div class="hanzi">小</div>
+        </div>
+    </div>
+    <button class="continue-button">Continue</button>
+</body>
+</html>

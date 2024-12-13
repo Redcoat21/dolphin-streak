@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Exercise</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0B1121;
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+            padding: 20px 0;
+        }
+        .header {
+            background-color: #0A84FF;
+            color: white;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            margin-top: 20px;
+        }
+        .subtitle span {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: #A0A0A0;
+        }
+        .mic-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 40px;
+        }
+        .mic-container img {
+            width: 100px;
+            height: 100px;
+            background-color: #1B2335;
+            padding: 20px;
+            border-radius: 10%;
+        }
+        .continue-button {
+            background-color: #0A84FF;
+            color: white;
+            font-size: 1.2rem;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            width: calc(100% - 40px);
+            margin: 0 auto 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">Course 10 - Chapter 9/10</div>
+    <div class="subtitle">
+        我叫小明，今年二十岁。
+        <span>Wǒ jiào Xiǎomíng, jīnnián èrshí suì.</span>
+    </div>
+    <div class="mic-container">
+        <img src="./imgSource/mic.png" alt="Mic">
+    </div>
+    <button class="continue-button">Continue</button>
+</body>
+</html>
