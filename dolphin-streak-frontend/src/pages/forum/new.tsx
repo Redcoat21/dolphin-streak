@@ -2,7 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
-import { RichTextEditor } from "@/core/components/shared/RichTextEditor";
+import RichTextEditor from "@/core/components/shared/RichTextEditor";
 
 export const NewThreadPage = () => {
     const router = useRouter();

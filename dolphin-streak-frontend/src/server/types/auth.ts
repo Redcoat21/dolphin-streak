@@ -12,6 +12,7 @@ export const ZRegisterInput = z.object({
   lastName: z.string().min(1),
   email: z.string().email(),
   password: z.string().min(8),
+  confirmPassword: z.string().min(8),
   profilePicture: z.string().optional(),
   birthDate: z.string().optional(),
 });

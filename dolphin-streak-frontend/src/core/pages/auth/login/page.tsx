@@ -2,163 +2,109 @@ import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
-import { trpc } from '@/utils/trpc';
 import { Container } from '@/core/components/container';
-import { Separator } from '@/components/ui/separator';
-import { GoogleLogo } from '@/core/components/icons/google-logo';
-import { ArrowLeft } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/core/stores/authStore';
-import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { trpc } from '@/utils/trpc';
 import { ZLoginInput } from '@/server/types/auth';
+import { useMediaQuery } from '@/hooks/use-media-query';
+import { useAuthStore } from '@/core/stores/authStore';
+import { LoginDesktopView } from './components/DekstopView/page';
+import { LoginMobileView } from './components/MobileView/page';
 
 export function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { setAuth } = useAuthStore();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const { mutate: login } = trpc.auth.login.useMutation({
-    onSuccess: (response) => {
-      const { accessToken, refreshToken } = response.data;
-      setAuth(accessToken, refreshToken);
-      toast({
-        title: "Login Successful",
-        description: "You have logged in successfully!",
-        variant: "default",
-      });
-      router.push('/dashboard');
-    },
-    onError: (error) => {
-      toast({
-        title: "Login Failed",
-        description: error.message || "An error occurred during login.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-    },
-  });
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const form = useForm<z.infer<typeof ZLoginInput>>({
     resolver: zodResolver(ZLoginInput),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
 
-  async function onSubmit(values: z.infer<typeof ZLoginInput>) {
-    setIsLoading(true);
-    login({
-      email: values.email,
-      password: values.password,
-    });
-  }
+  const { mutate: login, isPending } = trpc.auth.login.useMutation({
+    onSuccess: (response) => {
+      const { accessToken, refreshToken } = response.data;
+      setAuth(accessToken, refreshToken);
+      router.push('/');
+      toast({
+        title: "Success!",
+        description: "You have successfully logged in.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "An error occurred during login.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmit = (values: z.infer<typeof ZLoginInput>) => {
+    login(values);
+  };
 
   return (
-    <Container>
-      <Button
-        variant="ghost"
-        className="absolute left-4 top-4 md:left-8 md:top-8"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" /> Back
-      </Button>
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-        <Card>
-          <CardHeader className="space-y-1">
-            <div className="flex items-center justify-center mb-6">
-              <div className="relative h-24 w-24">
-                <img
-                  src="/api/placeholder/100/100"
-                  alt="Learn at home"
-                  className="object-cover"
+    <div className="min-h-screen bg-[#0A0A0A] text-white pb-5">
+      {isMobile && (
+        <div className="flex h-14 items-center px-4 bg-[#007AFF]">
+          <span className="flex-1 text-center font-medium">Sign In</span>
+        </div>
+      )}
+
+      <Container>
+        <div className="mx-auto max-w-[600px] pt-8">
+          <Card className="bg-[#121212] border-0 shadow-none">
+            <CardHeader className="space-y-1 pb-6">
+              <h1 className="text-2xl font-semibold text-white text-center">
+                Welcome Back
+              </h1>
+              <p className="text-gray-400 text-center">
+                For free, join now and start learning
+              </p>
+            </CardHeader>
+
+            <CardContent>
+              {isMobile ? (
+                <LoginMobileView
+                  form={form}
+                  isPending={isPending}
+                  onSubmit={handleSubmit}
                 />
-              </div>
-            </div>
-            <CardTitle className="text-2xl text-center">Welcome back</CardTitle>
-            <CardDescription className="text-center">
-              For free, join now and start learning
-            </CardDescription>
-          </CardHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <CardContent className="grid gap-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="name@example.com"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              ) : (
+                <LoginDesktopView
+                  form={form}
+                  isPending={isPending}
+                  onSubmit={handleSubmit}
                 />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-              <CardFooter className="flex flex-col gap-4">
-                <Button
-                  className="w-full"
-                  variant="custom-blue"
-                  type="submit"
-                  disabled={isLoading}
+              )}
+            </CardContent>
+
+            <CardFooter className="flex justify-center pb-6">
+              <p className="text-sm text-gray-400">
+                Not a member yet?{" "}
+                <a
+                  href="/auth/register"
+                  className="text-[#007AFF] hover:underline"
                 >
-                  {isLoading ? "Logging in..." : "Login"}
-                </Button>
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <Separator />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                      Or continue with
-                    </span>
-                  </div>
-                </div>
-                <Button variant="outline" className="w-full">
-                  <GoogleLogo /> Google
-                </Button>
-              </CardFooter>
-            </form>
-          </Form>
-        </Card>
-      </div>
-    </Container>
+                  Sign up
+                </a>
+              </p>
+            </CardFooter>
+          </Card>
+        </div>
+      </Container>
+    </div>
   );
 }

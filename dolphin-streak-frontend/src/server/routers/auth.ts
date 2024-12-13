@@ -15,6 +15,10 @@ export const authRouter = router({
   register: publicProcedure
     .input(ZRegisterInput)
     .mutation(async ({ input }) => {
+      if (input.password !== input.confirmPassword) {
+        throw new Error("Passwords do not match");
+      }
+
       return await AuthService.register(input.firstName, input.lastName, input.email, input.password);
     }),
   updateLanguagePreferences: publicProcedure
