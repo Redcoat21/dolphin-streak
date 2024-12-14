@@ -1,4 +1,5 @@
-import { createContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useState, useEffect, ReactNode, useContext } from "react";
+import { useAuthStore } from "../stores/authStore";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -11,29 +12,19 @@ export const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setAuthenticated] = useState(false);
+  const { isAuthenticated, checkAuth } = useAuthStore();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("Checking authentication status");
-    let token = sessionStorage.getItem(
-      "secure_dolphin_streak_usr_access_token"
-    );
-    if (!token) {
-      token = localStorage.getItem(
-        "secure_dolphin_streak_usr_access_token"
-      );
-    }
-    console.log({ token, isAuthenticated });
+    checkAuth();
+    setLoading(false);
+  }, [checkAuth]);
 
-    setAuthenticated(!!token);
-    setLoading(false); // Set loading to false after checking the token
-  }, []);
 
-  if (loading) return null; // Prevent rendering until loading is complete
+  if (loading) return null;
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, setAuthenticated }}>
+    <AuthContext.Provider value={{ isAuthenticated, setAuthenticated: () => {} }}>
       {children}
     </AuthContext.Provider>
   );

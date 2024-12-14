@@ -55,3 +55,17 @@ export const ZUpdateLanguagePreferencesInput = z.object({
 });
 
 export type TUpdateLanguagePreferencesInput = z.infer<typeof ZUpdateLanguagePreferencesInput>;
+
+export const ZForgotPasswordInput = z.object({
+  email: z.string().email(),
+});
+
+export type TForgotPasswordInput = z.infer<typeof ZForgotPasswordInput>;
+
+export const ZResetPasswordInput = z.object({
+  encryptedPayload: z.string(),
+  iv: z.string(),
+  newPassword: z.string().min(8),
+});
+
+export type TResetPasswordInput = z.infer<typeof ZResetPasswordInput>;

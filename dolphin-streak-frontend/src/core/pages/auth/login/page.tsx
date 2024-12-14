@@ -12,7 +12,7 @@ import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { trpc } from '@/utils/trpc';
-import { ZLoginInput } from '@/server/types/auth';
+import { TLoginInput, ZLoginInput } from '@/server/types/auth';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { useAuthStore } from '@/core/stores/authStore';
 import { LoginDesktopView } from './components/DekstopView/page';
@@ -24,7 +24,7 @@ export function LoginPage() {
   const { setAuth } = useAuthStore();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const form = useForm<z.infer<typeof ZLoginInput>>({
+  const form = useForm<TLoginInput>({
     resolver: zodResolver(ZLoginInput),
     defaultValues: {
       email: '',
@@ -51,7 +51,7 @@ export function LoginPage() {
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof ZLoginInput>) => {
+  const handleSubmit = (values: TLoginInput) => {
     login(values);
   };
 

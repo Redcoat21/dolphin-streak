@@ -13,7 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { trpc } from '@/utils/trpc';
 import { ArrowLeft } from 'lucide-react';
-import { ZRegisterInput } from '@/server/types/auth';
+import { TRegisterInput, ZRegisterInput } from '@/server/types/auth';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { RegisterMobileView } from './components/MobileView/page';
 import { RegisterDekstopView } from './components/DekstopView/page';
@@ -23,7 +23,7 @@ export function RegisterPage() {
   const { toast } = useToast();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const form = useForm<z.infer<typeof ZRegisterInput>>({
+  const form = useForm<TRegisterInput>({
     resolver: zodResolver(ZRegisterInput),
     defaultValues: {
       firstName: '',
@@ -54,7 +54,7 @@ export function RegisterPage() {
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof ZRegisterInput>) => {
+  const handleSubmit = (values: TRegisterInput) => {
     register(values);
   };
 

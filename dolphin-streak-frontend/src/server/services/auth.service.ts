@@ -4,6 +4,10 @@ import {
   TLoginResponse,
   ZUpdateLanguagePreferencesInput,
   TUpdateLanguagePreferencesInput,
+  ZForgotPasswordInput,
+  TForgotPasswordInput,
+  ZResetPasswordInput,
+  TResetPasswordInput,
 } from "../types/auth";
 import { z } from "zod";
 
@@ -61,6 +65,34 @@ export class AuthService {
         throw new Error("Update language preferences failed: " + error.message);
       } else {
         throw new Error("Update language preferences failed: Unknown error");
+      }
+    }
+  }
+
+  static async forgotPassword(email: string) {
+    try {
+      const response = await fetchAPI("/api/auth/forgot-password", "POST", {
+        email,
+      });
+      return response;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error("Forgot password failed: " + error.message);
+      } else {
+        throw new Error("Forgot password failed: Unknown error");
+      }
+    }
+  }
+
+  static async resetPassword(input: TResetPasswordInput) {
+    try {
+      const response = await fetchAPI("/api/auth/reset-password", "POST", input);
+      return response;
+    } catch (error: unknown) {
+       if (error instanceof Error) {
+        throw new Error("Reset password failed: " + error.message);
+      } else {
+        throw new Error("Reset password failed: Unknown error");
       }
     }
   }

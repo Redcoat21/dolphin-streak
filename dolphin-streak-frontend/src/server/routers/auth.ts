@@ -1,5 +1,5 @@
 import { publicProcedure, router } from '../trpc';
-import { ZLoginInput, ZRegisterInput, ZUpdateLanguagePreferencesInput } from '../types/auth';
+import { ZLoginInput, ZRegisterInput, ZUpdateLanguagePreferencesInput, ZForgotPasswordInput, ZResetPasswordInput } from '../types/auth';
 import { AuthService } from '../services/auth.service';
 
 export const authRouter = router({
@@ -25,5 +25,15 @@ export const authRouter = router({
     .input(ZUpdateLanguagePreferencesInput)
     .mutation(async ({ input }) => {
       return await AuthService.updateLanguagePreferences(input);
+    }),
+  forgotPassword: publicProcedure
+    .input(ZForgotPasswordInput)
+    .mutation(async ({ input }) => {
+      return await AuthService.forgotPassword(input.email);
+    }),
+  resetPassword: publicProcedure
+    .input(ZResetPasswordInput)
+    .mutation(async ({ input }) => {
+      return await AuthService.resetPassword(input);
     }),
 });

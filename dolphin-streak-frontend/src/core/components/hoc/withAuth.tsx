@@ -1,11 +1,11 @@
-import { AuthContext } from "@/core/contexts/AuthContext";
 import { useRouter } from "next/router";
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
+import { useAuthStore } from "@/core/stores/authStore";
 
 export function withAuth(Component: React.ComponentType) {
   return function AuthenticatedComponent(props: any) {
     const router = useRouter();
-    const { isAuthenticated, setAuthenticated } = useContext(AuthContext);
+    const { isAuthenticated } = useAuthStore();
 
     useEffect(() => {
       console.log("isAuthenticated:", isAuthenticated);
