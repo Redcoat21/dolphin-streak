@@ -3,8 +3,31 @@ import { Button } from "~/components/ui/button";
 import { useAuthStore } from "~/core/stores/authStore";
 import { useRouter } from "next/navigation";
 import { Bell } from "lucide-react";
+import { Notification } from "@/core/components/shared/notification";
 
-export function Header() {
+interface HeaderProps {
+    currentPath?: string;
+}
+
+const MOCK_NOTIFICATIONS = [
+    {
+        id: 1,
+        message: "New message from John Doe",
+        read: false,
+    },
+    {
+        id: 2,
+        message: "Your course has been updated",
+        read: true,
+    },
+    {
+        id: 3,
+        message: "New feedback on your assignment",
+        read: false,
+    }
+]
+
+export function Header({ currentPath }: HeaderProps) {
     const { logout } = useAuthStore();
     const router = useRouter();
 
@@ -19,23 +42,25 @@ export function Header() {
                     <h3 className="text-xl font-semibold text-white">Hello, User</h3>
                 </div>
                 <div className="flex items-center gap-4">
-                    <Button
-                        variant="ghost"
-                        className="text-white hover:bg-blue-600 relative"
-                        onClick={() => router.push('/notifications')}
-                    >
-                        <Bell className="h-5 w-5" />
-                        <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
-                            {/* Notification Count */}
-                        </span>
-                    </Button>
-                    <Button
-                        variant="custom-blue"
-                        className="bg-[#1B2335] hover:bg-[#5AB9EA] text-white rounded-md px-4 py-2"
-                        onClick={() => router.push('/forum')}
-                    >
-                        Forum
-                    </Button>
+                    <Notification notifications={MOCK_NOTIFICATIONS} />
+                    {currentPath !== '/forum' && (
+                        <Button
+                            variant="custom-blue"
+                            className="bg-[#1B2335] hover:bg-[#5AB9EA] text-white rounded-md px-4 py-2"
+                            onClick={() => router.push('/forum')}
+                        >
+                            Forum
+                        </Button>
+                    )}
+                    {currentPath == '/forum' && (
+                        <Button
+                            variant="custom-blue"
+                            className="bg-[#1B2335] hover:bg-[#5AB9EA] text-white rounded-md px-4 py-2"
+                            onClick={() => router.push('/')}
+                        >
+                            Home
+                        </Button>
+                    )}
                 </div>
             </div>
         </header>

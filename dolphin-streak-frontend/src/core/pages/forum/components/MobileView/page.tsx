@@ -1,84 +1,74 @@
-import { ArrowLeft, Search, Plus } from "lucide-react";
-import { Button } from "~/components/ui/button";
-import { SearchBar } from "@/core/pages/forum/subcomponents/SearchBar";
-import { ForumPost } from "@/core/pages/forum/subcomponents/ForumPost";
-// import { Pagination } from "/core/pages/forum/subcomponents/Pagination";
-import { useRouter } from "next/router";
-import { useCallback, useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { SearchBar } from "../../subcomponents/SearchBar";
+import { ForumPost } from "../../subcomponents/ForumPost";
 import { Pagination } from "../../subcomponents/Pagination";
 
 interface IForumMobileViewProps {
-
+    forumPosts: {
+        id: number;
+        title: string;
+        content: string;
+        author: string;
+        date: string;
+        avatarSrc?: string;
+    }[];
+    currentPage: number;
+    totalPages: number;
+    handleSearch: (query: string) => void;
+    handleNewPost: () => void;
+    handleReply: (postId: number) => void;
+    handlePageChange: (page: number) => void;
 }
 
-
-export function ForumMobileView({ }: IForumMobileViewProps) {
+export function ForumMobileView({
+    forumPosts,
+    currentPage,
+    totalPages,
+    handleSearch,
+    handleNewPost,
+    handleReply,
+    handlePageChange
+}: IForumMobileViewProps) {
     const router = useRouter();
-    const { page } = router.query;
-    const currentPage = parseInt(page as string, 10) || 1;
-
-    const [searchQuery, setSearchQuery] = useState("");
-
-    const handleSearch = useCallback((query: string) => {
-        setSearchQuery(query);
-        console.log("Search query:", query);
-    }, []);
-
-    const handleNewPost = useCallback(() => {
-        router.push("/forum/new");
-    }, [router]);
-
-    const forumPosts = [
-        {
-            id: 1,
-            title: "Forum Title",
-            content:
-                "Lorem ipsum odor amet, consectetuer adipiscing elit. Lobortis convallis accumsan condimentum pellentesque odio maecenas nullam molestie varius facilisis elementum",
-            author: "Person",
-            date: "Sunday, 20-10-2024",
-            avatarSrc: "/api/placeholder/40/40",
-        },
-    ];
-
-    const handleReply = useCallback((id: number) => {
-        router.push(`/forum/${id}/reply`);
-    }, [router]);
 
     return (
-        <div className="min-h-screen bg-gray-950 text-white p-4">
-            <div className="max-w-2xl mx-auto">
-                <div className="bg-blue-500 rounded-lg p-4 mb-6 flex items-center">
+        <div className="min-h-screen bg-black text-white">
+            <div className="bg-blue-600 p-4 sticky top-0 z-10 shadow-lg">
+                <div className="flex items-center">
                     <Button
                         variant="ghost"
-                        className="text-white p-0 hover:bg-transparent"
+                        className="text-white p-0 hover:bg-blue-700 rounded-lg"
+                        onClick={() => router.back()}
                     >
-                        <ArrowLeft className="h-5 w-5" />
+                        <ArrowLeft className="h-6 w-6" />
                     </Button>
-                    <span className="flex-1 text-center font-semibold">Forum</span>
+                    <span className="flex-1 text-center text-lg font-semibold">Forum</span>
+                    <div className="w-6" /> {/* Spacer for symmetry */}
                 </div>
+            </div>
+
+            <div className="px-4 py-6">
                 <SearchBar
-                    searchValue={searchQuery}
                     onSearch={handleSearch}
                     onNewPost={handleNewPost}
                 />
-                <div className="space-y-4">
+
+                <div className="space-y-4 mb-8">
                     {forumPosts.map((post) => (
-                        <ForumPost key={post.id} {...post} onReply={() => handleReply(post.id)} />
+                        <ForumPost
+                            key={post.id}
+                            {...post}
+                            onClick={() => handleReply(post.id)}
+                        />
                     ))}
                 </div>
+
                 <Pagination
                     currentPage={currentPage}
-                    totalPages={99}
-                    onPageChange={(page: number) => {
-                        router.push(
-                            {
-                                pathname: router.pathname,
-                                query: { ...router.query, page: page },
-                            },
-                            undefined,
-                            { shallow: true }
-                        );
-                    }}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
                 />
             </div>
         </div>

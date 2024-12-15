@@ -2,6 +2,7 @@ import { Container } from "@/core/components/container";
 import { ActivityCardProps } from "../../types";
 import { Header } from "../Header";
 import { ActivityCard } from "../ActivityCard";
+import { usePathname } from "next/navigation";
 
 
 interface IDashboardDesktopView {
@@ -9,9 +10,10 @@ interface IDashboardDesktopView {
 }
 
 export function DashboardDekstopView({ activities }: IDashboardDesktopView) {
+    const pathname = usePathname();
     return (
         <Container>
-            <Header />
+            <Header currentPath={pathname} />
             <main className="px-8 py-12 mt-8">
                 <h2 className="text-4xl font-bold text-center text-white mb-12">
                     Choose Your Activity
