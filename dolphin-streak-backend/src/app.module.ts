@@ -18,6 +18,7 @@ import { FeedbacksModule } from "./feedbacks/feedbacks.module";
 import { ForumsModule } from "./forums/forums.module";
 import { AiModule } from "./ai/ai.module";
 import { ViewController } from "./views/view.controller";
+import { VoiceaiModule } from './voiceai/voiceai.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { ViewController } from "./views/view.controller";
     FeedbacksModule,
     ForumsModule,
     AiModule,
+    VoiceaiModule,
   ],
   controllers: [AppController, ViewController],
   providers: [AppService],

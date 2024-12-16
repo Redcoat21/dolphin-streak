@@ -5,6 +5,7 @@ import {
     IsEnum,
     IsMongoId,
     IsNotEmpty,
+    IsOptional,
     IsString,
     MaxLength,
     ValidateNested,
@@ -62,6 +63,7 @@ export class CreateQuestionDto {
             "Munich",
         ],
     })
+    @IsOptional()
     @IsArray()
     @IsNotEmpty()
     @ValidateAnswerOptions()
@@ -72,6 +74,7 @@ export class CreateQuestionDto {
             "The correct answer for the question. This should be filled with number when the question type is multiple choice, and string when the question type is other",
         example: 2,
     })
+    @IsOptional()
     @IsNotEmpty()
     @ValidateCorrectAnswer()
     correctAnswer: number | string;
