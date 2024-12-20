@@ -1,35 +1,14 @@
 import React from 'react';
-import "./comperhension.css";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ChevronLeft } from "lucide-react";
+import { useMediaQuery } from '@/hooks/use-media-query';
+import { ComprehensionsMobileView } from './components/MobileView';
+import { ComprehensionsDesktopView } from './components/DesktopView';
 
 const ComprehensionsPage = () => {
-  return (
-    <div className="container">
-      <div className="header">
-        <img src="imgSource/back.png" alt="" style={{ height: '1.5rem' }} />
-        <h3>Course</h3>
-      </div>
-      <div className="content">
-        <div className="form-header">
-          Are you sure
-        </div>
-        <div className="form-header">
-          you want
-        </div>
-        <div className="form-header">
-          to take the
-        </div>
-        <div className="form-header">
-          Comprehension
-        </div>
-        <div className="form-header">
-          Assignment?
-        </div>
-        <div className="button-container">
-          <button className="login-button">Continue</button>
-        </div>
-      </div>
-    </div>
-  );
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  return isMobile ? <ComprehensionsMobileView /> : <ComprehensionsDesktopView />;
 };
 
-export default ComprehensionsPage;;
+export default ComprehensionsPage;
