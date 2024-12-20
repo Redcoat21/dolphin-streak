@@ -40,6 +40,7 @@ export function LoginPage() {
       toast({
         title: "Success!",
         description: "You have successfully logged in.",
+        duration: 3000,
       });
     },
     onError: (error) => {
@@ -47,6 +48,7 @@ export function LoginPage() {
         title: "Error",
         description: error.message || "An error occurred during login.",
         variant: "destructive",
+        duration: 3000,
       });
     },
   });

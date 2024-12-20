@@ -1,6 +1,5 @@
 import { Avatar } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 interface ForumPostProps {
   title: string;
@@ -8,6 +7,7 @@ interface ForumPostProps {
   author: string;
   date: string;
   avatarSrc?: string;
+  onClick?: () => void;
 }
 
 export function ForumPost({
@@ -16,9 +16,10 @@ export function ForumPost({
   author,
   date,
   avatarSrc,
+  onClick
 }: ForumPostProps) {
   return (
-    <Card className="bg-[#1a1b1e] border-none hover:bg-[#1e1f23] transition-colors duration-200 cursor-pointer">
+    <Card onClick={onClick} className="bg-[#1a1b1e] border-none hover:bg-[#1e1f23] transition-colors duration-200 cursor-pointer">
       <div className="p-4 space-y-3">
         <div className="flex items-start gap-3">
           <Avatar className="h-10 w-10 rounded-full bg-blue-600 border-2 border-blue-400">

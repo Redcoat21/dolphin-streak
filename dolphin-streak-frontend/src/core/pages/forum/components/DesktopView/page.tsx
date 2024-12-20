@@ -52,6 +52,7 @@ export function ForumDesktopView({
                             <ForumPost
                                 key={post.id}
                                 {...post}
+                                onClick={() => handleReply(post.id)}
                             />
                         ))}
                     </div>
