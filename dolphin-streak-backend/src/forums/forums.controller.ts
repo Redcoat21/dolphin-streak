@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  Query,
 } from "@nestjs/common";
 import { ForumsService } from "./forums.service";
 import { CreateForumDto } from "./dto/create-forum.dto";
@@ -182,8 +183,10 @@ export class ForumsController {
   })
   @HasRoles(Role.ADMIN)
   @Get()
-  async findAll(): Promise<ApiResponse> {
-    const forums = await this.forumsService.findAll();
+  async findAll(@Query("search") searchTerm?: string): Promise<ApiResponse> {
+    const forums = searchTerm
+      ? await this.forumsService.searchForums(searchTerm)
+      : await this.forumsService.findAll();
     return {
       messages: formatGetAllMessages(forums.length, "forum"),
       data: forums,

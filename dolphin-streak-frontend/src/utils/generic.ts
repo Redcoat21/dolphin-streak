@@ -1,20 +1,48 @@
 import { selectBackendUrl } from "./backend-selector";
 
+interface FetchOptions {
+  body?: Record<string, any>;
+  params?: Record<string, string>;
+  query?: Record<string, string>;
+  token?: string;
+}
+
 export const fetchAPI = async <T>(
   endpoint: string,
   method: "GET" | "POST" | "PUT" | "DELETE",
-  body?: Record<string, any>
+  { body, params, query, token }: FetchOptions = {}
 ): Promise<T> => {
   const backendUrl = selectBackendUrl();
-  const url = `${backendUrl}${endpoint}`;
+  const url = new URL(`${backendUrl}${endpoint}`);
 
-  console.log(`Fetching from ${url} with method ${method} and body:`, body);
+  if (params) {
+    Object.entries(params).forEach(([key, value]) =>
+      url.searchParams.append(key, value)
+    );
+  }
 
-  const response = await fetch(url, {
+  if (query) {
+    Object.entries(query).forEach(([key, value]) =>
+      url.searchParams.append(key, value)
+    );
+  }
+
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  console.log(
+    `Fetching from ${url.toString()} with method ${method} and body:`,
+    body
+  );
+
+  const response = await fetch(url.toString(), {
     method,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: body ? JSON.stringify(body) : undefined,
   });
 
@@ -25,11 +53,11 @@ export const fetchAPI = async <T>(
       : errorData.messages || "HTTP error!";
     const error = new Error(errorMessage);
     (error as any).status = response.status;
-    console.error(`Error fetching from ${url}: ${errorMessage}`);
+    console.error(`Error fetching from ${url.toString()}: ${errorMessage}`);
     throw error;
   }
 
   const data = await response.json();
-  console.log(`Fetched data from ${url}:`, data);
+  console.log(`Fetched data from ${url.toString()}:`, data);
   return data;
 };
