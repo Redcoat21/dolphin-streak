@@ -32,6 +32,7 @@ export const NewThreadPage = () => {
         </div>
         <div className="p-4 bg-gray-800 rounded-lg">
             <input type="text" placeholder="Title" className="w-full bg-gray-700 rounded-lg p-2 mb-4" />
+            <input type="text" placeholder="Content" className="w-full bg-gray-700 rounded-lg p-2" />
             <RichTextEditor />
         </div>
         <Button onClick={handleCreateThread} className="w-full bg-blue-500 rounded-lg p-2 mt-4">Create New Thread</Button>
