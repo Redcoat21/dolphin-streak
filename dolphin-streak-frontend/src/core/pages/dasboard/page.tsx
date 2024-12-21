@@ -11,7 +11,7 @@ export function Dashboard() {
             title: "Daily Challenge",
             icon: "/images/daily.png",
             description: "Put your knowledge to the test with our Daily Practice!",
-            link: "/daily-challenge"
+            link: "/challenge"
         },
         {
             title: "Course",

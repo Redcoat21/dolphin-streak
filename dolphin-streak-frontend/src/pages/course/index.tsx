@@ -1,8 +1,8 @@
-import { CoursePage } from "@/core/pages/course/page";
+import CoursePage from "@/core/pages/courses/page";
 import { withAuth } from "@/core/components/hoc/withAuth";
 
-function Course() {
+function Courses() {
   return <CoursePage />;
 }
 
-export default withAuth(Course);
+export default withAuth(Courses);
