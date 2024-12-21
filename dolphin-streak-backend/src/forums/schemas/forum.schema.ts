@@ -16,13 +16,13 @@ export class ForumReply {
 
 @Schema({ timestamps: { createdAt: true, updatedAt: false } })
 export class Forum extends Document {
-    @Prop({ required: true, maxLength: 255 })
+    @Prop({ required: true, maxLength: 255, index: 'text' })
     title: string;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User", required: true })
     user: User;
 
-    @Prop({ required: true, maxLength: 765 })
+    @Prop({ required: true, maxLength: 765, index: 'text' })
     content: string;
 
     @Prop({

@@ -51,4 +51,8 @@ export class ForumsService {
   removeReply(id: string) {
     return this.forumReplyModel.findByIdAndDelete(id);
   }
+
+  searchForums(searchTerm: string) {
+    return this.forumModel.find({ $text: { $search: searchTerm } }).populate({ path: "user", select: "email" });
+  }
 }

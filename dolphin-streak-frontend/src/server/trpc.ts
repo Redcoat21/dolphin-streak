@@ -11,26 +11,17 @@ export const router = t.router;
 export const baseProcedure = t.procedure;
 export const publicProcedure = baseProcedure;
 
-// Define your authenticated procedure
-export const authedProcedure = baseProcedure
-  .input(z.object({
-    // Define your input schema here, e.g., for a post reply
-    content: z.string().min(1, "Content is required"),
-  }))
-  .mutation(async ({ input, context }) => {
-    // Extract the token from the context
-    const token = context.token; // Assuming the token is stored in the context
+export const authedProcedure = baseProcedure.use(({ ctx, next }) => {
+  // Try to get the token from local storage
+  let token = ctx.token || localStorage.getItem('token') || sessionStorage.getItem('token');
 
-    if (!token) {
-      throw new Error("Unauthorized: No token provided");
-    }
+  if (!token) {
+    throw new Error('Not authenticated');
+  }
 
-    // Here you can handle the logic for the authenticated action
-    // For example, you might want to save a reply to a post
-    // const reply = await saveReplyToPost(input.content, token);
-
-    return {
-      success: true,
-      // reply, // Return the reply or any other relevant data
-    };
+  return next({
+    ctx: {
+      token,
+    },
   });
+});

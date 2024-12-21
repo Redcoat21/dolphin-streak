@@ -3,6 +3,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { ForumMobileView } from "./components/MobileView/page";
 import { ForumDesktopView } from "./components/DesktopView/page";
+import { trpc } from "@/utils/trpc";
 
 // const MOCK_FORUM_POSTS = [
 //     {
@@ -31,16 +32,26 @@ export function ForumPage() {
     const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
     const [searchQuery, setSearchQuery] = useState("");
-    const [forumPosts, setForumPosts] = useState(MOCK_FORUM_POSTS);
+    const [forumPosts, setForumPosts] = useState([]);
+
+    const { data: forumPostsData } = trpc.forum.getAllForums.useQuery({
+        page: currentPage,
+        per_page: 10,
+        max_page: 1,
+        search: searchQuery,
+    });
 
     const handleSearch = useCallback((query: string) => {
         setSearchQuery(query);
+        const filteredPosts = forumPostsData?.data || [];
+        setForumPosts(filteredPosts);
+
         // Filter posts based on search query
         // const filteredPosts = MOCK_FORUM_POSTS.filter(
         //     post => post.title.toLowerCase().includes(query.toLowerCase()) ||
         //         post.content.toLowerCase().includes(query.toLowerCase())
         // );
-        setForumPosts(filteredPosts);
+        // setForumPosts(filteredPosts);
     }, []);
 
     const handleNewPost = useCallback(() => {
