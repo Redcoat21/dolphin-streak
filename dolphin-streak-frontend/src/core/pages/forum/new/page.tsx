@@ -1,8 +1,8 @@
 "use client";
 
 import { ArrowLeft } from "lucide-react";
-import { useRouter, useParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
 import { useEditor } from "@tiptap/react";
 import Highlight from "@tiptap/extension-highlight";
 import StarterKit from "@tiptap/starter-kit";
@@ -18,21 +18,13 @@ import Image from "@tiptap/extension-image";
 import RichTextEditor from "@/core/components/shared/RichTextEditor";
 import { trpc } from "@/utils/trpc";
 import { useAuthStore } from "@/core/stores/authStore";
+import { Input } from "@/components/ui/input";
 
-export default function ReplyPage() {
+export default function NewThreadPage() {
   const router = useRouter();
-  const params = useParams();
   const { getAccessToken } = useAuthStore();
   const accessToken = getAccessToken();
-  const forumId = params?.id as string;
-
-  // Get forum details
-  const { data: forumDetail } = trpc.forum.getForumDetail.useQuery({
-    forumId,
-    accessToken: accessToken || "",
-  }, {
-    enabled: !!forumId && !!accessToken,
-  });
+  const [title, setTitle] = useState("");
 
   const editor = useEditor({
     extensions: [
@@ -73,12 +65,12 @@ export default function ReplyPage() {
     },
   });
 
-  const { mutate: createReply } = trpc.forum.createReply.useMutation({
+  const { mutate: createThread } = trpc.forum.createThread.useMutation({
     onSuccess: () => {
-      router.back();
+      router.push('/forum');
     },
     onError: (error) => {
-      console.error('Failed to create reply:', error);
+      console.error('Failed to create thread:', error);
       // TODO: Add error toast notification
     },
   });
@@ -88,17 +80,16 @@ export default function ReplyPage() {
   }, [router]);
 
   const handleSubmit = useCallback(() => {
-    if (!editor?.getHTML()) {
+    if (!editor?.getHTML() || !title.trim()) {
       return;
     }
 
-    createReply({
-      forumId,
-      title: forumDetail?.data?.title || "",
+    createThread({
+      title: title.trim(),
       content: editor.getHTML(),
       accessToken: accessToken || "",
     });
-  }, [editor, forumId, forumDetail?.data?.title, createReply, accessToken]);
+  }, [editor, title, createThread, accessToken]);
 
   return (
     <div className="min-h-screen bg-[#0B1120]">
@@ -113,32 +104,22 @@ export default function ReplyPage() {
         <h1 className="text-white text-lg font-medium">Forum</h1>
       </div>
 
-      {/* Original Post */}
-      {forumDetail?.data && (
-        <div className="p-4 bg-[#1E293B] mt-4 mx-4 rounded-lg">
-          <div className="flex items-start gap-3">
-            <img
-              src={forumDetail.data.user.avatarSrc || `https://api.dicebear.com/7.x/avataaars/svg?seed=${forumDetail.data.user.username}`}
-              alt={forumDetail.data.user.username}
-              className="w-12 h-12 rounded-full"
-            />
-            <div>
-              <h2 className="text-white font-semibold text-lg">{forumDetail.data.title}</h2>
-              <p className="text-gray-300 mt-2">{forumDetail.data.content}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Editor */}
-      <div className="p-4">
+      <div className="p-4 space-y-4">
+        <Input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Title"
+          className="w-full bg-[#1E293B] border-none text-white placeholder:text-gray-400"
+        />
+
         {editor && <RichTextEditor editor={editor} />}
         
         <button
           onClick={handleSubmit}
           className="w-full mt-4 bg-[#4F46E5] text-white py-3 rounded-lg hover:bg-[#4338CA] transition-colors"
         >
-          Reply To Thread
+          Create New Thread
         </button>
       </div>
     </div>

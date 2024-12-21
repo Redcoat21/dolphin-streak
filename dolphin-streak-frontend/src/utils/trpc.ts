@@ -48,6 +48,12 @@ export const trpc = createTRPCNext<AppRouter>({
         }),
         httpBatchLink({
           url: `${getBaseUrl()}/api/trpc`,
+          headers() {
+            return {
+              'x-access-token': localStorage.getItem('secure_dolphin_streak_usr_access_token') || '',
+              'x-refresh-token': localStorage.getItem('secure_dolphin_streak_usr_refresh_token') || '',
+            };
+          },
           /**
            * @see https://trpc.io/docs/v11/data-transformers
            */

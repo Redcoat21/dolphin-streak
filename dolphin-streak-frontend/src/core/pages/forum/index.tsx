@@ -1,64 +1,46 @@
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { ForumMobileView } from "./components/MobileView/page";
 import { ForumDesktopView } from "./components/DesktopView/page";
 import { trpc } from "@/utils/trpc";
-
-// const MOCK_FORUM_POSTS = [
-//     {
-//         id: 1,
-//         title: "Forum Title",
-//         content: "Lorem ipsum odor amet, consectetuer adipiscing elit. Lobortis convallis accumsan condimentum pellentesque odio maecenas nullam molestie varius facilisis elementum",
-//         author: "Person",
-//         date: "Sunday, 20-10-2024",
-//         avatarSrc: "https://api.dicebear.com/7.x/avataaars/svg?seed=1",
-//     },
-//     {
-//         id: 2,
-//         title: "Another Forum Title",
-//         content: "Lorem ipsum odor amet, consectetuer adipiscing elit. Lobortis convallis accumsan condimentum pellentesque odio maecenas nullam molestie varius facilisis elementum",
-//         author: "Person2",
-//         date: "Sunday, 20-10-2024",
-//         avatarSrc: "https://api.dicebear.com/7.x/avataaars/svg?seed=2",
-//     },
-//     // Add more mock posts as needed
-// ];
+import { useAuthStore } from "@/core/stores/authStore";
+import { TForum } from "@/server/types/forums";
 
 export function ForumPage() {
+    const { getAccessToken } = useAuthStore();
+    const accessToken = getAccessToken();
     const isMobile = useMediaQuery("(max-width: 768px)");
     const router = useRouter();
     const searchParams = useSearchParams();
     const currentPage = parseInt(searchParams.get("page") || "1", 10);
+    const per_page = 10;
 
     const [searchQuery, setSearchQuery] = useState("");
-    const [forumPosts, setForumPosts] = useState([]);
-
+    const [forumPosts, setForumPosts] = useState<TForum[]>([]);
     const { data: forumPostsData } = trpc.forum.getAllForums.useQuery({
         page: currentPage,
         per_page: 10,
         max_page: 1,
         search: searchQuery,
+        accessToken: accessToken || "",
     });
+
+    useEffect(() => {
+        if (forumPostsData?.data) {
+            setForumPosts(forumPostsData.data);
+        }
+    }, [forumPostsData]);
 
     const handleSearch = useCallback((query: string) => {
         setSearchQuery(query);
-        const filteredPosts = forumPostsData?.data || [];
-        setForumPosts(filteredPosts);
-
-        // Filter posts based on search query
-        // const filteredPosts = MOCK_FORUM_POSTS.filter(
-        //     post => post.title.toLowerCase().includes(query.toLowerCase()) ||
-        //         post.content.toLowerCase().includes(query.toLowerCase())
-        // );
-        // setForumPosts(filteredPosts);
     }, []);
 
     const handleNewPost = useCallback(() => {
         router.push("/forum/new");
     }, [router]);
 
-    const handleReply = useCallback((id: number) => {
+    const handleReply = useCallback((id: string) => {
         router.push(`/forum/${id}/reply`);
     }, [router]);
 
@@ -69,7 +51,7 @@ export function ForumPage() {
     const sharedProps = {
         forumPosts,
         currentPage,
-        totalPages: 99,
+        totalPages: Math.floor((forumPostsData?.data.length || 10) / per_page) || 1,
         handleSearch,
         handleNewPost,
         handleReply,

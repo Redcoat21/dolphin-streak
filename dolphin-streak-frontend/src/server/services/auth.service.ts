@@ -14,11 +14,10 @@ import { z } from "zod";
 export class AuthService {
   static async login(email: string, password: string): Promise<TLoginResponse> {
     try {
-      const response = await fetchAPI("/api/auth/login", "POST", {
-        email,
-        password,
+      const response = await fetchAPI<TLoginResponse>("/api/auth/login", "POST", {
+        body: { email, password },
       });
-      return response as TLoginResponse;
+      return response;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error("Login failed: " + error.message);
@@ -36,10 +35,7 @@ export class AuthService {
   ) {
     try {
       const response = await fetchAPI("/api/auth/register", "POST", {
-        firstName,
-        lastName,
-        email,
-        password,
+        body: { firstName, lastName, email, password },
       });
       console.log({ response });
       return response;
@@ -52,12 +48,14 @@ export class AuthService {
     }
   }
 
-  static async updateLanguagePreferences(input: TUpdateLanguagePreferencesInput) {
+  static async updateLanguagePreferences(
+    input: TUpdateLanguagePreferencesInput
+  ) {
     try {
       const response = await fetchAPI(
         "/api/auth/updateLanguagePreferences",
         "PUT",
-        input
+        { body: input }
       );
       return response;
     } catch (error: unknown) {
@@ -72,7 +70,7 @@ export class AuthService {
   static async forgotPassword(email: string) {
     try {
       const response = await fetchAPI("/api/auth/forgot-password", "POST", {
-        email,
+        body: { email },
       });
       return response;
     } catch (error: unknown) {
@@ -86,10 +84,13 @@ export class AuthService {
 
   static async resetPassword(input: TResetPasswordInput) {
     try {
-      const response = await fetchAPI("/api/auth/reset-password", "POST", input);
+      const response = await fetchAPI("/api/auth/reset-password", "POST", {
+        body: input
+      },
+      );
       return response;
     } catch (error: unknown) {
-       if (error instanceof Error) {
+      if (error instanceof Error) {
         throw new Error("Reset password failed: " + error.message);
       } else {
         throw new Error("Reset password failed: Unknown error");

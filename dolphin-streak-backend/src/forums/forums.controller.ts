@@ -170,6 +170,8 @@ export class ForumsController {
           user: {
             _id: "67436c361488d1d48b3ee7a7",
             email: "john40@email.com",
+            username: "john40",
+            avatarUrl: "https://i.pravatar.cc/150?img=40",
           },
           content: "lorem 500",
           replies: [
@@ -181,7 +183,7 @@ export class ForumsController {
       ],
     },
   })
-  @HasRoles(Role.ADMIN)
+  @HasRoles(Role.ADMIN, Role.USER)
   @Get()
   async findAll(@Query("search") searchTerm?: string): Promise<ApiResponse> {
     const forums = searchTerm

@@ -44,6 +44,7 @@ export function LoginPage() {
       });
     },
     onError: (error) => {
+      console.log(error);
       toast({
         title: "Error",
         description: error.message || "An error occurred during login.",

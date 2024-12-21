@@ -7,6 +7,8 @@ interface AuthState {
     setAuth: (accessToken: string, refreshToken: string) => void;
     logout: () => void;
     checkAuth: () => void;
+    getAccessToken: () => string | null;
+    getRefreshToken: () => string | null;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -23,6 +25,8 @@ export const useAuthStore = create<AuthState>((set) => ({
         localStorage.removeItem("secure_dolphin_streak_usr_refresh_token");
         set({ isAuthenticated: false, accessToken: null, refreshToken: null });
     },
+    getAccessToken: () => localStorage.getItem("secure_dolphin_streak_usr_access_token"),
+    getRefreshToken: () => localStorage.getItem("secure_dolphin_streak_usr_refresh_token"),
     checkAuth: () => {
         const accessToken = localStorage.getItem("secure_dolphin_streak_usr_access_token");
         set({ isAuthenticated: !!accessToken });

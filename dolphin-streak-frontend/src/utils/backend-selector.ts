@@ -1,7 +1,9 @@
 import backendUrls from '../config/backend-urls';
-
+console.log({ backendUrls });
+console.log('Filtered backend URLs:', backendUrls.length);
 if (backendUrls.length === 0) {
-  throw new Error('No backend URLs are configured in the environment variables.');
+  // throw new Error('No backend URLs are configured in the environment variables.');
+  
 }
 
 let currentIndex = 0;

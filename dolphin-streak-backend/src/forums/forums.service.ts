@@ -10,7 +10,7 @@ export class ForumsService {
   constructor(
     @InjectModel(Forum.name) private forumModel: Model<Forum>,
     @InjectModel(ForumReply.name) private forumReplyModel: Model<ForumReply>,
-  ) {}
+  ) { }
 
   createForum(createForumDto: CreateForumDto) {
     return this.forumModel.create(createForumDto);
@@ -27,7 +27,10 @@ export class ForumsService {
   }
 
   findAll() {
-    return this.forumModel.find().populate({ path: "user", select: "email" });
+    return this.forumModel.find().populate({
+      path: "user",
+      select: "email username profilePicture",
+    });
   }
 
   findOneForum(id: string) {
@@ -53,6 +56,9 @@ export class ForumsService {
   }
 
   searchForums(searchTerm: string) {
-    return this.forumModel.find({ $text: { $search: searchTerm } }).populate({ path: "user", select: "email" });
+    return this.forumModel.find({ $text: { $search: searchTerm } }).populate({
+      path: "user",
+      select: "email username profilePicture",
+    });
   }
 }

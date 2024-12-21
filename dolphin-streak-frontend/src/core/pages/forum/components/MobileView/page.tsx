@@ -4,21 +4,15 @@ import { useRouter } from "next/navigation";
 import { SearchBar } from "../../subcomponents/SearchBar";
 import { ForumPost } from "../../subcomponents/ForumPost";
 import { Pagination } from "../../subcomponents/Pagination";
+import { TForum } from "@/server/types/forums";
 
 interface IForumMobileViewProps {
-    forumPosts: {
-        id: number;
-        title: string;
-        content: string;
-        author: string;
-        date: string;
-        avatarSrc?: string;
-    }[];
+    forumPosts: TForum[];
     currentPage: number;
     totalPages: number;
     handleSearch: (query: string) => void;
     handleNewPost: () => void;
-    handleReply: (postId: number) => void;
+    handleReply: (postId: string) => void;
     handlePageChange: (page: number) => void;
 }
 
@@ -58,9 +52,13 @@ export function ForumMobileView({
                 <div className="space-y-4 mb-8">
                     {forumPosts.map((post) => (
                         <ForumPost
-                            key={post.id}
-                            {...post}
-                            onClick={() => handleReply(post.id)}
+                            key={post._id}
+                            title={post.title}
+                            content={post.content}
+                            date={post.createdAt}
+                            author={post.user.username}
+                            avatarSrc={post.user.avatarSrc}
+                            onClick={() => handleReply(post._id)}
                         />
                     ))}
                 </div>

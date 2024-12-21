@@ -1,5 +1,6 @@
 import { Avatar } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
+import { formatDate } from "@/utils/generic";
 
 interface ForumPostProps {
   title: string;
@@ -9,6 +10,7 @@ interface ForumPostProps {
   avatarSrc?: string;
   onClick?: () => void;
 }
+
 
 export function ForumPost({
   title,
@@ -36,7 +38,7 @@ export function ForumPost({
             </div>
             <p className="text-gray-300 text-sm line-clamp-2 mt-1">{content}</p>
             <div className="text-right mt-2">
-              <span className="text-xs text-gray-500">{date}</span>
+              <span className="text-xs text-gray-500">{formatDate(date)}</span>
             </div>
           </div>
         </div>

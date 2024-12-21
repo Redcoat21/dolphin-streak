@@ -1,9 +1,21 @@
 import { initTRPC } from '@trpc/server';
 import superjson from 'superjson';
-import type { createInnerTRPCContext } from './context';
+import type { CreateInnerContextOptions, createInnerTRPCContext } from './context';
 import { z } from 'zod';
+import { ZAuthedProcedureInput } from './types/auth';
 
-const t = initTRPC.context<typeof createInnerTRPCContext>().create({
+// Define the token interface
+interface TokenData {
+  accessToken?: string;
+  refreshToken?: string;
+}
+
+// Define the extended context type with token
+type AuthedContext = ReturnType<typeof createInnerTRPCContext> & {
+  token?: TokenData;
+};
+
+const t = initTRPC.context<AuthedContext>().create({
   transformer: superjson,
 });
 
@@ -11,17 +23,4 @@ export const router = t.router;
 export const baseProcedure = t.procedure;
 export const publicProcedure = baseProcedure;
 
-export const authedProcedure = baseProcedure.use(({ ctx, next }) => {
-  // Try to get the token from local storage
-  let token = ctx.token || localStorage.getItem('token') || sessionStorage.getItem('token');
-
-  if (!token) {
-    throw new Error('Not authenticated');
-  }
-
-  return next({
-    ctx: {
-      token,
-    },
-  });
-});
+export const authedProcedure = baseProcedure.input(ZAuthedProcedureInput)

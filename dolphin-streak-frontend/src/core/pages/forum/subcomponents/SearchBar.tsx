@@ -1,29 +1,28 @@
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search } from "lucide-react";
-import Link from "next/link";
+import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // Search Bar Component
 interface SearchBarProps {
   onSearch: (query: string) => void;
-  onNewPost: () => void;
 }
 
-export function SearchBar({ onSearch, onNewPost }: SearchBarProps) {
+export function SearchBar({ onSearch }: SearchBarProps) {
+  const router = useRouter();
+
   return (
-    <div className="flex gap-3 mb-6">
-      <div className="flex-1 relative">
-        <Input
-          placeholder="Search Forum"
-          className="w-full bg-gray-900 border-gray-800 text-white pl-10"
-        />
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-      </div>
-      <Link href="/forum/new">
-        <Button className="bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0">
-          <Plus className="h-5 w-5" />
-        </Button>
-      </Link>
+    <div className="flex gap-2 items-center">
+      <Input
+        placeholder="Search..."
+        onChange={(e) => onSearch(e.target.value)}
+        className="flex-1 bg-[#1E293B] border-none text-white placeholder:text-gray-400"
+      />
+      <button
+        onClick={() => router.push('/forum/new')}
+        className="bg-[#4F46E5] hover:bg-[#4338CA] text-white p-2 rounded-lg transition-colors"
+      >
+        <Plus className="h-5 w-5" />
+      </button>
     </div>
   );
 }
