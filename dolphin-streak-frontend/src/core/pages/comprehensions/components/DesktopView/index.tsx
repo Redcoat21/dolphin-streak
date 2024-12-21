@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft } from "lucide-react";
+import router from "next/router";
 
 export function ComprehensionsDesktopView() {
     return (
@@ -9,7 +10,7 @@ export function ComprehensionsDesktopView() {
             <div className="flex-1">
                 {/* Header */}
                 <div className="flex items-center bg-[#0a84ff] text-white p-4">
-                    <ChevronLeft className="h-6 w-6" />
+                    <ChevronLeft className="h-6 w-6" onClick={() => router.push("/")}/>
                     <h3 className="flex-grow text-center text-xl font-semibold">Course</h3>
                 </div>
 
@@ -39,6 +40,7 @@ export function ComprehensionsDesktopView() {
                     <div className="max-w-xl mx-auto mt-16">
                         <Button
                             className="w-full bg-[#5B7BFE] hover:bg-[#4a6afe] text-white py-6 text-lg"
+                            onClick={() => router.push("/comprehension/essay")}
                         >
                             Continue
                         </Button>

@@ -1,13 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft } from "lucide-react";
+import router from "next/router";
 
 export function ComprehensionsMobileView() {
   return (
     <div className="min-h-screen bg-[#080e1e]">
       {/* Header */}
       <div className="flex items-center bg-[#0a84ff] text-white p-4">
-        <ChevronLeft className="h-6 w-6" />
+        <ChevronLeft className="h-6 w-6" onClick={() => router.push("/")}/>
         <h3 className="flex-grow text-center text-xl font-semibold">Course</h3>
       </div>
 
@@ -38,6 +39,7 @@ export function ComprehensionsMobileView() {
       <div className="fixed bottom-5 left-0 right-0 px-6">
         <Button 
           className="w-full bg-[#5B7BFE] hover:bg-[#4a6afe] text-white py-6"
+          onClick={() => router.push("/comprehension/essay")}
         >
           Continue
         </Button>
