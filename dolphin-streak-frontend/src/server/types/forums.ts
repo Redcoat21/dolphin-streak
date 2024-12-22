@@ -77,6 +77,7 @@ export const ZCreateThreadRequest = z.object({
   accessToken: z.string(),
   title: z.string(),
   content: z.string(),
+  email: z.string(),
 });
 
 export type TCreateThreadResponse = {

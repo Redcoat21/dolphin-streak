@@ -26,14 +26,13 @@ export function ForumMobileView({
     handlePageChange
 }: IForumMobileViewProps) {
     const router = useRouter();
-
     return (
         <div className="min-h-screen bg-[#0B1120] text-white">
-            <div className="bg-[#4F46E5] p-4 sticky top-0 z-10 shadow-lg">
+            <div className="bg-gradient-to-r from-[#0A84FF] to-[#5AB9EA] p-4 sticky top-0 z-10 shadow-lg">
                 <div className="flex items-center">
                     <Button
                         variant="ghost"
-                        className="text-white p-0 hover:bg-[#4338CA] rounded-lg"
+                        className="text-white p-0"
                         onClick={() => router.back()}
                     >
                         <ArrowLeft className="h-6 w-6" />

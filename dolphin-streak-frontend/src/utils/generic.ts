@@ -35,41 +35,36 @@ export const fetchAPI = async <T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  console.log(
-    `Fetching from ${url.toString()} with method ${method} and body:`,
-    body
-  );
+  try {
+    const response = await fetch(url.toString(), {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
 
-  const response = await fetch(url.toString(), {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        Array.isArray(errorData.messages)
+          ? errorData.messages[0]
+          : errorData.message || "An error occurred"
+      );
+    }
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    const errorMessage = Array.isArray(errorData.messages)
-      ? errorData.messages.join(", ")
-      : errorData.messages || "HTTP error!";
-    const error = new Error(errorMessage);
-    (error as any).status = response.status;
-    console.error(`Error fetching from ${url.toString()}: ${errorMessage}`);
+    return response.json();
+  } catch (error) {
+    console.error("API Error:", error);
     throw error;
   }
-
-  const data = await response.json();
-  console.log(`Fetched data from ${url.toString()}:`, data);
-  return data;
 };
 
-export const formatDate = (dateString: string): string => {
-  const options: Intl.DateTimeFormatOptions = {
+export function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    hour12: false,
-  };
-  return new Date(dateString).toLocaleDateString(undefined, options);
-};
+  }).format(date);
+}

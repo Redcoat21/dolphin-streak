@@ -8,6 +8,7 @@ import {
   TForgotPasswordInput,
   ZResetPasswordInput,
   TResetPasswordInput,
+  TRefreshAccessTokenResponse,
 } from "../types/auth";
 import { z } from "zod";
 
@@ -94,6 +95,22 @@ export class AuthService {
         throw new Error("Reset password failed: " + error.message);
       } else {
         throw new Error("Reset password failed: Unknown error");
+      }
+    }
+  }
+
+  static async refreshAccessToken(refreshToken: string) {
+    try {
+      const response = await fetchAPI("/api/auth/refresh", "POST", {
+        body: { refreshToken },
+      });
+      console.log({ responseRefreshToken: response });
+      return response as TRefreshAccessTokenResponse;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error("Refresh token failed: " + error.message);
+      } else {
+        throw new Error("Refresh token failed: Unknown error");
       }
     }
   }

@@ -21,6 +21,20 @@ export class UsersService {
    constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
    /**
+    * Finds a user by email and returns the user's ID.
+    * @param email - The email of the user.
+    * @returns The user's ID.
+    * @throws {HttpException} If the user is not found.
+    */
+   async getUserByEmail(email: string): Promise<User> {
+      const user = await this.userModel.findOne({ email });
+      if (!user) {
+         throw new HttpException("User not found", HttpStatus.NOT_FOUND);
+      }
+      return user;
+   }
+
+   /**
     * Creates a new user.
     * @param createUserDto - Data transfer object for creating a user.
     * @returns The created user.

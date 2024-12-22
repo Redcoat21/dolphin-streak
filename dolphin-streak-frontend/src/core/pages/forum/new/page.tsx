@@ -20,9 +20,9 @@ import { trpc } from "@/utils/trpc";
 import { useAuthStore } from "@/core/stores/authStore";
 import { Input } from "@/components/ui/input";
 
-export default function NewThreadPage() {
+export default function NewPostPage() {
   const router = useRouter();
-  const { getAccessToken } = useAuthStore();
+  const { getAccessToken, getEmail } = useAuthStore();
   const accessToken = getAccessToken();
   const [title, setTitle] = useState("");
 
@@ -79,17 +79,20 @@ export default function NewThreadPage() {
     router.back();
   }, [router]);
 
-  const handleSubmit = useCallback(() => {
-    if (!editor?.getHTML() || !title.trim()) {
-      return;
-    }
+const handleSubmit = useCallback(() => {
+  if (!editor?.getHTML() || !title.trim()) {
+    return;
+  }
 
-    createThread({
-      title: title.trim(),
-      content: editor.getHTML(),
-      accessToken: accessToken || "",
-    });
-  }, [editor, title, createThread, accessToken]);
+  const userEmail = getEmail(); // Get the user's email
+
+  createThread({
+    title: title.trim(),
+    content: editor.getHTML(),
+    accessToken: accessToken || "",
+    email: userEmail || "", // Add this line
+  });
+}, [editor, title, createThread, accessToken, useAuthStore]);
 
   return (
     <div className="min-h-screen bg-[#0B1120]">
@@ -101,7 +104,7 @@ export default function NewThreadPage() {
         >
           <ArrowLeft className="h-6 w-6" />
         </button>
-        <h1 className="text-white text-lg font-medium">Forum</h1>
+        <h1 className="text-white text-lg font-medium">New Post</h1>
       </div>
 
       {/* Editor */}
@@ -114,12 +117,12 @@ export default function NewThreadPage() {
         />
 
         {editor && <RichTextEditor editor={editor} />}
-        
+
         <button
           onClick={handleSubmit}
           className="w-full mt-4 bg-[#4F46E5] text-white py-3 rounded-lg hover:bg-[#4338CA] transition-colors"
         >
-          Create New Thread
+          Create New Post
         </button>
       </div>
     </div>

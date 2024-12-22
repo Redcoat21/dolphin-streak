@@ -73,3 +73,16 @@ export const ZResetPasswordInput = z.object({
 });
 
 export type TResetPasswordInput = z.infer<typeof ZResetPasswordInput>;
+
+export const ZRefreshAccessTokenRequest = z.object({
+  refreshToken: z.string(),
+});
+
+export type TRefreshAccessTokenRequest = z.infer<typeof ZRefreshAccessTokenRequest>;
+
+export type TRefreshAccessTokenResponse = {
+  messages: string;
+  data: {
+    accessToken: string;
+  };
+};
