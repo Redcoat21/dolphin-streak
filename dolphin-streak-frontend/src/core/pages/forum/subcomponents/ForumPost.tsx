@@ -11,7 +11,6 @@ interface ForumPostProps {
   onClick?: () => void;
 }
 
-
 export function ForumPost({
   title,
   content,
@@ -21,24 +20,27 @@ export function ForumPost({
   onClick
 }: ForumPostProps) {
   return (
-    <Card onClick={onClick} className="bg-[#1a1b1e] border-none hover:bg-[#1e1f23] transition-colors duration-200 cursor-pointer">
-      <div className="p-4 space-y-3">
-        <div className="flex items-start gap-3">
-          <Avatar className="h-10 w-10 rounded-full bg-blue-600 border-2 border-blue-400">
+    <Card
+      onClick={onClick}
+      className="bg-[#1E1F23] border-none hover:bg-[#2E2F33] transition-all duration-200 cursor-pointer rounded-xl overflow-hidden"
+    >
+      <div className="p-6 space-y-4">
+        <div className="flex items-start gap-4">
+          <Avatar className="h-12 w-12 rounded-full border-2 border-[#4F46E5]">
             <img
-              src={avatarSrc || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + author}
+              src={avatarSrc || `https://api.dicebear.com/7.x/avataaars/svg?seed=${author}`}
               alt={author}
-              className="rounded-full"
+              className="rounded-full object-cover"
             />
           </Avatar>
           <div className="flex-1 min-w-0">
             <div className="flex justify-between items-start gap-2">
-              <h3 className="text-white font-semibold text-lg truncate">{title}</h3>
-              <span className="text-sm text-gray-400 whitespace-nowrap">-{author}</span>
+              <h3 className="text-white font-semibold text-xl truncate">{title}</h3>
+              <span className="text-sm text-gray-400 whitespace-nowrap">@{author}</span>
             </div>
-            <p className="text-gray-300 text-sm line-clamp-2 mt-1">{content}</p>
-            <div className="text-right mt-2">
-              <span className="text-xs text-gray-500">{formatDate(date)}</span>
+            <p className="text-gray-300 mt-2 line-clamp-3">{content}</p>
+            <div className="mt-3 text-right">
+              <span className="text-sm text-gray-500">{formatDate(date)}</span>
             </div>
           </div>
         </div>

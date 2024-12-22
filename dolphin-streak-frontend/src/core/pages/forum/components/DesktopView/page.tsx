@@ -1,4 +1,3 @@
-
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter, usePathname } from "next/navigation";
@@ -31,13 +30,18 @@ export function ForumDesktopView({
     const pathname = usePathname();
 
     return (
-        <div className="min-h-screen bg-gray-950 text-white">
+        <div className="min-h-screen bg-[#0B1120] text-white">
             <Header currentPath={pathname} />
-            <main className="px-8 py-12 mt-20">
-                <h2 className="text-4xl font-bold text-center text-white mb-12">
-                    Forum
-                </h2>
-                <div className="max-w-6xl mx-auto">
+            <main className="px-8 py-12 mt-20 max-w-7xl mx-auto">
+                <div className="mb-12">
+                    <h2 className="text-4xl font-bold text-center text-white mb-8">
+                        Forum Discussions
+                    </h2>
+                    <p className="text-gray-400 text-center max-w-2xl mx-auto">
+                        Join the conversation, share your thoughts, and connect with fellow community members.
+                    </p>
+                </div>
+                <div className="space-y-6">
                     <SearchBar
                         onSearch={handleSearch}
                         onNewPost={handleNewPost}

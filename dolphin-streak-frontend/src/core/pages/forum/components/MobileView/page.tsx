@@ -28,18 +28,18 @@ export function ForumMobileView({
     const router = useRouter();
 
     return (
-        <div className="min-h-screen bg-black text-white">
-            <div className="bg-blue-600 p-4 sticky top-0 z-10 shadow-lg">
+        <div className="min-h-screen bg-[#0B1120] text-white">
+            <div className="bg-[#4F46E5] p-4 sticky top-0 z-10 shadow-lg">
                 <div className="flex items-center">
                     <Button
                         variant="ghost"
-                        className="text-white p-0 hover:bg-blue-700 rounded-lg"
+                        className="text-white p-0 hover:bg-[#4338CA] rounded-lg"
                         onClick={() => router.back()}
                     >
                         <ArrowLeft className="h-6 w-6" />
                     </Button>
                     <span className="flex-1 text-center text-lg font-semibold">Forum</span>
-                    <div className="w-6" /> {/* Spacer for symmetry */}
+                    <div className="w-6" />
                 </div>
             </div>
 
