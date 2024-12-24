@@ -65,7 +65,7 @@ export type TGetForumDetailResponse = {
         _id: string;
         email: string;
         username: string;
-      };
+      };  
       content: string;
       createdAt: string;
       __v: number;
