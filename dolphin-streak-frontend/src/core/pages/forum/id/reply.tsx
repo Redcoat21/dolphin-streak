@@ -18,20 +18,23 @@ import Image from "@tiptap/extension-image";
 import RichTextEditor from "@/core/components/shared/RichTextEditor";
 import { trpc } from "@/utils/trpc";
 import { useAuthStore } from "@/core/stores/authStore";
+import { ForumReplies } from "./components/ForumReplies";
 
 export default function ReplyPage() {
   const router = useRouter();
   const params = useParams();
-  const { getAccessToken } = useAuthStore();
+  const { getAccessToken, getEmail } = useAuthStore();
   const accessToken = getAccessToken();
   const forumId = params?.id as string;
+  const userEmail = getEmail();
 
   // Get forum details
-  const { data: forumDetail } = trpc.forum.getForumDetail.useQuery({
+  const { data: forumDetail, refetch: refetchForum } = trpc.forum.getForumDetail.useQuery({
     forumId,
     accessToken: accessToken || "",
   }, {
     enabled: !!forumId && !!accessToken,
+
   });
 
   const editor = useEditor({
@@ -73,9 +76,12 @@ export default function ReplyPage() {
     },
   });
 
+
+
   const { mutate: createReply } = trpc.forum.createReply.useMutation({
     onSuccess: () => {
-      router.back();
+      refetchForum();
+      editor?.commands.clearContent();
     },
     onError: (error) => {
       console.error('Failed to create reply:', error);
@@ -97,6 +103,7 @@ export default function ReplyPage() {
       title: forumDetail?.data?.title || "",
       content: editor.getHTML(),
       accessToken: accessToken || "",
+      email: userEmail || "",
     });
   }, [editor, forumId, forumDetail?.data?.title, createReply, accessToken]);
 
@@ -124,16 +131,19 @@ export default function ReplyPage() {
             />
             <div>
               <h2 className="text-white font-semibold text-lg">{forumDetail.data.title}</h2>
-              <p className="text-gray-300 mt-2">{forumDetail.data.content}</p>
+              <p className="text-gray-300 mt-2">
+                <div dangerouslySetInnerHTML={{ __html: forumDetail.data.content }} />
+              </p>
             </div>
           </div>
+          <ForumReplies replies={forumDetail.data.replies} />
         </div>
       )}
 
       {/* Editor */}
       <div className="p-4">
         {editor && <RichTextEditor editor={editor} />}
-        
+
         <button
           onClick={handleSubmit}
           className="w-full mt-4 bg-[#4F46E5] text-white py-3 rounded-lg hover:bg-[#4338CA] transition-colors"

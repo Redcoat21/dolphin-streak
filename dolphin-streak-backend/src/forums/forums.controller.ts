@@ -63,7 +63,7 @@ import {
 @UseGuards(BearerTokenGuard, RoleGuard)
 @Controller("api/forums")
 export class ForumsController {
-  constructor(private readonly forumsService: ForumsService) {}
+  constructor(private readonly forumsService: ForumsService) { }
 
   @ApiOperation({
     summary: "Create a new forum",
@@ -195,33 +195,80 @@ export class ForumsController {
     };
   }
 
+
   @ApiOperation({
     summary: "Find a forum by ID",
-    description: "Find a forum by ID",
+    description:
+      "Find a forum by ID, including details of the users who posted replies",
   })
   @ApiOkResponse({
     description: "Forum retrieved successfully",
-    example: {
-      messages: "Forum retrieved successfully",
-      data: {
-        _id: "67449422fd902e05f1248abd",
-        title: "How to learn effectively?",
-        user: {
-          _id: "67436c361488d1d48b3ee7a7",
-          email: "john40@email.com",
-        },
-        content: "lorem 500",
-        replies: [
-          {
-            _id: "67449bf52e15ed221b072c74",
-            user: "6744262d52a2392a69fa49c3",
-            content: "I dont know, git guid",
-            createdAt: "2024-11-25T15:47:01.890Z",
-            __v: 0,
+    schema: {
+      type: "object",
+      properties: {
+        messages: { type: "string", example: "Forum retrieved successfully" },
+        data: {
+          type: "object",
+          properties: {
+            _id: { type: "string", example: "67449422fd902e05f1248abd" },
+            title: { type: "string", example: "How to learn effectively?" },
+            user: {
+              type: "object",
+              properties: {
+                _id: { type: "string", example: "67436c361488d1d48b3ee7a7" },
+                email: { type: "string", example: "john40@email.com" },
+                username: { type: "string", example: "john" },
+                profilePicture: { type: "string", example: "https://image" },
+              },
+            },
+            content: { type: "string", example: "lorem 500" },
+            replies: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  _id: {
+                    type: "string",
+                    example: "67449bf52e15ed221b072c74",
+                  },
+                  user: {
+                    type: "object",
+                    properties: {
+                      _id: {
+                        type: "string",
+                        example: "6744262d52a2392a69fa49c3",
+                      },
+                      email: {
+                        type: "string",
+                        example: "jane@email.com",
+                      },
+                      profilePicture: {
+                        type: "string",
+                        example: "https://image",
+                      },
+                    },
+                  },
+                  content: {
+                    type: "string",
+                    example: "I dont know, git guid",
+                  },
+                  createdAt: {
+                    type: "string",
+                    format: "date-time",
+                    example: "2024-11-25T15:47:01.890Z",
+                  },
+                  __v: { type: "number", example: 0 },
+                },
+              },
+            },
+            createdAt: {
+              type: "string",
+              format: "date-time",
+              example: "2024-11-25T15:13:38.352Z",
+            },
+            __v: { type: "number", example: 0 },
           },
-        ],
-        createdAt: "2024-11-25T15:13:38.352Z",
-        __v: 0,
+        },
       },
     },
   })
@@ -244,7 +291,7 @@ export class ForumsController {
   async findOneForum(@Param() id: FindByIdParam) {
     const forum = checkIfExist(
       await this.forumsService.findOneForum(id.id),
-      "Forum not found",
+      "Forum not found"
     );
     return {
       messages: "Forum retrieved successfully",

@@ -17,9 +17,23 @@ export type TGetAllForumsResponse = {
 export type TForum = {
   _id: string;
   title: string;
-  user: TUser;
+  user: {
+    email: string;
+    username: string;
+    avatarSrc?: string;
+    id: string;
+  };
   content: string;
-  replies: string[];
+  replies: {
+    _id: string;
+    user: {
+      _id: string;
+      email: string;
+    };
+    content: string;
+    createdAt: string;
+    __v: number;
+  }[];
   createdAt: string;
   __v: number;
 };
@@ -36,6 +50,8 @@ export const ZGetForumsDetailRequest = z.object({
   accessToken: z.string(),
 });
 
+
+
 export type TGetForumDetailResponse = {
   messages: string;
   data: {
@@ -45,7 +61,11 @@ export type TGetForumDetailResponse = {
     content: string;
     replies: Array<{
       _id: string;
-      user: string;
+      user: {
+        _id: string;
+        email: string;
+        username: string;
+      };
       content: string;
       createdAt: string;
       __v: number;
@@ -60,6 +80,7 @@ export const ZCreateForumReplyRequest = z.object({
   accessToken: z.string(),
   title: z.string(),
   content: z.string(),
+  email: z.string(),
 });
 
 export type TCreateForumReplyResponse = {

@@ -38,7 +38,9 @@ export function ForumPost({
               <h3 className="text-white font-semibold text-xl truncate">{title}</h3>
               <span className="text-sm text-gray-400 whitespace-nowrap">@{author}</span>
             </div>
-            <p className="text-gray-300 mt-2 line-clamp-3">{content}</p>
+            <p className="text-gray-300 mt-2 line-clamp-3">
+              <div dangerouslySetInnerHTML={{ __html: content }} />
+            </p>
             <div className="mt-3 text-right">
               <span className="text-sm text-gray-500">{formatDate(date)}</span>
             </div>

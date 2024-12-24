@@ -35,6 +35,7 @@ export const forumRouter = router({
             body: {
                 title: input.title,
                 content: input.content,
+                user: input.email
             }
         });
         return response as TCreateForumReplyResponse;
