@@ -11,9 +11,9 @@ export interface LanguageOption {
 }
 
 export interface LanguageSelectionProps {
-    fromLanguage: string;
-    toLanguage: string;
-    onFromLanguageChange: (language: string) => void;
-    onToLanguageChange: (language: string) => void;
-    availableLanguages: LanguageOption[];
+    // fromLanguage: string;
+    // toLanguage: string;
+    // onFromLanguageChange: (language: string) => void;
+    // onToLanguageChange: (language: string) => void;
+    // availableLanguages: LanguageOption[];
 }

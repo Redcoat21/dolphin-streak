@@ -30,7 +30,10 @@ const MOCK_NOTIFICATIONS = [
 export function Header({ currentPath }: HeaderProps) {
     const { logout } = useAuthStore();
     const router = useRouter();
-
+    const pathToHome = [
+        "/forum",
+        "/challenges",
+    ]
     return (
         <header className="fixed top-0 w-full bg-gradient-to-r from-[#0A84FF] to-[#5AB9EA] p-4">
             <div className="flex justify-between items-center max-w-7xl mx-auto">
@@ -52,7 +55,7 @@ export function Header({ currentPath }: HeaderProps) {
                             Forum
                         </Button>
                     )}
-                    {currentPath == '/forum' && (
+                    {(currentPath == '/forum' || currentPath) && (
                         <Button
                             variant="custom-blue"
                             className="bg-[#1B2335] hover:bg-[#5AB9EA] text-white rounded-md px-4 py-2"

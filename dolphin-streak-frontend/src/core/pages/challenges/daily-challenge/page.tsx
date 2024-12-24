@@ -1,120 +1,132 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import {
-  Calendar as CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-import { format, addMonths, subMonths, isSameDay } from "date-fns";
-import { cn } from "@/lib/utils";
+import { useCallback, useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FillInTheBlankPage } from "@/core/components/courses/fill-in-the-blank";
-import { Calendar } from "@/components/ui/calendar";
+import { Progress } from "@/components/ui/progress";
+import { Trophy, Timer, ArrowRight, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Container } from "@/core/components/container";
+import { useRouter } from 'next/router';
+import { Header } from "../../dasboard/components/Header";
+import { usePathname } from "next/navigation";
 
-export function DailyChallengePage() {
-  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [today, setToday] = useState<Date>(new Date());
+export const DailyChallengePage = () => {
+  const [progress, setProgress] = useState(0);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
-  useEffect(() => {
-    // Update today's date in state to re-render the calendar if the day changes
+  const handleBack = () => {
+    router.back();
+  };
+
+  // Simulate challenge progress
+  const handleStartChallenge = useCallback(() => {
+    setProgress(0);
     const interval = setInterval(() => {
-      setToday(new Date());
-    }, 1000 * 60 * 60); // Check every hour
-
-    return () => clearInterval(interval);
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setIsCompleted(true);
+          return 100;
+        }
+        return prev + 20;
+      });
+    }, 1000);
   }, []);
 
-  const handleDateSelect = (date: Date | undefined) => {
-    if (date && isSameDay(date, today)) {
-      setSelectedDate(date);
-    }
-  };
-
-  const handleMonthChange = (direction: "prev" | "next") => {
-    setCurrentMonth(
-      direction === "prev"
-        ? subMonths(currentMonth, 1)
-        : addMonths(currentMonth, 1),
-    );
-  };
-
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4 text-center">Daily Challenge</h1>
+    <Container>
+      <div className="min-h-screen bg-[#0b1120] text-white">
+        <Header currentPath={pathname} />
+        <div className="max-w-4xl mx-auto space-y-8 mt-32 px-4 sm:px-6 lg:px-8">
 
-      <div className="bg-white rounded-lg shadow-md p-4 max-w-sm mx-auto">
-        <div className="flex items-center justify-between mb-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => handleMonthChange("prev")}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <h2 className="text-lg font-semibold">
-            {format(currentMonth, "MMMM yyyy")}
-          </h2>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => handleMonthChange("next")}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+          <Card className="bg-gray-900 border-gray-800">
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+                <div className="space-y-1">
+                  <CardTitle className="text-xl text-white">Today's Challenge</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Complete the challenge to earn rewards
+                  </CardDescription>
+                </div>
+                <Trophy className="h-8 w-8 text-yellow-500 mt-4 sm:mt-0" />
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm">
+                  <div className="flex items-center space-x-2">
+                    <Timer className="h-4 w-4 text-gray-400" />
+                    <span className="text-gray-400">Time remaining: 23:45:12</span>
+                  </div>
+                  <span className="text-blue-400 mt-2 sm:mt-0">500 XP</span>
+                </div>
+
+                <Progress
+                  value={progress}
+                  className="h-2 bg-gray-800"
+                />
+              </div>
+
+              {isCompleted ? (
+                <Alert className="bg-green-900/50 border-green-800 text-green-400">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Challenge Completed!</AlertTitle>
+                  <AlertDescription>
+                    You've earned 500 XP. Come back tomorrow for a new challenge!
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-gray-300">
+                    Today's challenge: Complete 5 coding exercises focused on array manipulation
+                    and algorithmic thinking.
+                  </p>
+                  <Button
+                    variant="custom-blue"
+                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center space-x-2"
+                    onClick={handleStartChallenge}
+                    disabled={progress > 0 && progress < 100}
+                  >
+                    <span>{progress === 0 ? "Start Challenge" : "Continue Challenge"}</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900 border-gray-800">
+            <CardHeader>
+              <CardTitle className="text-lg text-white">Previous Challenges</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[
+                  { date: "Dec 23", completed: true, xp: 500 },
+                  { date: "Dec 22", completed: true, xp: 500 },
+                  { date: "Dec 21", completed: false, xp: 0 },
+                ].map((challenge, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg bg-gray-800/50"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className={`h-2 w-2 rounded-full ${challenge.completed ? "bg-green-500" : "bg-red-500"
+                        }`} />
+                      <span className="text-gray-300">{challenge.date}</span>
+                    </div>
+                    <span className={`${challenge.completed ? "text-blue-400" : "text-gray-500"
+                      } mt-2 sm:mt-0`}>
+                      {challenge.completed ? `+${challenge.xp} XP` : "Missed"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
-        <Calendar
-          mode="single"
-          selected={selectedDate}
-          onSelect={handleDateSelect}
-          initialFocus
-          fromDate={new Date("2023-01-01")} // Example: Set a minimum date
-          toDate={today}
-          disabled={(date) => !isSameDay(date, today)} // Disable all other dates except today
-          modifiers={{
-            today: {
-              backgroundColor: "blue", // Highlight today's date
-              color: "white",
-            },
-          }}
-          classNames={{
-            months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-            month: "space-y-4",
-            caption: "flex justify-center pt-1 relative items-center",
-            caption_label: "text-sm font-medium",
-            nav: "space-x-1 flex items-center",
-            nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-            nav_button_previous: "absolute left-1",
-            nav_button_next: "absolute right-1",
-            table: "w-full border-collapse space-y-1",
-            head_row: "flex",
-            head_cell:
-              "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-            row: "flex w-full mt-2",
-            cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-            day: cn(
-              "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
-              "hover:bg-accent hover:text-accent-foreground",
-              "disabled:bg-gray-200 disabled:text-gray-500 disabled:opacity-50", // Disabled styles
-              "focus:bg-accent focus:text-accent-foreground",
-            ),
-            day_selected:
-              "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-            day_today: "bg-blue-500 text-white",
-            day_outside: "text-muted-foreground opacity-50",
-          }}
-        />
       </div>
-
-      {selectedDate && (
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold text-center">
-            Challenge for {format(selectedDate, "PPPP")}
-          </h2>
-          <FillInTheBlankPage />
-        </div>
-      )}
-    </div>
+    </Container>
   );
-}
+};

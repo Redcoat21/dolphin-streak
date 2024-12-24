@@ -3,19 +3,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
-import { trpc } from '@/utils/trpc';
-import { Button } from '@/components/ui/button';
+import { Select } from '@radix-ui/react-select';
+import { useToast } from 'hooks/use-toast';
+import { trpc } from 'utils/trpc';
+import { Button } from 'components/ui/button';
 
 type Selections = {
   motherLanguage: string;
@@ -42,7 +33,7 @@ export const LanguagePreferenceForm: React.FC = () => {
     learningTime: '',
   });
 
-  const form = useForm<{ [K in SelectionKey]: string }>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       motherLanguage: '',
@@ -97,42 +88,28 @@ export const LanguagePreferenceForm: React.FC = () => {
   const currentOption = options[currentStep];
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)}>
-        <FormField
-          control={form.control}
-          name={currentOption.id as SelectionKey}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{currentOption.label}</FormLabel>
-              <Select
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  handleOptionSelect(currentOption.id as SelectionKey, value);
-                }}
-                defaultValue={field.value}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select an option" />
-                </SelectTrigger>
-                <SelectContent>
-                  {currentOption.options.map((option) => (
-                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" disabled={currentStep < options.length - 1}>
-          {currentStep < options.length - 1 ? 'Next' : 'Submit'}
-        </Button>
-      </form>
-    </Form>
+    <form onSubmit={form.handleSubmit(handleFormSubmit)}>
+      <Select
+        onValueChange={(value) => {
+          form.setValue(currentOption.id as SelectionKey, value);
+          handleOptionSelect(currentOption.id as SelectionKey, value);
+        }}
+        defaultValue={form.getValues(currentOption.id as SelectionKey)}
+      >
+        <Select.Trigger>
+          <Select.Value placeholder="Select an option" />
+        </Select.Trigger>
+        <Select.Content>
+          {currentOption.options.map((option) => (
+            <Select.Item key={option} value={option}>
+              {option}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select>
+      <Button type="submit" disabled={currentStep < options.length - 1}>
+        {currentStep < options.length - 1 ? 'Next' : 'Submit'}
+      </Button>
+    </form>
   );
 };
-
-
-
-
