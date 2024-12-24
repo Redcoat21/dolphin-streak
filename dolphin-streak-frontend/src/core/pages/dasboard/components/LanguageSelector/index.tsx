@@ -11,7 +11,7 @@ export function LanguageSelector({
     availableLanguages
 }: LanguageSelectionProps) {
     return (
-        <Card className="bg-white/10 backdrop-blur-sm border-none">
+        <Card className="bg-white/10 backdrop-blur-sm border-none mt-5">
             <CardContent className="p-6 space-y-4">
                 <div className="space-y-2">
                     <Label className="text-white">I speak:</Label>
