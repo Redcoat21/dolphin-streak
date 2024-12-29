@@ -6,8 +6,8 @@ import { Level } from "src/levels/schemas/level.schema";
 export type CourseDocument = HydratedDocument<Course>;
 
 export enum CourseType {
-    Daily,
-    Weekly,
+    Daily = 0,
+    Weekly = 1,
 }
 
 @Schema()

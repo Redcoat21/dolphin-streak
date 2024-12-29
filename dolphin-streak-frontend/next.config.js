@@ -4,6 +4,10 @@ const { i18n } = require("./next-i18next.config");
 const config = {
   i18n,
   reactStrictMode: true,
+  images: {
+    domains: ['test.com'], // Add the correct hostname here
+  },
+
   // async redirects() {
   //   return [
   //     {

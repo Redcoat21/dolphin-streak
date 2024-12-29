@@ -172,8 +172,8 @@ export class CoursesController {
   async findAll(
     @Query() findAllQuery: FindAllCoursesQuery,
   ) {
+    console.log({ findAllQuery });
     const filter: FilterQuery<Course> = {};
-
     if (findAllQuery.language) {
       filter.language = findAllQuery.language;
     }
