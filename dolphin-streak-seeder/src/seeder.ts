@@ -1,12 +1,27 @@
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+dotenv.config();
+mongoose.set('strictQuery', true);
+
+// Import all models
 import UserModel from './models/user.model';
-import CourseModel from './models/course.model';
-import LevelModel from './models/level.model';
-import LanguageModel from './models/language.model';
+import { Language } from './models/language.model';
+import { Level } from './models/level.model';
+import { Course } from './models/course.model';
+import { Forum, ForumReply } from './models/forum.model';
+import { Feedback } from './models/feedback.model';
+import { Question } from './models/question.model';
+import { Session } from './models/session.model';
+import { Subscription } from './models/subscription.model';
+import { ResetPassword } from './models/resetPassword.model';
 
 async function connectToDatabase(): Promise<void> {
     try {
-        await mongoose.connect('mongodb://localhost:27017/dolphin-streak');
+        const mongoUri = process.env.MONGODB_URI;
+        if (!mongoUri) {
+            throw new Error('MONGODB_URI is not defined in the environment variables');
+        }
+        await mongoose.connect(mongoUri);
         console.log('Successfully connected to MongoDB!');
     } catch (error) {
         console.error('Error connecting to MongoDB:', error);
@@ -24,87 +39,198 @@ async function disconnectFromDatabase(): Promise<void> {
 }
 
 async function seedLanguages(): Promise<void> {
+    console.log('Seeding languages...');
     const languages = [
-        { name: 'English', image: 'https://static.vecteezy.com/system/resources/previews/000/388/356/original/illustration-of-uk-flag-vector.jpg' },
-        { name: 'Chinese', image: 'https://tse4.mm.bing.net/th/id/OIP.wjN7jAdy5evtymlw1-AZogHaE7?rs=1&pid=ImgDetMain' },
-        { name: 'Indonesian', image: 'https://www.worldatlas.com/r/w1200-h701-c1200x701/upload/9f/69/0a/id-flag.jpg' },
+        {
+            name: 'English',
+            image: 'https://static.vecteezy.com/system/resources/previews/000/388/356/original/illustration-of-uk-flag-vector.jpg'
+        },
+        {
+            name: 'Chinese',
+            image: 'https://tse4.mm.bing.net/th/id/OIP.wjN7jAdy5evtymlw1-AZogHaE7?rs=1&pid=ImgDetMain'
+        },
+        {
+            name: 'Indonesian',
+            image: 'https://www.worldatlas.com/r/w1200-h701-c1200x701/upload/9f/69/0a/id-flag.jpg'
+        }
     ];
 
     for (const language of languages) {
-        await LanguageModel.updateOne({ name: language.name }, language, { upsert: true });
+        await Language.updateOne({ name: language.name }, language, { upsert: true });
     }
+    console.log('Languages seeded successfully.');
 }
 
-async function seedLevels(languageIds: any[]): Promise<void> {
-    const levels = [
-        { name: 'Beginner', languageId: languageIds[0] },
-        { name: 'Intermediate', languageId: languageIds[0] },
-        { name: 'Advanced', languageId: languageIds[0] },
-        { name: 'Beginner', languageId: languageIds[1] },
-        { name: 'Intermediate', languageId: languageIds[1] },
-        { name: 'Advanced', languageId: languageIds[1] },
-        { name: 'Beginner', languageId: languageIds[2] },
-        { name: 'Intermediate', languageId: languageIds[2] },
-        { name: 'Advanced', languageId: languageIds[2] },
-    ];
+async function seedLevels(languageIds: string[]): Promise<void> {
+    console.log('Seeding levels...');
+    const levels = languageIds.flatMap(languageId => [
+        { name: 'Beginner', language: languageId },
+        { name: 'Intermediate', language: languageId },
+        { name: 'Advanced', language: languageId }
+    ]);
 
     for (const level of levels) {
-        await LevelModel.updateOne({ name: level.name, languageId: level.languageId }, level, { upsert: true });
+        await Level.updateOne(
+            { name: level.name, language: level.language },
+            level,
+            { upsert: true }
+        );
     }
+    console.log('Levels seeded successfully.');
 }
 
-async function seedCourses(languageIds: any[]): Promise<void> {
-    const courses = [
-{ name: 'Course 1', languageId: languageIds[0], levelId: (await LevelModel.findOne({ name: 'Beginner', languageId: languageIds[0] }))?._id },
-{ name: 'Course 2', languageId: languageIds[0], levelId: (await LevelModel.findOne({ name: 'Intermediate', languageId: languageIds[0] }))?._id },
-{ name: 'Course 3', languageId: languageIds[0], levelId: (await LevelModel.findOne({ name: 'Advanced', languageId: languageIds[0] }))?._id },
-{ name: 'Course 1', languageId: languageIds[1], levelId: (await LevelModel.findOne({ name: 'Beginner', languageId: languageIds[1] }))?._id },
-{ name: 'Course 2', languageId: languageIds[1], levelId: (await LevelModel.findOne({ name: 'Intermediate', languageId: languageIds[1] }))?._id },
-{ name: 'Course 3', languageId: languageIds[1], levelId: (await LevelModel.findOne({ name: 'Advanced', languageId: languageIds[1] }))?._id },
-{ name: 'Course 1', languageId: languageIds[2], levelId: (await LevelModel.findOne({ name: 'Beginner', languageId: languageIds[2] }))?._id },
-{ name: 'Course 2', languageId: languageIds[2], levelId: (await LevelModel.findOne({ name: 'Intermediate', languageId: languageIds[2] }))?._id },
-{ name: 'Course 3', languageId: languageIds[2], levelId: (await LevelModel.findOne({ name: 'Advanced', languageId: languageIds[2] }))?._id },
-    ];
+async function seedCourses(languageIds: string[]): Promise<void> {
+    console.log('Seeding courses...');
+    for (const languageId of languageIds) {
+        const levels = await Level.find({ language: languageId });
 
-    for (const course of courses) {
-const level = await LevelModel.findOne({ name: course.name.replace('Course ', ''), languageId: course.languageId });
-if (level && level._id) {
-    await CourseModel.updateOne({ name: course.name, languageId: course.languageId, levelId: level?._id }, course, { upsert: true });
-} else {
-    console.error(`Level not found for course ${course.name}`);
-}
+        const courses = [
+            {
+                name: 'Course 1',
+                levels: levels.map(l => l._id),
+                language: languageId,
+                type: 0,
+                thumbnail: 'https://example.com/course1.png'
+            },
+            {
+                name: 'Course 2',
+                levels: levels.map(l => l._id),
+                language: languageId,
+                type: 1,
+                thumbnail: 'https://example.com/course2.png'
+            }
+        ];
+
+        for (const course of courses) {
+            await Course.updateOne(
+                { name: course.name, language: languageId },
+                course,
+                { upsert: true }
+            );
+        }
     }
+    console.log('Courses seeded successfully.');
 }
 
-async function seedUsers(languageIds: any[]): Promise<void> {
+async function seedUsers(): Promise<void> {
+    console.log('Seeding users...');
     const users = [
-        { firstName: 'John', lastName: 'Doe', email: 'john@example.com', password: 'password123', languageId: languageIds[0] },
-        { firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', password: 'password123', languageId: languageIds[1] },
-        { firstName: 'Bob', lastName: 'Smith', email: 'bob@example.com', password: 'password123', languageId: languageIds[2] },
+        {
+            firstName: 'Admin',
+            email: 'admin@example.com',
+            password: 'admin123',
+            provider: 'LOCAL',
+            role: 'ADMIN',
+            profilePicture: 'https://example.com/admin.png'
+        },
+        {
+            firstName: 'John',
+            lastName: 'Doe',
+            email: 'john@example.com',
+            password: 'password123',
+            provider: 'LOCAL',
+            role: 'USER',
+            profilePicture: 'https://example.com/john.png'
+        }
     ];
 
     for (const user of users) {
         await UserModel.updateOne({ email: user.email }, user, { upsert: true });
     }
+    console.log('Users seeded successfully.');
+}
+
+async function seedForums(userIds: string[]): Promise<void> {
+    console.log('Seeding forums...');
+    const forums = [
+        {
+            title: 'Welcome to the Forum',
+            user: userIds[0],
+            content: 'This is the first forum post',
+            replies: []
+        }
+    ];
+
+    for (const forum of forums) {
+        await Forum.updateOne(
+            { title: forum.title, user: forum.user },
+            forum,
+            { upsert: true }
+        );
+    }
+    console.log('Forums seeded successfully.');
+}
+
+async function seedQuestions(courseIds: string[]): Promise<void> {
+    console.log('Seeding questions...');
+    const questions = [
+        {
+            question: {
+                type: 'text',
+                text: 'Sample Question 1?'
+            },
+            type: 'MULTIPLE_CHOICE',
+            answerOptions: ['A', 'B', 'C', 'D'],
+            correctAnswer: '1',
+            useAi: false,
+            courses: [courseIds[0]]
+        }
+    ];
+
+    for (const question of questions) {
+        await Question.updateOne(
+            { 'question.text': question.question.text },
+            question,
+            { upsert: true }
+        );
+    }
+    console.log('Questions seeded successfully.');
+}
+
+async function seedFeedback(userIds: string[]): Promise<void> {
+    console.log('Seeding feedback...');
+    const feedbacks = [
+        {
+            user: userIds[0],
+            type: 'FEEDBACK',
+            content: 'Sample feedback'
+        }
+    ];
+
+    for (const feedback of feedbacks) {
+        await Feedback.updateOne(
+            { user: feedback.user, content: feedback.content },
+            feedback,
+            { upsert: true }
+        );
+    }
+    console.log('Feedback seeded successfully.');
 }
 
 async function seed(): Promise<void> {
     try {
+        await connectToDatabase();
+
+        // Initial seeding
         await seedLanguages();
-        const languageIds = (await LanguageModel.find()).map((language) => language._id);
+        const languageIds = (await Language.find()).map(l => l._id.toString());
         await seedLevels(languageIds);
+        await seedUsers();
+
+        // Get IDs for relations
+        const userIds = (await UserModel.find()).map(u => u._id.toString());
         await seedCourses(languageIds);
-        await seedUsers(languageIds);
-        console.log('Data seeding completed successfully!');
+        const courseIds = (await Course.find()).map(c => c._id.toString());
+
+        // Seed related content
+        await seedForums(userIds);
+        await seedQuestions(courseIds);
+        await seedFeedback(userIds);
     } catch (error) {
-        console.error('Seeding error:', error);
+        console.error('Error seeding data:', error);
+    } finally {
+        await disconnectFromDatabase();
     }
 }
 
-async function main() {
-    await connectToDatabase();
-    await seed();
-    await disconnectFromDatabase();
-}
-
-main();
+seed().catch(console.error);

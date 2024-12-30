@@ -1,14 +1,13 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
-export interface LevelDocument extends Document {
+export interface ILevel extends Document {
     name: string;
-    languageId: string;
+    language: mongoose.Types.ObjectId;
 }
 
-const LevelSchema: Schema<LevelDocument> = new mongoose.Schema({
-    name: { type: String, required: true },
-    languageId: { type: String, required: true },
+const LevelSchema: Schema = new Schema({
+    name: { type: String, required: true, maxlength: 255 },
+    language: { type: mongoose.Types.ObjectId, ref: 'Language', required: true },
 });
 
-const LevelModel = mongoose.model<LevelDocument>('Level', LevelSchema);
-export default LevelModel;
+export const Level = mongoose.model<ILevel>('Level', LevelSchema);

@@ -4,13 +4,15 @@
   "description": "",
   "main": "src/seeder.ts",
   "scripts": {
-    "seed": "ts-node src/seeder.ts"
+    "seed": "ts-node src/seeder.ts",
+    "extract_data": "ts-node ./src/extract_existing_data.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "argon2": "^0.41.1",
+    "dotenv": "^16.4.7",
     "mongoose": "^6.13.5"
   },
   "devDependencies": {

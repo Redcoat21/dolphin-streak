@@ -1,15 +1,13 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
-export interface LanguageDocument extends Document {
+export interface ILanguage extends Document {
     name: string;
     image: string;
 }
 
-const LanguageSchema: Schema<LanguageDocument> = new Schema({
-    name: { type: String, required: true },
-    image: { type: String, required: true },
+const LanguageSchema: Schema = new Schema({
+    name: { type: String, required: true, maxlength: 255 },
+    image: { type: String, required: true, maxlength: 255 },
 });
 
-const LanguageModel = mongoose.model<LanguageDocument>('Language', LanguageSchema);
-
-export default LanguageModel;
+export const Language = mongoose.model<ILanguage>('Language', LanguageSchema);

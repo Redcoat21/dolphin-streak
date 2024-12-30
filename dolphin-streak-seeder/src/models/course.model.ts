@@ -1,16 +1,24 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
-export interface CourseDocument extends Document {
-    name: string;
-    languageId: string;
-    type: string;
+export enum CourseType {
+    Daily = 0,
+    Weekly = 1,
 }
 
-const CourseSchema: Schema<CourseDocument> = new mongoose.Schema({
-    name: { type: String, required: true },
-    languageId: { type: String, required: true },
-    type: { type: String, required: true },
+export interface ICourse extends Document {
+    name: string;
+    levels: mongoose.Types.ObjectId[];
+    language: mongoose.Types.ObjectId;
+    type: CourseType;
+    thumbnail?: string;
+}
+
+const CourseSchema: Schema = new Schema({
+    name: { type: String, required: true, maxlength: 255 },
+    levels: [{ type: mongoose.Types.ObjectId, ref: 'Level' }],
+    language: { type: mongoose.Types.ObjectId, ref: 'Language', required: true },
+    type: { type: Number, enum: CourseType, required: true },
+    thumbnail: { type: String, required: false, maxlength: 255 },
 });
 
-const CourseModel = mongoose.model<CourseDocument>('Course', CourseSchema);
-export default CourseModel;
+export const Course = mongoose.model<ICourse>('Course', CourseSchema);
