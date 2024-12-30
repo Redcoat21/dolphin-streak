@@ -22,7 +22,6 @@ export function CoursePageID() {
     accessToken: accessToken || "",
   });
 
-
   const course = courseData?.data;
 
   const LessonTypeIcon = ({ type }: { type: number }) => {

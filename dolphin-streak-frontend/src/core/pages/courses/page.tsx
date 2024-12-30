@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Container } from "@/core/components/container";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,18 @@ export function CoursePage() {
   const accessToken = getAccessToken();
   const router = useRouter();
   const [selectedLanguage, setSelectedLanguage] = useState<string>("");
+
+  // Fetch languages data
+  const { data: languagesData } = trpc.language.getLanguages.useQuery({
+    accessToken: accessToken || "",
+  });
+
+  // Set selectedLanguage to the first language if it exists
+  useEffect(() => {
+    if (languagesData?.data && languagesData.data.length > 0) {
+      setSelectedLanguage(languagesData.data[0]._id);
+    }
+  }, [languagesData]);
 
   const { data: coursesData, isLoading } = trpc.course.getCourses.useQuery({
     accessToken: accessToken || "",
