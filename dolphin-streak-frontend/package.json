@@ -22,6 +22,7 @@
     "@radix-ui/react-select": "^2.1.2",
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.1",
+    "@radix-ui/react-tabs": "^1.1.2",
     "@radix-ui/react-toast": "^1.2.2",
     "@radix-ui/react-tooltip": "^1.1.4",
     "@tanstack/react-query": "^5.60.2",
@@ -67,11 +68,14 @@
     "tailwindcss-animate": "^1.0.7",
     "todomvc-app-css": "^2.4.3",
     "todomvc-common": "^1.0.5",
+    "vaul": "^1.1.2",
     "zod": "^3.23.8",
     "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.2",
+    "@swc/cli": "^0.5.2",
+    "@swc/core": "^1.10.3",
     "@tanstack/react-query-devtools": "^5.60.2",
     "@types/draft-js": "^0.11.18",
     "@types/node": "^22.9.0",

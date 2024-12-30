@@ -1,10 +1,12 @@
 import { fetchAPI } from '@/utils/generic';
 import { authedProcedure, publicProcedure, router } from '../trpc';
-import {
+import type {
     TGetAllForumsResponse,
     TGetForumDetailResponse,
     TCreateForumReplyResponse,
     TCreateThreadResponse,
+} from '../types/forums';
+import {
     ZGetAllForumsRequest,
     ZGetForumsDetailRequest,
     ZCreateForumReplyRequest,

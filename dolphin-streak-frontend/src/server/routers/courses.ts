@@ -1,9 +1,11 @@
 import { fetchAPI } from '../../utils/generic';
 import { authedProcedure, router } from '../trpc';
 import { z } from 'zod';
-import {
+import type {
   TCoursesResponse,
   TCourseResponse,
+} from '../types/courses';
+import {
   ZGetCoursesRequest,
   ZGetCourseByIdRequest,
   ZCoursesResponse,
@@ -15,7 +17,7 @@ export const coursesRouter = router({
   getCourses: authedProcedure
     .input(ZGetCoursesRequest)
     .query(async ({ input }) => {
-      console.log({input});
+      console.log({ input });
       const response = await fetchAPI('/api/courses', 'GET', {
         token: input.accessToken,
         query: {
