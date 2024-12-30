@@ -138,11 +138,11 @@ export class LevelsController {
       data: foundedLevels,
     };
   }
-
+  
   @Get(":id")
   @ApiOperation({
     summary: "Get a level by id",
-    description: "Get a level by the id provided in the parameter",
+    description: "Get a level by the id provided in the parameter along with its questions",
   })
   @ApiBadRequestResponse({
     description: "Happen when the id parameter is not a valid mongodb id",
@@ -154,12 +154,23 @@ export class LevelsController {
     },
   })
   @ApiOkResponse({
-    description: "Level founded",
+    description: "Level and related questions retrieved successfully",
     example: {
-      messages: "Level founded",
+      messages: "Level and questions retrieved successfully",
       data: {
-        _id: "671afc7bc0a7ef4e76079383",
-        name: "Level 1",
+        level: {
+          _id: "671afc7bc0a7ef4e76079383",
+          name: "Level 1",
+          // other level fields...
+        },
+        questions: [
+          {
+            _id: "67361a7345664a2c0ba35041",
+            type: 0,
+            // other question fields...
+          },
+          // more questions...
+        ],
       },
     },
   })
@@ -172,7 +183,7 @@ export class LevelsController {
   })
   async findOne(@Param() findByIdParam: FindByIdParam) {
     const foundedLevel = checkIfExist(
-      await this.levelsService.findOne(findByIdParam.id),
+      await this.levelsService.findOneLevelsAndGetQuestions(findByIdParam.id),
       "Level not found",
     );
 

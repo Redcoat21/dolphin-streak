@@ -1,10 +1,13 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateLevelDto } from "./dto/create-level.dto";
 import { UpdateLevelDto } from "./dto/update-level.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Level } from "./schemas/level.schema";
 import { FilterQuery, Model, ProjectionType, QueryOptions } from "mongoose";
 import { Language } from "src/languages/schemas/language.schema";
+import { QuestionsService } from "src/questions/questions.service"; // Add import
+import { Question } from "src/questions/schemas/question.schema"; // Add import if needed
+
 
 /**
  * Service dealing with operations related to levels.
@@ -14,9 +17,12 @@ export class LevelsService {
   /**
    * Creates an instance of LevelsService.
    * @param levelModel - The level model injected by Mongoose.
+   * @param questionsService - The questions service to fetch related questions.
    */
-  constructor(@InjectModel(Level.name) private levelModel: Model<Language>) {}
-
+  constructor(
+    @InjectModel(Level.name) private levelModel: Model<Language>,
+    private readonly questionsService: QuestionsService, // Inject QuestionsService
+  ) {}
   /**
    * Creates a new level.
    * @param createLevelDto - Data transfer object containing the details of the level to create.
@@ -67,5 +73,21 @@ export class LevelsService {
    */
   remove(id: string) {
     return this.levelModel.findByIdAndDelete(id);
+  }
+
+  /**
+   * Finds a level by its ID and retrieves associated questions.
+   * @param id - The ID of the level.
+   * @returns An object containing the level and its questions.
+   */
+  async findOneLevelsAndGetQuestions(id: string) {
+    const level = await this.findOne(id);
+    if (!level) {
+      throw new NotFoundException("Level not found");
+    }
+
+    const questions = await this.questionsService.findAll({ levelId: id });
+
+    return { level, questions };
   }
 }
