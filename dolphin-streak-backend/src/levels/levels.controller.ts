@@ -63,7 +63,7 @@ import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
 })
 @ApiBearerAuth()
 export class LevelsController {
-  constructor(private readonly levelsService: LevelsService) {}
+  constructor(private readonly levelsService: LevelsService) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -125,6 +125,7 @@ export class LevelsController {
     },
   })
   @Get()
+  @HasRoles(Role.ADMIN, Role.USER)
   async findAll(@Query() query: FindAllLevelsQuery) {
     const foundedLevels = await this.levelsService.findAll(
       query.language ? { language: query.language } : undefined,
@@ -138,7 +139,7 @@ export class LevelsController {
       data: foundedLevels,
     };
   }
-  
+
   @Get(":id")
   @ApiOperation({
     summary: "Get a level by id",
@@ -152,6 +153,7 @@ export class LevelsController {
       ],
       data: null,
     },
+
   })
   @ApiOkResponse({
     description: "Level and related questions retrieved successfully",
@@ -181,6 +183,7 @@ export class LevelsController {
       data: null,
     },
   })
+  @HasRoles(Role.USER, Role.ADMIN)
   async findOne(@Param() findByIdParam: FindByIdParam) {
     const foundedLevel = checkIfExist(
       await this.levelsService.findOneLevelsAndGetQuestions(findByIdParam.id),

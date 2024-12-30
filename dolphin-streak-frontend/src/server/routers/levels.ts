@@ -1,12 +1,13 @@
 import { fetchAPI } from '@/utils/generic';
 import { authedProcedure, publicProcedure, router } from '../trpc';
-import type { TLanguagesResponse } from '../types/language';
+import { ZGetLevelDetailRequest } from '../types/levels';
+import type { TGetLevelDetailResponse, } from '../types/levels';
 
 export const levelsRouter = router({
-    getLevels: authedProcedure.query(async ({ input }) => {
-        const response = await fetchAPI('/api/languages', 'GET', {
+    getLevelDetail: authedProcedure.input(ZGetLevelDetailRequest).query(async ({ input }) => {
+        const response = await fetchAPI(`/api/levels/${input.levelId}`, 'GET', {
             token: input.accessToken,
         });
-        return response as TLanguagesResponse;
+        return response as TGetLevelDetailResponse;
     }),
 });

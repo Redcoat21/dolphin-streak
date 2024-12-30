@@ -54,6 +54,7 @@ export const fetchAPI = async <T>(
     if (!response.ok) {
       const errorData = await response.json();
       console.error("API Error Response:", errorData); // Log the full error response
+      console.error({ errorData })
       throw new Error(
         Array.isArray(errorData.messages)
           ? errorData.messages[0]

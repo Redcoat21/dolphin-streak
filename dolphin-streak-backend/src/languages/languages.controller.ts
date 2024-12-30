@@ -122,6 +122,7 @@ export class LanguagesController {
     },
   })
   @Get()
+  @HasRoles(Role.ADMIN, Role.USER)
   async findAll() {
     const foundedLanguages = await this.languagesService.findAll();
     return {
@@ -164,6 +165,7 @@ export class LanguagesController {
     },
   })
   @Get(":id")
+  @HasRoles(Role.ADMIN, Role.USER)
   async findOne(@Param() findByIdParam: FindByIdParam) {
     const foundedLanguage = checkIfExist(
       await this.languagesService.findOne(

@@ -50,7 +50,7 @@ export class SessionService {
 
         return {
             token: crypto.randomBytes(64).toString("hex"),
-            liveTime: DateTime.now().plus(liveTime).toJSDate(),
+            liveTime: DateTime.now().plus(liveTime * 60).toJSDate(),
         };
     }
 

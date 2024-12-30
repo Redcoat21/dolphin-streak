@@ -32,6 +32,7 @@ export const coursesRouter = router({
   getCourseById: authedProcedure
     .input(ZGetCourseByIdRequest)
     .query(async ({ input }) => {
+      console.log({ input })
       const response = await fetchAPI(
         `/api/courses/${input.id}`,
         'GET',

@@ -64,7 +64,7 @@ import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
 })
 @ApiBearerAuth()
 export class CoursesController {
-  constructor(private readonly coursesService: CoursesService) {}
+  constructor(private readonly coursesService: CoursesService) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -169,10 +169,10 @@ export class CoursesController {
       data: null,
     },
   })
+  @HasRoles(Role.USER, Role.ADMIN)
   async findAll(
     @Query() findAllQuery: FindAllCoursesQuery,
   ) {
-    console.log({ findAllQuery });
     const filter: FilterQuery<Course> = {};
     if (findAllQuery.language) {
       filter.language = findAllQuery.language;
@@ -230,6 +230,7 @@ export class CoursesController {
       data: null,
     },
   })
+  @HasRoles(Role.USER, Role.ADMIN)
   async findOne(@Param() findByIdParam: FindByIdParam) {
     const foundedLanguage = checkIfExist(
       await this.coursesService.findOne(findByIdParam.id),
