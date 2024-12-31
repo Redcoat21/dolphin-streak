@@ -4,6 +4,7 @@ import { coursesRouter } from './courses';
 import { forumRouter } from './forum';
 import { languageRouter } from './language';
 import { levelsRouter } from './levels';
+import { questionsRouter } from './questions';
 import { todoRouter } from './todo';
 
 export const appRouter = router({
@@ -12,7 +13,8 @@ export const appRouter = router({
   forum: forumRouter,
   language: languageRouter,
   course: coursesRouter,
-  levels: levelsRouter
+  levels: levelsRouter,
+  question: questionsRouter
   // i18n: baseProcedure.query(({ ctx }) => ({
   //   i18n: ctx.i18n,
   //   locale: ctx.locale,
