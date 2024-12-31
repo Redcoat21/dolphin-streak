@@ -33,6 +33,9 @@ import {
 import { HasRoles } from "src/lib/decorators/has-role.decorator";
 import { Role } from "src/users/schemas/user.schema";
 import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
+import { DateTime } from 'luxon';
+import { Request } from '@nestjs/common'
+import { Request as ExpressRequest } from "express";
 
 @Controller("/api/levels")
 @UseGuards(BearerTokenGuard, RoleGuard)
@@ -276,5 +279,116 @@ export class LevelsController {
     );
 
     return { messages: "Level deleted successfully", data: deletedLevel };
+  }
+
+  @Post(":id/start-session")
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(BearerTokenGuard, RoleGuard)
+  @HasRoles(Role.USER, Role.ADMIN)
+  @ApiOperation({ summary: "Start a question session for a specific level" })
+  @ApiOkResponse({
+    description: "Session started successfully",
+    schema: {
+      example: {
+        messages: "Session started",
+        data: {
+          sessionId: "session-1691138855",
+          expiresAt: "2024-11-25T15:47:01.890Z",
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: "Unauthorized",
+    schema: { example: { messages: "Unauthorized", data: null } }
+  })
+  @ApiBearerAuth()
+  async startQuestionSession(
+    @Param("id") levelId: string,
+    @Request() request: ExpressRequest,
+  ) {
+    // Access the logged-in user from the request object
+    const userId = request.user._id.toString();
+
+    // Grab questions that match this levelId (pseudo-code)
+    const questions = await this.levelsService.findQuestionsForLevel(levelId);
+
+    // Create/expose a start time, expiry, etc.
+    const sessionId = `session-${Date.now()}`;
+    const expiresAt = DateTime.now().plus({ minutes: 30 }).toJSDate();
+
+    // Store session however you prefer (e.g., DB, memory). Example in-memory:
+    this.levelsService.addSession({
+      sessionId,
+      userId,
+      levelId,
+      questions,
+      expiresAt,
+    });
+
+    return {
+      messages: "Session started",
+      data: {
+        sessionId,
+        expiresAt,
+      },
+    };
+  }
+  @Get(":id/question/:questionIndex")
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(BearerTokenGuard, RoleGuard)
+  @HasRoles(Role.USER, Role.ADMIN)
+  @ApiOperation({ summary: "Get a question by index and session ID" })
+  @ApiOkResponse({
+    description: "Question retrieved successfully",
+    schema: {
+      example: {
+        messages: "Question retrieved",
+        data: {
+          question: {
+            _id: "question-123",
+            text: "What is the capital of France?",
+            type: "MULTIPLE_CHOICE",
+            answerOptions: ["Paris", "London", "Berlin", "Madrid"],
+            correctAnswer: "Paris",
+          },
+        },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: "Question not found",
+    schema: { example: { messages: "Question not found", data: null } },
+  })
+  @ApiUnauthorizedResponse({
+    description: "Unauthorized",
+    schema: { example: { messages: "Unauthorized", data: null } },
+  })
+  @ApiBearerAuth()
+  async getQuestionById(
+    @Param("id") levelId: string,
+    @Param("questionIndex") questionIndex: number,
+    @Query("sessionId") sessionId: string,
+    @Request() request: ExpressRequest,
+  ) {
+    // Access the logged-in user from the request object
+    const userId = request.user._id.toString();
+
+    // Validate session
+    const session = this.levelsService.getSession(sessionId);
+    if (!session || session.userId !== userId || session.levelId !== levelId) {
+      throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
+    }
+
+    // Get the question by index
+    const question = session.questions[questionIndex];
+    if (!question) {
+      throw new HttpException("Question not found", HttpStatus.NOT_FOUND);
+    }
+
+    return {
+      messages: "Question retrieved",
+      data: { question },
+    };
   }
 }

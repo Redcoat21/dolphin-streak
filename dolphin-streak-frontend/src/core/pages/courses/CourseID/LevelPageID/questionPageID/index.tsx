@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/router';
-import { Book, PenSquare, Mic, CheckCircle, XCircle } from 'lucide-react';
+import { Book, PenSquare, Mic, CheckCircle, XCircle, Type, Edit } from 'lucide-react';
 import { trpc } from '@/utils/trpc';
 import { QuestionType } from '@/server/types/questions';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,8 +18,12 @@ const QuestionTypeIcon = ({ type }: QuestionTypeIconProps) => {
       return <Book className="w-5 h-5" />;
     case QuestionType.ESSAY:
       return <PenSquare className="w-5 h-5" />;
+    case QuestionType.FILL_IN:
+      return <Type className="w-5 h-5" />;
     case QuestionType.VOICE:
       return <Mic className="w-5 h-5" />;
+    case QuestionType.WRITING:
+      return <Edit className="w-5 h-5" />;
     default:
       return <PenSquare className="w-5 h-5" />;
   }
@@ -31,6 +35,7 @@ export function QuestionPageID() {
   const courseId = params?.id as string;
   const levelId = params?.levelId as string;
   const questionIdx = params?.questionIdx as string;
+  const sessionId = router.query.sessionId as string; // Get sessionId from query params
 
   const { getAccessToken } = useAuthStore(); // Get access token from auth context
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(Number(questionIdx) || 0);
@@ -39,9 +44,11 @@ export function QuestionPageID() {
   const [isCorrect, setIsCorrect] = useState(false);
   const [progress, setProgress] = useState(0);
   const [confirmed, setConfirmed] = useState(false);
+  const [userAnswer, setUserAnswer] = useState(''); // For FILL_IN, VOICE, and WRITING types
 
   const accessToken = getAccessToken() || '';
 
+  // Fetch level details
   const { data: levelData } = trpc.levels.getLevelDetail.useQuery(
     {
       levelId: levelId,
@@ -52,14 +59,16 @@ export function QuestionPageID() {
     }
   );
 
+  // Fetch question by index and sessionId
   const { data: questionData } = trpc.question.getQuestionById.useQuery(
     {
-      sessionId: levelId, // Assuming sessionId is the same as levelId
+      levelId: levelId, // Pass levelId
+      sessionId: sessionId, // Use sessionId from query params
       questionIndex: currentQuestionIndex,
       accessToken,
     },
     {
-      enabled: !!levelId && !!accessToken,
+      enabled: !!sessionId && !!accessToken,
     }
   );
 
@@ -67,22 +76,26 @@ export function QuestionPageID() {
 
   const handleSubmitAnswer = useCallback(
     async (answer: string) => {
+      if (!question) return;
+
       setSelectedAnswer(answer);
       setShowFeedback(true);
-      const isAnswerCorrect = answer === question?.correctAnswer[0];
+      const isAnswerCorrect = answer === question.correctAnswer[0];
       setIsCorrect(isAnswerCorrect);
+
       setTimeout(() => {
         setShowFeedback(false);
         if (questionData && currentQuestionIndex < (levelData?.questionCount || 0) - 1) {
           setCurrentQuestionIndex((prev) => prev + 1);
           setSelectedAnswer(null);
-          router.replace(`/course/${courseId}/level/${levelId}/question/${currentQuestionIndex + 1}`);
+          setUserAnswer(''); // Reset user answer for the next question
+          router.replace(`/course/${courseId}/level/${levelId}/question/${currentQuestionIndex + 1}?sessionId=${sessionId}`);
         } else {
           router.push(`/course/${courseId}`);
         }
       }, 1500);
     },
-    [currentQuestionIndex, question, courseId, router, questionData, levelData?.questionCount, levelId]
+    [currentQuestionIndex, question, courseId, router, questionData, levelData?.questionCount, levelId, sessionId]
   );
 
   const handleBack = useCallback(() => {
@@ -118,9 +131,15 @@ export function QuestionPageID() {
           <span className="text-lg font-medium">Question {currentQuestionIndex + 1}</span>
         </div>
         <p className="text-slate-400">
-          {question.type === 'MULTIPLE_CHOICE'
+          {question.type === QuestionType.MULTIPLE_CHOICE
             ? 'Select the best answer from the options below'
-            : 'Complete this question to progress'}
+            : question.type === QuestionType.FILL_IN
+              ? 'Fill in the blank'
+              : question.type === QuestionType.VOICE
+                ? 'Record your answer'
+                : question.type === QuestionType.WRITING
+                  ? 'Write your answer below'
+                  : 'Complete this question to progress'}
         </p>
       </div>
       <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-sm">
@@ -128,7 +147,7 @@ export function QuestionPageID() {
           <div className="space-y-8">
             <h2 className="text-2xl font-medium leading-relaxed">{question.text}</h2>
             <div className="grid grid-cols-1 gap-4">
-              {question.type === 'MULTIPLE_CHOICE' ? (
+              {question.type === QuestionType.MULTIPLE_CHOICE ? (
                 question.answerOptions?.map((option: string, idx: number) => (
                   <Button
                     key={`${question.id}-option-${idx}`}
@@ -164,14 +183,63 @@ export function QuestionPageID() {
                     )}
                   </Button>
                 ))
-              ) : (
-                <textarea
-                  className="w-full min-h-[200px] bg-slate-800/50 border-slate-700 rounded-lg p-6
-                    focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none
-                    placeholder:text-slate-500 text-lg"
-                  placeholder="Write your answer here..."
-                />
-              )}
+              ) : question.type === QuestionType.FILL_IN ? (
+                <div className="space-y-4">
+                  <input
+                    type="text"
+                    className="w-full bg-slate-800/50 border-slate-700 rounded-lg p-4
+                      focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                      placeholder:text-slate-500 text-lg"
+                    placeholder="Type your answer here..."
+                    value={userAnswer}
+                    onChange={(e) => setUserAnswer(e.target.value)}
+                  />
+                  <Button
+                    className="w-full"
+                    onClick={() => handleSubmitAnswer(userAnswer)}
+                    disabled={showFeedback}
+                  >
+                    Submit
+                  </Button>
+                </div>
+              ) : question.type === QuestionType.VOICE ? (
+                <div className="space-y-4">
+                  <Button
+                    className="w-full"
+                    onClick={() => {
+                      // Implement voice recording logic here
+                      alert('Voice recording not implemented yet');
+                    }}
+                  >
+                    Start Recording
+                  </Button>
+                  <Button
+                    className="w-full"
+                    onClick={() => handleSubmitAnswer('Voice response')}
+                    disabled={showFeedback}
+                  >
+                    Submit
+                  </Button>
+                </div>
+              ) : question.type === QuestionType.WRITING ? (
+                <div className="space-y-4">
+                  <textarea
+                    className="w-full min-h-[200px] bg-slate-800/50 border-slate-700 rounded-lg p-6
+                      focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none
+                      placeholder:text-slate-500 text-lg"
+                    placeholder="Write your answer here..."
+                    value={userAnswer}
+                    onChange={(e) => setUserAnswer(e.target.value)}
+                  />
+                  <Button
+                    className="w-full"
+                    onClick={() => handleSubmitAnswer(userAnswer)}
+                    disabled={showFeedback}
+                  >
+                    Submit
+                  </Button>
+                </div>
+              ) : null}
             </div>
           </div>
         </CardContent>

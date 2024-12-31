@@ -7,6 +7,7 @@ import { FilterQuery, Model, ProjectionType, QueryOptions } from "mongoose";
 import { Language } from "src/languages/schemas/language.schema";
 import { QuestionsService } from "src/questions/questions.service"; // Add import
 import { Question } from "src/questions/schemas/question.schema"; // Add import if needed
+import { LevelSessionDto } from "./dto/level-session.dto";
 
 
 /**
@@ -14,6 +15,7 @@ import { Question } from "src/questions/schemas/question.schema"; // Add import 
  */
 @Injectable()
 export class LevelsService {
+  private levelsSession: Map<string, LevelSessionDto> = new Map();
   /**
    * Creates an instance of LevelsService.
    * @param levelModel - The level model injected by Mongoose.
@@ -22,7 +24,7 @@ export class LevelsService {
   constructor(
     @InjectModel(Level.name) private levelModel: Model<Language>,
     private readonly questionsService: QuestionsService, // Inject QuestionsService
-  ) {}
+  ) { }
   /**
    * Creates a new level.
    * @param createLevelDto - Data transfer object containing the details of the level to create.
@@ -89,5 +91,31 @@ export class LevelsService {
     const questions = await this.questionsService.findAll({ levelId: id });
 
     return { level, questions };
+  }
+  /**
+   * Finds all questions associated with a specific level.
+   * @param levelId - The ID of the level.
+   * @returns A promise that resolves to an array of questions.
+   */
+  async findQuestionsForLevel(levelId: string): Promise<Question[]> {
+    // Use the questionsService to find all questions associated with the levelId
+    const questions = await this.questionsService.findAll({ level: levelId });
+
+    return questions;
+  }
+  /**
+   * Adds a new level session to the in-memory store.
+   * @param levelSessionDto - Data transfer object containing the details of the session.
+   */
+  async addSession(levelSessionDto: LevelSessionDto) {
+    this.levelsSession.set(levelSessionDto.sessionId, levelSessionDto);
+  }
+  /**
+   * Finds a level session by its ID.
+   * @param sessionId - The ID of the session to retrieve.
+   * @returns The level session corresponding to the provided ID, or undefined if not found.
+   */
+  getSession(sessionId: string): LevelSessionDto | undefined {
+    return this.levelsSession.get(sessionId);
   }
 }

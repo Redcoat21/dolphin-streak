@@ -41,4 +41,10 @@ export type TLevelDetail = {
     questions: TLevelQuestion[];
 };
 
+export type TLevelSession = {
+    sessionId: string,
+    expiresAt: Date
+}
+
 export type TGetLevelDetailResponse = TDefaultResponse<TLevelDetail>;
+export type TPostStartSessionResponse = TDefaultResponse<TLevelSession>
