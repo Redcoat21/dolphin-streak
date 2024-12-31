@@ -7,6 +7,7 @@ import { QuestionType } from '@/server/types/questions';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/core/stores/authStore';
+import { LoadingSkeleton } from '../../../components/LoadingSkeleton';
 
 interface QuestionTypeIconProps {
   type: QuestionType;
@@ -120,7 +121,7 @@ export function QuestionPageID() {
   }, [currentQuestionIndex, levelData?.questionCount]);
 
   if (!question) {
-    return <div>Loading...</div>;
+    return <LoadingSkeleton />;
   }
 
   return (

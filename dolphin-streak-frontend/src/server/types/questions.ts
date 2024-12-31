@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TDefaultResponse } from './generic';
 
 export enum QuestionType {
     MULTIPLE_CHOICE = 0,
@@ -14,12 +15,26 @@ export const ZGetQuestionByIdRequest = z.object({
     questionIndex: z.number(),
 });
 
-export const ZQuestionResponse = z.object({
-    id: z.string(),
-    text: z.string(),
-    type: z.nativeEnum(QuestionType),
-    answerOptions: z.array(z.string()).optional(),
-    correctAnswer: z.array(z.string()),
-});
+export type TQuestion = {
+    question: { type: "text", text: string };
+    _id: string;
+    level: string;
+    __v: number;
+    answerOptions: string[];
+    correctAnswer: string[];
+    courses: {
+        _id: string;
+        language: string;
+        name: string;
+        __v: number;
+        levels: string[];
+        thumbnail: string;
+        type: number;
+    }[];
+    type: QuestionType;
+    useAi: boolean;
+};
 
-export type TQuestionResponse = z.infer<typeof ZQuestionResponse>;
+export type TQuestionResponse = TDefaultResponse<{
+    question: TQuestion;
+}>;

@@ -26,15 +26,8 @@ export interface IQuestion extends Document {
 }
 
 const QuestionSchema = new Schema<IQuestion>({
-    question: {
-        type: {
-            type: { type: String, maxlength: 50 },
-            text: { type: String, maxlength: 500 },
-            voice: { type: String, maxlength: 500 },
-        },
-        default: {},
-    },
-    type: { type: String, enum: Object.values(QuestionType), required: true },
+    question: { type: Schema.Types.Mixed, required: true },
+    type: { type: Number, enum: Object.values(QuestionType), required: true },
     answerOptions: [{ type: String }],
     correctAnswer: { type: Schema.Types.Mixed },
     useAi: { type: Boolean, required: true },

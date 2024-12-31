@@ -12,7 +12,7 @@ export const questionsRouter = router({
       const response = await fetchAPI(`/api/levels/${input.levelId}/question/${questionIndex}?sessionId=${sessionId}`, 'GET', {
         token: accessToken,
       }) as TQuestionResponse;
-
+      console.log({ response: JSON.stringify(response) });
       return response;
     }),
 });
