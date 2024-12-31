@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import { Language } from './language.model';
 
 export interface ILevel extends Document {
     name: string;

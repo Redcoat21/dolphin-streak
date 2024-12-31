@@ -2,11 +2,11 @@ import mongoose, { Schema, Document } from 'mongoose';
 import { Course } from './course.model';
 
 export enum QuestionType {
-    MULTIPLE_CHOICE = 'MULTIPLE_CHOICE',
-    ESSAY = 'ESSAY',
-    FILL_IN = 'FILL_IN',
-    VOICE = 'VOICE',
-    WRITING = 'WRITING',
+    MULTIPLE_CHOICE,
+    ESSAY,
+    FILL_IN,
+    VOICE,
+    WRITING,
 }
 
 export interface IQuestionDetail {
@@ -22,6 +22,7 @@ export interface IQuestion extends Document {
     correctAnswer?: string | number;
     useAi: boolean;
     courses: mongoose.Types.ObjectId[];
+    level?: mongoose.Types.ObjectId;
 }
 
 const QuestionSchema = new Schema<IQuestion>({
@@ -38,6 +39,7 @@ const QuestionSchema = new Schema<IQuestion>({
     correctAnswer: { type: Schema.Types.Mixed },
     useAi: { type: Boolean, required: true },
     courses: [{ type: mongoose.Types.ObjectId, ref: 'Course', default: [] }],
+    level: { type: mongoose.Types.ObjectId, ref: 'Level' },
 });
 
 export const Question = mongoose.model<IQuestion>('Question', QuestionSchema);

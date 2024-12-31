@@ -2,8 +2,8 @@ import mongoose, { Schema, Document } from 'mongoose';
 import UserModel from './user.model';
 
 export enum FeedbackType {
-    REPORT = 'REPORT',
-    FEEDBACK = 'FEEDBACK'
+    REPORT,
+    FEEDBACK
 }
 
 export interface IFeedback extends Document {

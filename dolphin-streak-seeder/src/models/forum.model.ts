@@ -36,9 +36,9 @@ ForumReplySchema.pre('findOneAndDelete', async function (next) {
 });
 
 const ForumSchema = new Schema<IForum>({
-    title: { type: String, required: true, maxlength: 255, index: true },
+    title: { type: String, required: true, maxlength: 255, index: 'text' },
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    content: { type: String, required: true, maxlength: 765, index: true },
+    content: { type: String, required: true, maxlength: 765, index: 'text' },
     replies: [{ type: mongoose.Types.ObjectId, ref: 'ForumReply', default: [] }],
 }, { timestamps: { createdAt: true, updatedAt: false } });
 
