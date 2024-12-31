@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   ChevronLeft, AlertCircle, Mic, PenSquare,
   CheckCircle, XCircle, Book, ArrowRight,
+  Flag,
 } from "lucide-react";
 import { useCallback, useState, useEffect } from "react";
 import { useAuthStore } from "@/core/stores/authStore";
@@ -96,48 +97,54 @@ export function LevelPageID() {
     }
   };
 
+  // Update the renderQuestion function to include better styling
   const renderQuestion = () => {
     if (!data?.data?.questions?.[currentQuestionIndex]) return null;
     const question = data.data.questions[currentQuestionIndex];
 
     return (
-      <div className="space-y-8 transition-all duration-300 ease-out transform opacity-100 translate-y-0">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold mb-2 flex items-center justify-center">
+      <div className="space-y-8 animate-fadeIn">
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center gap-3 bg-slate-800/50 px-4 py-2 rounded-full">
             <QuestionTypeIcon type={question.type} />
-            <span className="ml-2">Question {currentQuestionIndex + 1}</span>
-          </h1>
+            <span className="text-lg font-medium">Question {currentQuestionIndex + 1}</span>
+          </div>
           <p className="text-slate-400">
             {question.type === QuestionType.MULTIPLE_CHOICE
-              ? "Choose the correct answer"
+              ? "Select the best answer from the options below"
               : "Complete this question to progress"}
           </p>
         </div>
-        <Card className="bg-slate-900 border-slate-800">
-          <CardContent className="py-6">
-            <div className="space-y-6">
-              <h2 className="text-xl font-medium">{question.text}</h2>
-              <div className="grid grid-cols-1 gap-3">
+
+        <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-sm">
+          <CardContent className="p-8">
+            <div className="space-y-8">
+              <h2 className="text-2xl font-medium leading-relaxed">{question.text}</h2>
+
+              <div className="grid grid-cols-1 gap-4">
                 {question.type === QuestionType.MULTIPLE_CHOICE ? (
                   question.answerOptions?.map((option, idx) => (
                     <Button
                       key={`${option}-${idx}`}
                       variant="outline"
                       className={`w-full justify-start p-6 border-slate-800 hover:border-blue-500 
-                      hover:bg-blue-500/10 transition-all duration-200
-                      ${selectedAnswer === option ? "ring-2 ring-blue-500" : ""}
-                      ${showFeedback && selectedAnswer === option
-                        ? isCorrect
-                          ? "bg-green-500/20 border-green-500"
-                          : "bg-red-500/20 border-red-500"
-                        : ""}`}
+                    hover:bg-blue-500/10 transition-all duration-200 group
+                    ${selectedAnswer === option ? "ring-2 ring-blue-500" : ""}
+                    ${showFeedback && selectedAnswer === option
+                          ? isCorrect
+                            ? "bg-green-500/20 border-green-500"
+                            : "bg-red-500/20 border-red-500"
+                          : ""}`}
                       onClick={() => handleSubmitAnswer(option)}
                       disabled={showFeedback}
                     >
-                      <span className="mr-4 text-slate-500 font-mono">
-                        {String.fromCharCode(65 + idx)}
+                      <span className="flex items-center gap-4">
+                        <span className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 
+                        group-hover:bg-blue-500/20 transition-colors text-slate-400 group-hover:text-blue-400">
+                          {String.fromCharCode(65 + idx)}
+                        </span>
+                        <span className="flex-1">{option}</span>
                       </span>
-                      {option}
                       {showFeedback && selectedAnswer === option && (
                         <span className="ml-auto">
                           {isCorrect ? (
@@ -151,8 +158,9 @@ export function LevelPageID() {
                   ))
                 ) : (
                   <textarea
-                    className="w-full min-h-[200px] bg-slate-800 border-slate-700 rounded-lg p-4 
-                    focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full min-h-[200px] bg-slate-800/50 border-slate-700 rounded-lg p-6
+                  focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none
+                  placeholder:text-slate-500 text-lg"
                     placeholder="Write your answer here..."
                   />
                 )}
@@ -163,58 +171,92 @@ export function LevelPageID() {
       </div>
     );
   };
-
-  const renderConfirmation = () => (
-    <div className="space-y-8 transition-all duration-300 ease-out transform opacity-100 translate-y-0">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold mb-4">Ready to Begin?</h1>
-        <p className="text-slate-400 max-w-md mx-auto">
-          This level contains {data?.data?.questions?.length} questions.
-          Take your time and answer carefully. Good luck!
-        </p>
-      </div>
-      <Button
-        variant="default"
-        size="lg"
-        className="w-full max-w-md mx-auto h-14 bg-blue-500 hover:bg-blue-600
-        transform transition-all duration-200 hover:scale-105"
-        onClick={handleConfirm}
-      >
-        Start Level
-        <ArrowRight className="ml-2 w-5 h-5" />
-      </Button>
-    </div>
-  );
-
   return (
     <Container>
       <Header currentPath={`/course/${courseId}/levels/${levelId}`} />
-      <main className="min-h-screen bg-slate-950 text-white pt-20 pb-8 px-4">
+      <main className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 text-white pt-20 pb-8 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
+          {/* Navigation Bar */}
+          <div className="flex items-center justify-between mb-8 bg-slate-900/50 p-4 rounded-xl backdrop-blur-sm border border-slate-800">
             <Button
               variant="ghost"
-              className="text-slate-400 hover:text-white group"
+              className="text-slate-400 hover:text-white group flex items-center gap-2 transition-all duration-200"
               onClick={handleBack}
             >
-              <ChevronLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
-              Back to Course
+              <ChevronLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
+              <span>Back to Course</span>
             </Button>
             {confirmed && (
-              <div className="text-slate-400">
-                Question {currentQuestionIndex + 1} of {data?.data?.questions?.length}
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-slate-400 bg-slate-800/50 py-2 px-4 rounded-lg">
+                  <Flag className="w-4 h-4" />
+                  <span>Question {currentQuestionIndex + 1} of {data?.data?.questions?.length}</span>
+                </div>
               </div>
             )}
           </div>
-          {confirmed ? (
-            <>
-              <div className="mb-8">
-                <Progress value={progress} className="h-2 bg-slate-800" />
-              </div>
-              {renderQuestion()}
-            </>
+
+          {/* Error State */}
+          {isError && (
+            <Alert variant="destructive" className="mb-8">
+              <AlertCircle className="h-5 w-5" />
+              <AlertDescription>Failed to load level content. Please try again.</AlertDescription>
+            </Alert>
+          )}
+
+          {/* Loading State */}
+          {isLoading ? (
+            <LoadingSkeleton count={1} type="course-detail" />
           ) : (
-            renderConfirmation()
+            <>
+              {confirmed ? (
+                <div className="space-y-8">
+                  {/* Progress Bar */}
+                  <div className="relative">
+                    <Progress
+                      value={progress}
+                      className="h-2 bg-slate-800"
+                    />
+                    <div className="absolute -bottom-6 left-0 right-0 flex justify-between text-xs text-slate-400">
+                      <span>Start</span>
+                      <span>Finish</span>
+                    </div>
+                  </div>
+
+                  {renderQuestion()}
+                </div>
+              ) : (
+                <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-sm">
+                  <CardContent className="p-8">
+                    <div className="space-y-8">
+                      <div className="text-center space-y-4">
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+                          Ready to Begin?
+                        </h1>
+                        <p className="text-lg text-slate-400 max-w-md mx-auto leading-relaxed">
+                          This level contains {data?.data?.questions?.length} questions.
+                          Take your time and answer carefully. Good luck!
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col items-center gap-4">
+                        <Button
+                          size="lg"
+                          className="w-full max-w-md h-14 bg-gradient-to-r from-blue-500 to-blue-600 
+                          hover:from-blue-600 hover:to-blue-700 text-lg font-medium
+                          transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl
+                          hover:shadow-blue-500/20"
+                          onClick={handleConfirm}
+                        >
+                          Start Level
+                          <ArrowRight className="ml-2 w-5 h-5" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </>
           )}
         </div>
       </main>
