@@ -116,6 +116,7 @@ export class LevelsService {
    * @returns The level session corresponding to the provided ID, or undefined if not found.
    */
   getSession(sessionId: string): LevelSessionDto | undefined {
+    console.log({ levelSession: this.levelsSession })
     return this.levelsSession.get(sessionId);
   }
 }

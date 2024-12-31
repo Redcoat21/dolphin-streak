@@ -17,7 +17,6 @@ export const coursesRouter = router({
   getCourses: authedProcedure
     .input(ZGetCoursesRequest)
     .query(async ({ input }) => {
-      console.log({ input });
       const response = await fetchAPI('/api/courses', 'GET', {
         token: input.accessToken,
         query: {
@@ -32,7 +31,6 @@ export const coursesRouter = router({
   getCourseById: authedProcedure
     .input(ZGetCourseByIdRequest)
     .query(async ({ input }) => {
-      console.log({ input })
       const response = await fetchAPI(
         `/api/courses/${input.id}`,
         'GET',

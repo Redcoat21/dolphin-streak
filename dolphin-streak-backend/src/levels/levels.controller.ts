@@ -325,7 +325,7 @@ export class LevelsController {
       questions,
       expiresAt,
     });
-
+    
     return {
       messages: "Session started",
       data: {
@@ -334,6 +334,7 @@ export class LevelsController {
       },
     };
   }
+  
   @Get(":id/question/:questionIndex")
   @HttpCode(HttpStatus.OK)
   @UseGuards(BearerTokenGuard, RoleGuard)
