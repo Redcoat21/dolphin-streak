@@ -106,8 +106,8 @@ export function CoursePageID() {
                       >
                         <div className="p-4 flex items-center justify-between">
                           <div>
-                            <h3 className="text-lg font-semibold mb-1">{level.name}</h3>
-                            <p className="text-slate-400 text-sm">Chapter {index + 1}</p>
+                            <h3 className="text-lg font-semibold mb-1 text-white">{level.name}</h3>
+                            <p className="text-sm text-white">Chapter {index + 1}</p>
                           </div>
                           <Button
                             variant="default"
