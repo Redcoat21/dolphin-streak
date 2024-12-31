@@ -47,7 +47,7 @@ export function CoursePageID() {
         <div className="max-w-7xl mx-auto">
           <Button
             variant="ghost"
-            className="text-slate-400 hover:text-white mb-6 text-white"
+            className="text-slate-400 hover:text-white mb-6"
             onClick={() => router.back()}
           >
             <ChevronLeft className="mr-2 h-4 w-4" />
@@ -111,7 +111,7 @@ export function CoursePageID() {
                           </div>
                           <Button
                             variant="default"
-                            className="bg-blue-500 hover:bg-blue-600 text-white"
+                            className="bg-blue-500 hover:bg-blue-600"
                             onClick={() => router.push(`/course/${course._id}/levels/${level._id}`)}
                           >
                             Start Level
