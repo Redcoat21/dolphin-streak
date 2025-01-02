@@ -281,6 +281,7 @@ export class LevelsController {
     return { messages: "Level deleted successfully", data: deletedLevel };
   }
 
+
   @Post(":id/start-session")
   @HttpCode(HttpStatus.OK)
   @UseGuards(BearerTokenGuard, RoleGuard)
@@ -294,6 +295,7 @@ export class LevelsController {
         data: {
           sessionId: "session-1691138855",
           expiresAt: "2024-11-25T15:47:01.890Z",
+          totalQuestions: 10, // Added totalQuestions to the response
         },
       },
     },
@@ -307,17 +309,13 @@ export class LevelsController {
     @Param("id") levelId: string,
     @Request() request: ExpressRequest,
   ) {
-    // Access the logged-in user from the request object
     const userId = request.user._id.toString();
-
-    // Grab questions that match this levelId (pseudo-code)
     const questions = await this.levelsService.findQuestionsForLevel(levelId);
+    const totalQuestions = questions.length; // Calculate total questions
 
-    // Create/expose a start time, expiry, etc.
     const sessionId = `session-${Date.now()}`;
     const expiresAt = DateTime.now().plus({ minutes: 30 }).toJSDate();
 
-    // Store session however you prefer (e.g., DB, memory). Example in-memory:
     this.levelsService.addSession({
       sessionId,
       userId,
@@ -325,16 +323,17 @@ export class LevelsController {
       questions,
       expiresAt,
     });
-    
+
     return {
       messages: "Session started",
       data: {
         sessionId,
         expiresAt,
+        totalQuestions, // Include totalQuestions in the response
       },
     };
   }
-  
+
   @Get(":id/question/:questionIndex")
   @HttpCode(HttpStatus.OK)
   @UseGuards(BearerTokenGuard, RoleGuard)
@@ -372,16 +371,12 @@ export class LevelsController {
     @Query("sessionId") sessionId: string,
     @Request() request: ExpressRequest,
   ) {
-    // Access the logged-in user from the request object
     const userId = request.user._id.toString();
-
-    // Validate session
     const session = this.levelsService.getSession(sessionId);
     if (!session || session.userId !== userId || session.levelId !== levelId) {
       throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
     }
 
-    // Get the question by index
     const question = session.questions[questionIndex];
     if (!question) {
       throw new HttpException("Question not found", HttpStatus.NOT_FOUND);
@@ -390,6 +385,84 @@ export class LevelsController {
     return {
       messages: "Question retrieved",
       data: { question },
+    };
+  }
+
+  @Post('next-question')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(BearerTokenGuard, RoleGuard)
+  @HasRoles(Role.USER, Role.ADMIN)
+  @ApiOperation({ summary: 'Get the next question in a session' })
+  @ApiOkResponse({
+    description: 'Next question retrieved successfully',
+    schema: {
+      example: {
+        messages: 'Next question retrieved',
+        data: {
+          nextQuestionIndex: 1,
+          nextQuestion: {
+            _id: 'question-123',
+            text: 'What is the capital of France?',
+            type: 'MULTIPLE_CHOICE',
+            answerOptions: ['Paris', 'London', 'Berlin', 'Madrid'],
+            correctAnswer: 'Paris',
+          },
+        },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'No more questions or session not found',
+    schema: { example: { messages: 'No more questions', data: null } },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    schema: { example: { messages: 'Unauthorized', data: null } },
+  })
+  @ApiBearerAuth()
+  async getNextQuestion(
+    @Query('sessionId') sessionId: string,
+    @Body('currentQuestionIndex') currentQuestionIndex: number,
+  ) {
+    const { nextQuestionIndex, nextQuestion } = this.levelsService.getNextQuestion(sessionId, currentQuestionIndex);
+    return {
+      messages: 'Next question retrieved',
+      data: { nextQuestionIndex, nextQuestion },
+    };
+  }
+
+  @Post('submit-answer')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(BearerTokenGuard, RoleGuard)
+  @HasRoles(Role.USER, Role.ADMIN)
+  @ApiOperation({ summary: 'Submit an answer for a question' })
+  @ApiOkResponse({
+    description: 'Answer submitted successfully',
+    schema: {
+      example: {
+        messages: 'Answer submitted',
+        data: { isCorrect: true },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'Question or session not found',
+    schema: { example: { messages: 'Question not found', data: null } },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    schema: { example: { messages: 'Unauthorized', data: null } },
+  })
+  @ApiBearerAuth()
+  async submitAnswer(
+    @Query('sessionId') sessionId: string,
+    @Body('questionIndex') questionIndex: number,
+    @Body('answer') answer: string,
+  ) {
+    const { isCorrect } = this.levelsService.submitAnswer(sessionId, questionIndex, answer);
+    return {
+      messages: 'Answer submitted',
+      data: { isCorrect },
     };
   }
 }

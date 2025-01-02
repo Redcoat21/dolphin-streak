@@ -12,16 +12,18 @@ type TLevelSession = {
 
 export const levelsRouter = router({
   getLevelDetail: authedProcedure.input(ZGetLevelDetailRequest).query(async ({ input }) => {
+    console.log({ input })
     const response = await fetchAPI(`/api/levels/${input.levelId}`, 'GET', {
       token: input.accessToken,
     }) as TGetLevelDetailResponse;
+    console.log({ response })
     return { questionsLength: response.data?.questions.length };
   }),
   startLevel: authedProcedure.input(ZGetLevelDetailRequest).mutation(async ({ input }) => {
     const levelDetailResponse = await fetchAPI(`/api/levels/${input.levelId}`, 'GET', {
       token: input.accessToken,
     }) as TGetLevelDetailResponse;
-    
+
     const startSessionResponse = await fetchAPI(`/api/levels/${input.levelId}/start-session`, 'POST', {
       token: input.accessToken,
     }) as TPostStartSessionResponse;
@@ -31,5 +33,5 @@ export const levelsRouter = router({
 
     return { sessionId, questionsLength: levelDetailResponse.data?.questions.length, expiresAt };
   }),
-  
+
 });
