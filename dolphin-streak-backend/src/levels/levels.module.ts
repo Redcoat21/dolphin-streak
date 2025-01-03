@@ -9,9 +9,9 @@ import { LevelSchema } from "./schemas/level.schema";
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: "Level", schema: LevelSchema }]),
-    MongooseModule.forFeature([{ name: "Question", schema: QuestionSchema }]), 
+    MongooseModule.forFeature([{ name: "Question", schema: QuestionSchema }]),
   ],
   controllers: [LevelsController],
-  providers: [LevelsService, QuestionsService], 
+  providers: [LevelsService, QuestionsService],
 })
 export class LevelsModule {}

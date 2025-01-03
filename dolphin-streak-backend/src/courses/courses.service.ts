@@ -4,11 +4,20 @@ import { FilterQuery, Model, ProjectionType, QueryOptions } from "mongoose";
 import { Course, CourseDocument } from "./schemas/course.schema";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
+import {
+  CourseSession,
+  CourseSessionDocument,
+} from "./schemas/course-session.schema";
+import { QuestionsService } from "src/questions/questions.service";
 
 @Injectable()
 export class CoursesService {
   constructor(
     @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
+    @InjectModel(CourseSession.name) private courseSessionModel: Model<
+      CourseSessionDocument
+    >,
+    private readonly questionService: QuestionsService,
   ) {}
 
   /**
@@ -82,5 +91,18 @@ export class CoursesService {
   async remove(id: string): Promise<unknown> {
     const result = await this.courseModel.findByIdAndDelete(id).exec();
     return result;
+  }
+
+  async addSession(data: any) {
+    const course = await this.courseSessionModel.create(data);
+    return course;
+  }
+
+  async addAnsweredQuestion(sessionId: string, questionId: string) {
+    const courseSession = await this.courseSessionModel.findById(sessionId);
+    const question = await this.questionService.findOne(questionId);
+    courseSession.answeredQuestions.push(question);
+
+    return courseSession.save();
   }
 }

@@ -16,7 +16,7 @@ export class LevelsService {
   constructor(
     @InjectModel(Level.name) private levelModel: Model<Language>,
     private readonly questionsService: QuestionsService,
-  ) { }
+  ) {}
 
   /**
    * Creates a new level.
@@ -119,17 +119,20 @@ export class LevelsService {
    * @param currentQuestionIndex - The current question index.
    * @returns The next question and its index.
    */
-  getNextQuestion(sessionId: string, currentQuestionIndex: number): { nextQuestionIndex: number; nextQuestion: Question } {
+  getNextQuestion(
+    sessionId: string,
+    currentQuestionIndex: number,
+  ): { nextQuestionIndex: number; nextQuestion: Question } {
     const session = this.levelsSession.get(sessionId);
     if (!session) {
-      throw new NotFoundException('Session not found');
+      throw new NotFoundException("Session not found");
     }
 
     const nextQuestionIndex = currentQuestionIndex + 1;
     const nextQuestion = session.questions[nextQuestionIndex];
 
     if (!nextQuestion) {
-      throw new NotFoundException('No more questions');
+      throw new NotFoundException("No more questions");
     }
 
     return { nextQuestionIndex, nextQuestion };
@@ -142,15 +145,19 @@ export class LevelsService {
    * @param answer - The user's answer.
    * @returns Whether the answer is correct.
    */
-  submitAnswer(sessionId: string, questionIndex: number, answer: string): { isCorrect: boolean } {
+  submitAnswer(
+    sessionId: string,
+    questionIndex: number,
+    answer: string,
+  ): { isCorrect: boolean } {
     const session = this.levelsSession.get(sessionId);
     if (!session) {
-      throw new NotFoundException('Session not found');
+      throw new NotFoundException("Session not found");
     }
 
     const question = session.questions[questionIndex];
     if (!question) {
-      throw new NotFoundException('Question not found');
+      throw new NotFoundException("Question not found");
     }
 
     const isCorrect = question.correctAnswer.includes(answer);

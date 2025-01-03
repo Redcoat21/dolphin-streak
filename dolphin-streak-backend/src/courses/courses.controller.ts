@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from "@nestjs/common";
 import { CoursesService } from "./courses.service";
@@ -34,6 +35,9 @@ import {
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
+import { QuestionsService } from "src/questions/questions.service";
+import { randomUUID } from "crypto";
+import { DateTime } from "luxon";
 
 @Controller("/api/courses")
 @UseGuards(BearerTokenGuard, RoleGuard)
@@ -64,7 +68,10 @@ import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
 })
 @ApiBearerAuth()
 export class CoursesController {
-  constructor(private readonly coursesService: CoursesService) { }
+  constructor(
+    private readonly coursesService: CoursesService,
+    private readonly questionsService: QuestionsService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -347,6 +354,100 @@ export class CoursesController {
     return {
       messages: "Course deleted succesfully",
       data: deletedCourse,
+    };
+  }
+
+  @Post(":id/start-session")
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(BearerTokenGuard, RoleGuard)
+  @HasRoles(Role.USER, Role.ADMIN)
+  @ApiOperation({ summary: "Start a question session for a specific level" })
+  @ApiOkResponse({
+    description: "Session started successfully",
+    schema: {
+      example: {
+        messages: "Session started",
+        data: {
+          sessionId: "session-1691138855",
+          expiresAt: "2024-11-25T15:47:01.890Z",
+          totalQuestions: 10, // Added totalQuestions to the response
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: "Unauthorized",
+    schema: { example: { messages: "Unauthorized", data: null } },
+  })
+  @ApiBearerAuth()
+  async startQuestionSession(
+    @Param("id") courseId: string,
+    @Req() request: Request,
+  ) {
+    const userId = request.user._id.toString();
+    const questions = await this.questionsService.getQuestionsByCourse(
+      courseId,
+    );
+    const totalQuestions = questions.length; // Calculate total questions
+
+    const expiresAt = DateTime.now().plus({ minutes: 30 }).toJSDate();
+
+    const session = this.coursesService.addSession({
+      user: userId,
+      course: courseId,
+      questions: questions,
+      expiresAt: expiresAt,
+    });
+
+    return {
+      messages: "Session started",
+      data: {
+        sessionId: session._id,
+        expiresAt,
+        totalQuestions, // Include totalQuestions in the response
+      },
+    };
+  }
+
+  @Patch(":id/:session-id/answer")
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(BearerTokenGuard, RoleGuard)
+  @HasRoles(Role.USER, Role.ADMIN)
+  @ApiOperation({ summary: "Start a question session for a specific level" })
+  @ApiOkResponse({
+    description: "Session started successfully",
+    schema: {
+      example: {
+        messages: "Session started",
+        data: {
+          sessionId: "session-1691138855",
+          expiresAt: "2024-11-25T15:47:01.890Z",
+          totalQuestions: 10, // Added totalQuestions to the response
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: "Unauthorized",
+    schema: { example: { messages: "Unauthorized", data: null } },
+  })
+  @ApiBearerAuth()
+  async addAnsweredQuestion(
+    @Param("id") courseId: string,
+    @Param("session-id") sessionId: string,
+    @Body("questionId") questionId: string,
+    @Req() request: Request,
+  ) {
+    const updatedSession = this.coursesService.addAnsweredQuestion(
+      sessionId,
+      questionId,
+    );
+
+    return {
+      messages: "Added answered question",
+      data: {
+        session: updatedSession,
+      },
     };
   }
 }

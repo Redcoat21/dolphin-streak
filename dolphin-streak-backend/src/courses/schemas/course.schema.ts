@@ -17,13 +17,6 @@ export class Course {
 
     @Prop({
         required: true,
-        default: [],
-        type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Level" }],
-    })
-    levels: Level[];
-
-    @Prop({
-        required: true,
         type: mongoose.Schema.Types.ObjectId,
         ref: "Language", // Remove the extra `{ type: ... }` object
     })
