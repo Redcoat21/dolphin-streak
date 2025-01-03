@@ -10,19 +10,12 @@ export const questionsRouter = router({
     .input(ZGetQuestionByIdRequest)
     .query(async ({ input }) => {
       const { questionIndex, sessionId, accessToken, levelId } = input;
-      console.log({ input });
 
       const response = await fetchAPI(
         `/api/levels/${levelId}/question/${questionIndex}?sessionId=${sessionId}`,
         'GET',
         { token: accessToken }
       ) as TQuestionResponse;
-
-      console.log({ responseGetQuestionBYID: response });
-
-      if (!response.success) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: response.message || 'Failed to fetch question' });
-      }
 
       return response;
     }),
@@ -33,17 +26,13 @@ export const questionsRouter = router({
       const { sessionId, currentQuestionIndex, accessToken } = input;
 
       const response = await fetchAPI(
-        `/api/sessions/${sessionId}/next-question`,
+        `/api/levels/next-question?sessionId=${sessionId}`,
         'POST',
         {
           token: accessToken,
           body: { currentQuestionIndex },
         }
       ) as TNextQuestionResponse;
-
-      if (!response.success) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: response.message || 'Failed to fetch next question' });
-      }
 
       return response;
     }),
@@ -54,19 +43,14 @@ export const questionsRouter = router({
       const { sessionId, questionIndex, levelId, answer, accessToken } = input;
 
       const response = await fetchAPI(
-        `/api/sessions/${sessionId}/submit-answer`,
+        `/api/levels/${levelId}/question/${questionIndex}/submit?sessionId=${sessionId}`,
         'POST',
         {
           token: accessToken,
-          body: { questionIndex, levelId, answer },
+          body: { answer },
         }
       ) as TSubmitAnswerResponse;
 
-      if (!response.success) {
-        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: response.message || 'Failed to submit answer' });
-      }
-
       return response;
     }),
-
 });

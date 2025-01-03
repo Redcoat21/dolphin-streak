@@ -1,38 +1,23 @@
-// tsx dolphin-streak-frontend/src/core/pages/courses/CourseID/LevelPageID/questionPageID/index.tsx
-import { useState, useCallback, useEffect } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { Book, PenSquare, Mic, CheckCircle, XCircle, Type, Edit, ChevronLeft } from 'lucide-react';
-import { trpc } from '@/utils/trpc';
-import { QuestionType } from '@/server/types/questions';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { useAuthStore } from '@/core/stores/authStore';
-import { Container } from '@/core/components/container';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Progress } from '@/components/ui/progress';
-import { LoadingSkeleton } from '../../../components/LoadingSkeleton';
-import { Header } from '@/core/pages/dasboard/components/Header';
-
-interface QuestionTypeIconProps {
-  type: QuestionType;
-}
-
-const QuestionTypeIcon = ({ type }: QuestionTypeIconProps) => {
-  switch (type) {
-    case QuestionType.MULTIPLE_CHOICE:
-      return <Book className="w-5 h-5" />;
-    case QuestionType.ESSAY:
-      return <PenSquare className="w-5 h-5" />;
-    case QuestionType.FILL_IN:
-      return <Type className="w-5 h-5" />;
-    case QuestionType.VOICE:
-      return <Mic className="w-5 h-5" />;
-    case QuestionType.WRITING:
-      return <Edit className="w-5 h-5" />;
-    default:
-      return <PenSquare className="w-5 h-5" />;
-  }
-};
+import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { useParams, useSearchParams } from "next/navigation";
+import { useAuthStore } from "@/core/stores/authStore";
+import { trpc } from "@/utils/trpc";
+import { LoadingSkeleton } from "../../../components/LoadingSkeleton";
+import { Container } from "@/core/components/container";
+import { Header } from "@/core/pages/dasboard/components/Header";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { QuestionType, TQuestion } from "@/server/types/questions";
+import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { QuestionMultipleChoice } from "./components/QuestionMultipleChoice";
+import { QuestionVoice } from "./components/QuestionVoice";
+import { QuestionHanzi } from "./components/QuestionHanzi";
+import { ChevronLeft } from "lucide-react";
+import { QuestionEssay } from "./components/QuestionEssay";
+import { QuestionFillInTheBlanks } from "./components/QuestionFillInTheBlanks";
 
 export function QuestionPageID() {
   const router = useRouter();
@@ -50,42 +35,72 @@ export function QuestionPageID() {
   const [progress, setProgress] = useState(0);
   const [userAnswer, setUserAnswer] = useState('');
   const accessToken = getAccessToken() || '';
+  const { toast } = useToast();
 
-  const { data: questionData, isLoading: isQuestionLoading, isError: isQuestionError } =
-    trpc.question.getQuestionById.useQuery(
-      {
-        levelId,
-        sessionId,
-        questionIndex: currentQuestionIndex,
-        accessToken,
-      },
-      {
-        enabled: !!sessionId && !!accessToken,
-      }
-    );
+  const {
+    data: questionData,
+    isLoading: isQuestionLoading,
+    isError: isQuestionError,
+    error: questionError
+  } = trpc.question.getQuestionById.useQuery(
+    {
+      levelId,
+      sessionId,
+      questionIndex: currentQuestionIndex,
+      accessToken,
+    },
+    {
+      enabled: !!sessionId && !!accessToken && levelId !== undefined,
+      retry: 1,
+    }
+  );
 
-  const { data: totalQuestionsData, isLoading: isTotalQuestionsLoading, isError: isTotalQuestionsError } =
-    trpc.levels.getLevelTotalQuestions.useQuery(
-      {
-        levelId,
-        sessionId,
-        accessToken,
-      },
-      {
-        enabled: !!sessionId && !!accessToken,
-      }
-    );
+  const {
+    data: levelDetailData,
+    isLoading: isLevelDetailLoading,
+    isError: isLevelDetailError,
+    error: levelDetailError
+  } = trpc.levels.getLevelDetail.useQuery(
+    {
+      levelId,
+      accessToken,
+    },
+    {
+      enabled: !!accessToken && levelId !== undefined,
+      retry: 1,
+    }
+  );
 
-  const submitAnswerMutation = trpc.question.submitAnswer.useMutation();
-  const nextQuestionMutation = trpc.question.nextQuestion.useMutation();
+  const submitAnswerMutation = trpc.question.submitAnswer.useMutation({
+    onError: (error) => {
+      toast({
+        title: "Error submitting answer",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
+  const nextQuestionMutation = trpc.question.nextQuestion.useMutation({
+    onError: (error) => {
+      toast({
+        title: "Error loading next question",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
   const question = questionData?.data?.question;
-  const totalQuestions = totalQuestionsData?.totalQuestions;
+  const totalQuestions = levelDetailData?.questionsLength;
 
   const handleSubmitAnswer = useCallback(
     async (answer: string) => {
       if (!question) return;
+
       setSelectedAnswer(answer);
       setShowFeedback(true);
+
       try {
         const result = await submitAnswerMutation.mutateAsync({
           sessionId,
@@ -94,7 +109,15 @@ export function QuestionPageID() {
           answer,
           accessToken,
         });
+
         setIsCorrect(result.data?.isCorrect || false);
+
+        // Show feedback toast
+        toast({
+          title: result.data?.isCorrect ? "Correct!" : "Incorrect",
+          variant: result.data?.isCorrect ? "default" : "destructive",
+        });
+
         setTimeout(async () => {
           setShowFeedback(false);
           try {
@@ -103,7 +126,8 @@ export function QuestionPageID() {
               currentQuestionIndex,
               accessToken,
             });
-            if (nextQuestion.data) {
+
+            if (nextQuestion.data && nextQuestion.data.nextQuestionIndex < (totalQuestions || Number.POSITIVE_INFINITY)) {
               setCurrentQuestionIndex(nextQuestion.data.nextQuestionIndex);
               setSelectedAnswer(null);
               setUserAnswer('');
@@ -111,6 +135,10 @@ export function QuestionPageID() {
                 `/course/${courseId}/levels/${levelId}/question/${nextQuestion.data.nextQuestionIndex}?sessionId=${sessionId}`
               );
             } else {
+              toast({
+                title: "Level Complete!",
+                description: "Redirecting to course page...",
+              });
               router.push(`/course/${courseId}`);
             }
           } catch (error) {
@@ -122,7 +150,7 @@ export function QuestionPageID() {
         console.error('Error submitting answer:', error);
       }
     },
-    [currentQuestionIndex, question, courseId, levelId, sessionId, accessToken, router, submitAnswerMutation, nextQuestionMutation]
+    [currentQuestionIndex, question, courseId, levelId, sessionId, accessToken, router, submitAnswerMutation, nextQuestionMutation, totalQuestions]
   );
 
   const handleBack = useCallback(() => {
@@ -138,22 +166,49 @@ export function QuestionPageID() {
     }
   }, [currentQuestionIndex, totalQuestions]);
 
-
-  if (isQuestionLoading || isTotalQuestionsLoading) {
+  if (isQuestionLoading || isLevelDetailLoading) {
     return <LoadingSkeleton />;
   }
-  if (isQuestionError || isTotalQuestionsError) {
+
+  if (isQuestionError || isLevelDetailError) {
     return (
       <Container>
         <Header currentPath={`/course/${courseId}/levels/${levelId}`} />
         <main className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 text-white pt-20 pb-8 px-4">
           <Alert variant="destructive" className="max-w-4xl mx-auto">
-            <AlertDescription>Failed to load question content. Please try again.</AlertDescription>
+            <AlertDescription>
+              {questionError?.message || levelDetailError?.message || "Failed to load question content. Please try again."}
+            </AlertDescription>
           </Alert>
         </main>
       </Container>
     );
   }
+
+  const renderQuestion = (question: TQuestion) => {
+    switch (question.type) {
+      case QuestionType.MULTIPLE_CHOICE:
+        return (
+          <QuestionMultipleChoice
+            questions={[question.question.text]}
+            answers={question.answerOptions || []}
+            correctAnswers={question.correctAnswer}
+            onComplete={(answer) => handleSubmitAnswer(answer)} // Pass handleSubmitAnswer
+          />
+        );
+      case QuestionType.ESSAY:
+        return <QuestionEssay topic={question.question.text} onComplete={(answer) => handleSubmitAnswer(answer)} />;
+      case QuestionType.FILL_IN:
+        return <QuestionFillInTheBlanks sentence={question.question.text} correctAnswer={question.correctAnswer[0] || ""} onComplete={(answer) => handleSubmitAnswer(answer)} />;
+      case QuestionType.VOICE:
+        return <QuestionVoice sentence={question.question.text} pinyin={"TODO"} onContinue={(answer) => handleSubmitAnswer(answer)} />;
+      case QuestionType.WRITING:
+        return <QuestionHanzi character={question.question.text} onContinue={(answer) => handleSubmitAnswer(answer)} />;
+      default:
+        return null; // Or a default component
+    }
+  };
+
 
   return (
     <Container>
@@ -161,7 +216,7 @@ export function QuestionPageID() {
       <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 text-slate-900 pt-20 pb-8 px-4 bg-[#0b1120]">
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col gap-6">
-            {/* Navigation and Progress */}
+
             <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
               <div className="flex items-center justify-between mb-4">
                 <Button
@@ -178,120 +233,7 @@ export function QuestionPageID() {
               </div>
               <Progress value={progress} className="h-2" />
             </div>
-            {/* Question Content */}
-            <div className="space-y-6 animate-fadeIn">
-              <div className="text-center space-y-4">
-                <div className="inline-flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-200">
-                  <QuestionTypeIcon type={question?.type || QuestionType.MULTIPLE_CHOICE} />
-                  <span className="text-lg font-medium">
-                    {question?.type === QuestionType.MULTIPLE_CHOICE ? 'Multiple Choice' :
-                      question?.type === QuestionType.FILL_IN ? 'Fill in the Blank' :
-                        question?.type === QuestionType.VOICE ? 'Voice Response' :
-                          question?.type === QuestionType.WRITING ? 'Writing' : 'Question'}
-                  </span>
-                </div>
-              </div>
-              <Card className="bg-white border-slate-200 shadow-sm">
-                <CardContent className="p-8">
-                  <div className="space-y-8">
-                    <h2 className="text-2xl font-medium leading-relaxed text-slate-900">
-                      {question?.question.text}
-                    </h2>
-                    {/* Question Type Specific UI */}
-                    <div className="grid grid-cols-1 gap-4">
-                      {question?.type === QuestionType.MULTIPLE_CHOICE && (
-                        question.answerOptions?.map((option: string, idx: number) => (
-                          <Button
-                            key={option}
-                            variant="outline"
-                            className={`w-full justify-start p-6 border-slate-200 hover:border-blue-500
-                                hover:bg-blue-50 transition-all duration-200 group
-                                ${selectedAnswer === option ? 'ring-2 ring-blue-500' : ''}
-                                ${showFeedback && selectedAnswer === option
-                                ? isCorrect
-                                  ? 'bg-green-50 border-green-500'
-                                  : 'bg-red-50 border-red-500'
-                                : ''}`}
-                            onClick={() => handleSubmitAnswer(option)}
-                            disabled={showFeedback}
-                          >
-                            <span className="flex items-center gap-4">
-                              <span className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100
-                                    group-hover:bg-blue-100 transition-colors text-slate-600 group-hover:text-blue-600">
-                                {String.fromCharCode(65 + idx)}
-                              </span>
-                              <span className="flex-1 text-slate-800">{option}</span>
-                            </span>
-                            {showFeedback && selectedAnswer === option && (
-                              <span className="ml-auto">
-                                {isCorrect ? (
-                                  <CheckCircle className="w-5 h-5 text-green-500" />
-                                ) : (
-                                  <XCircle className="w-5 h-5 text-red-500" />
-                                )}
-                              </span>
-                            )}
-                          </Button>
-                        ))
-                      )}
-                      {question?.type === QuestionType.FILL_IN && (
-                        <div className="space-y-4">
-                          <input
-                            type="text"
-                            className="w-full bg-slate-50 border-slate-200 rounded-lg p-4
-                                focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                                placeholder:text-slate-400 text-lg"
-                            placeholder="Type your answer here..."
-                            value={userAnswer}
-                            onChange={(e) => setUserAnswer(e.target.value)}
-                          />
-                          <Button
-                            className="w-full"
-                            onClick={() => handleSubmitAnswer(userAnswer)}
-                            disabled={!userAnswer.trim() || showFeedback}
-                          >
-                            Submit Answer
-                          </Button>
-                        </div>
-                      )}
-                      {question?.type === QuestionType.WRITING && (
-                        <div className="space-y-4">
-                          <textarea
-                            className="w-full min-h-[200px] bg-slate-50 border-slate-200 rounded-lg p-4
-                                focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none
-                                placeholder:text-slate-400 text-lg"
-                            placeholder="Write your answer here..."
-                            value={userAnswer}
-                            onChange={(e) => setUserAnswer(e.target.value)}
-                          />
-                          <Button
-                            className="w-full"
-                            onClick={() => handleSubmitAnswer(userAnswer)}
-                            disabled={!userAnswer.trim() || showFeedback}
-                          >
-                            Submit Answer
-                          </Button>
-                        </div>
-                      )}
-                      {question?.type === QuestionType.VOICE && (
-                        <div className="space-y-4">
-                          <Button
-                            className="w-full"
-                            onClick={() => {
-                              // Implement voice recording logic
-                              alert('Voice recording feature coming soon!');
-                            }}
-                          >
-                            <Mic className="w-5 h-5 mr-2" />
-                            Start Recording
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            {question && renderQuestion(question)}
           </div>
         </div>
       </main>

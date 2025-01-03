@@ -9,13 +9,13 @@ export enum QuestionType {
     VOICE = 3,
     WRITING = 4,
 }
+
 export const ZGetQuestionByIdRequest = z.object({
     levelId: z.string(),
     sessionId: z.string(),
     questionIndex: z.number(),
     accessToken: z.string(),
 });
-export type TGetQuestionByIdRequest = z.infer<typeof ZGetQuestionByIdRequest>;
 
 export const ZSubmitAnswerRequest = z.object({
     sessionId: z.string(),
@@ -24,29 +24,27 @@ export const ZSubmitAnswerRequest = z.object({
     answer: z.string(),
     accessToken: z.string(),
 });
-export type TSubmitAnswerRequest = z.infer<typeof ZSubmitAnswerRequest>;
-
 
 export const ZNextQuestionInput = z.object({
     sessionId: z.string(),
     currentQuestionIndex: z.number(),
     accessToken: z.string(),
 });
-export type TNextQuestionInput = z.infer<typeof ZNextQuestionInput>;
-
 
 export const ZStartSessionRequest = z.object({
     levelId: z.string(),
     accessToken: z.string(),
 });
-export type TStartSessionRequest = z.infer<typeof ZStartSessionRequest>;
 
 export type TQuestion = {
-    question: { type: string, text: string };
+    question: {
+        type: QuestionType;
+        text: string;
+    };
     _id: string;
     level: string;
     __v: number;
-    answerOptions: string[];
+    answerOptions?: string[];
     correctAnswer: string[];
     courses: {
         _id: string;
@@ -60,7 +58,6 @@ export type TQuestion = {
     type: QuestionType;
     useAi: boolean;
 };
-
 
 export type TQuestionResponse = TDefaultResponse<{
     question: TQuestion;
@@ -76,5 +73,7 @@ export type TSubmitAnswerResponse = TDefaultResponse<{
 }>;
 
 export type TStartSessionResponse = TDefaultResponse<{
+    sessionId: string;
+    expiresAt: string;
     totalQuestions: number;
 }>;

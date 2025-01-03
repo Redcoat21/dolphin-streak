@@ -371,6 +371,7 @@ export class LevelsController {
     @Query("sessionId") sessionId: string,
     @Request() request: ExpressRequest,
   ) {
+    console.log({ levelId, questionIndex, sessionId });
     const userId = request.user._id.toString();
     const session = this.levelsService.getSession(sessionId);
     if (!session || session.userId !== userId || session.levelId !== levelId) {
@@ -378,6 +379,7 @@ export class LevelsController {
     }
 
     const question = session.questions[questionIndex];
+    console.log({ question })
     if (!question) {
       throw new HttpException("Question not found", HttpStatus.NOT_FOUND);
     }
@@ -387,82 +389,77 @@ export class LevelsController {
       data: { question },
     };
   }
-
-  @Post('next-question')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(BearerTokenGuard, RoleGuard)
-  @HasRoles(Role.USER, Role.ADMIN)
-  @ApiOperation({ summary: 'Get the next question in a session' })
-  @ApiOkResponse({
-    description: 'Next question retrieved successfully',
-    schema: {
-      example: {
-        messages: 'Next question retrieved',
-        data: {
-          nextQuestionIndex: 1,
-          nextQuestion: {
-            _id: 'question-123',
-            text: 'What is the capital of France?',
-            type: 'MULTIPLE_CHOICE',
-            answerOptions: ['Paris', 'London', 'Berlin', 'Madrid'],
-            correctAnswer: 'Paris',
-          },
-        },
-      },
-    },
-  })
-  @ApiNotFoundResponse({
-    description: 'No more questions or session not found',
-    schema: { example: { messages: 'No more questions', data: null } },
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Unauthorized',
-    schema: { example: { messages: 'Unauthorized', data: null } },
-  })
-  @ApiBearerAuth()
-  async getNextQuestion(
-    @Query('sessionId') sessionId: string,
-    @Body('currentQuestionIndex') currentQuestionIndex: number,
-  ) {
-    const { nextQuestionIndex, nextQuestion } = this.levelsService.getNextQuestion(sessionId, currentQuestionIndex);
-    return {
-      messages: 'Next question retrieved',
-      data: { nextQuestionIndex, nextQuestion },
-    };
-  }
-
-  @Post('submit-answer')
+  
+  @Post(":id/question/:questionIndex/submit")
   @HttpCode(HttpStatus.OK)
   @UseGuards(BearerTokenGuard, RoleGuard)
   @HasRoles(Role.USER, Role.ADMIN)
   @ApiOperation({ summary: 'Submit an answer for a question' })
-  @ApiOkResponse({
-    description: 'Answer submitted successfully',
-    schema: {
-      example: {
-        messages: 'Answer submitted',
-        data: { isCorrect: true },
-      },
-    },
-  })
-  @ApiNotFoundResponse({
-    description: 'Question or session not found',
-    schema: { example: { messages: 'Question not found', data: null } },
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Unauthorized',
-    schema: { example: { messages: 'Unauthorized', data: null } },
-  })
-  @ApiBearerAuth()
   async submitAnswer(
-    @Query('sessionId') sessionId: string,
-    @Body('questionIndex') questionIndex: number,
-    @Body('answer') answer: string,
+    @Param("id") levelId: string,
+    @Param("questionIndex") questionIndex: number,
+    @Query("sessionId") sessionId: string,
+    @Body("answer") answer: string,
+    @Request() request: ExpressRequest,
   ) {
-    const { isCorrect } = this.levelsService.submitAnswer(sessionId, questionIndex, answer);
+    const userId = request.user._id.toString();
+    const session = this.levelsService.getSession(sessionId);
+
+    if (!session || session.userId !== userId || session.levelId !== levelId) {
+      throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
+    }
+
+    // Call levelsService.submitAnswer and receive the results
+    const submissionResult = this.levelsService.submitAnswer(
+      sessionId,
+      parseInt(questionIndex.toString()),
+      answer
+    );
+    
+    // Check if result is defined, otherwise throw error
+    if (!submissionResult) {
+      throw new HttpException("Error submitting answer", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
+    // Destructure the returned object
+    const { isCorrect, score, totalScore } = submissionResult;
+
+
     return {
-      messages: 'Answer submitted',
-      data: { isCorrect },
+      messages: "Answer submitted",
+      data: {
+        isCorrect,
+        score,
+        totalScore,
+      },
+    };
+  }
+
+  @Post("next-question")
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(BearerTokenGuard, RoleGuard)
+  @HasRoles(Role.USER, Role.ADMIN)
+  @ApiOperation({ summary: 'Get the next question in a session' })
+  async getNextQuestion(
+    @Query("sessionId") sessionId: string,
+    @Body("currentQuestionIndex") currentQuestionIndex: number,
+    @Request() request: ExpressRequest,
+  ) {
+    const userId = request.user._id.toString();
+    const session = this.levelsService.getSession(sessionId);
+
+    if (!session || session.userId !== userId) {
+      throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
+    }
+
+    const { nextQuestionIndex, nextQuestion } = this.levelsService.getNextQuestion(
+      sessionId,
+      currentQuestionIndex
+    );
+
+    return {
+      messages: "Next question retrieved",
+      data: { nextQuestionIndex, nextQuestion },
     };
   }
 }

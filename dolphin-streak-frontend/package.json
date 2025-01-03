@@ -48,6 +48,7 @@
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
     "draftjs-to-html": "^0.9.1",
+    "hanzi-writer": "^3.7.2",
     "i18next": "^23.16.5",
     "lowlight": "^3.2.0",
     "lucide-react": "^0.456.0",
