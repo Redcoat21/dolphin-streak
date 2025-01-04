@@ -392,6 +392,11 @@ export class CoursesController {
     );
     const totalQuestions = questions.length; // Calculate total questions
 
+    console.log(userId);
+    console.log(questions);
+    console.log(totalQuestions);
+    
+
     const expiresAt = DateTime.now().plus({ minutes: 30 }).toJSDate();
 
     const session = this.coursesService.addSession({
@@ -399,6 +404,7 @@ export class CoursesController {
       course: courseId,
       questions: questions,
       expiresAt: expiresAt,
+      score: 0
     });
 
     return {
