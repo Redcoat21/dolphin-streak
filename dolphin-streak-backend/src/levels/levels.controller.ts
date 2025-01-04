@@ -266,57 +266,57 @@ export class LevelsController {
     return { messages: 'Level deleted successfully', data: deletedLevel };
   }
 
-  @Post(':id/start-session')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(BearerTokenGuard, RoleGuard)
-  @HasRoles(Role.USER, Role.ADMIN)
-  @ApiOperation({ summary: 'Start a question session for a specific level' })
-  @ApiOkResponse({
-    description: 'Session started successfully',
-    schema: {
-      example: {
-        messages: 'Session started',
-        data: {
-          sessionId: 'session-1691138855',
-          expiresAt: '2024-11-25T15:47:01.890Z',
-          totalQuestions: 10, // Added totalQuestions to the response
-        },
-      },
-    },
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Unauthorized',
-    schema: { example: { messages: 'Unauthorized', data: null } },
-  })
-  @ApiBearerAuth()
-  async startQuestionSession(
-    @Param('id') levelId: string,
-    @Request() request: ExpressRequest,
-  ) {
-    const userId = request.user._id.toString();
-    const questions = await this.levelsService.findQuestionsForLevel(levelId);
-    const totalQuestions = questions.length; // Calculate total questions
+  // @Post(':id/start-session')
+  // @HttpCode(HttpStatus.OK)
+  // @UseGuards(BearerTokenGuard, RoleGuard)
+  // @HasRoles(Role.USER, Role.ADMIN)
+  // @ApiOperation({ summary: 'Start a question session for a specific level' })
+  // @ApiOkResponse({
+  //   description: 'Session started successfully',
+  //   schema: {
+  //     example: {
+  //       messages: 'Session started',
+  //       data: {
+  //         sessionId: 'session-1691138855',
+  //         expiresAt: '2024-11-25T15:47:01.890Z',
+  //         totalQuestions: 10, // Added totalQuestions to the response
+  //       },
+  //     },
+  //   },
+  // })
+  // @ApiUnauthorizedResponse({
+  //   description: 'Unauthorized',
+  //   schema: { example: { messages: 'Unauthorized', data: null } },
+  // })
+  // @ApiBearerAuth()
+  // async startQuestionSession(
+  //   @Param('id') levelId: string,
+  //   @Request() request: ExpressRequest,
+  // ) {
+  //   const userId = request.user._id.toString();
+  //   const questions = await this.levelsService.findQuestionsForLevel(levelId);
+  //   const totalQuestions = questions.length; // Calculate total questions
 
-    const sessionId = `session-${Date.now()}`;
-    const expiresAt = DateTime.now().plus({ minutes: 30 }).toJSDate();
+  //   const sessionId = `session-${Date.now()}`;
+  //   const expiresAt = DateTime.now().plus({ minutes: 30 }).toJSDate();
 
-    this.levelsService.addSession({
-      sessionId,
-      userId,
-      levelId,
-      questions,
-      expiresAt,
-    });
+  //   this.levelsService.addSession({
+  //     sessionId,
+  //     userId,
+  //     levelId,
+  //     questions,
+  //     expiresAt,
+  //   });
 
-    return {
-      messages: 'Session started',
-      data: {
-        sessionId,
-        expiresAt,
-        totalQuestions, // Include totalQuestions in the response
-      },
-    };
-  }
+  //   return {
+  //     messages: 'Session started',
+  //     data: {
+  //       sessionId,
+  //       expiresAt,
+  //       totalQuestions, // Include totalQuestions in the response
+  //     },
+  //   };
+  // }
 
   @Get(':id/question/:questionIndex')
   @HttpCode(HttpStatus.OK)

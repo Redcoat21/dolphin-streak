@@ -9,6 +9,7 @@ import {
   CourseSessionDocument,
 } from "./schemas/course-session.schema";
 import { QuestionsService } from "src/questions/questions.service";
+import { Question, QuestionType } from "src/questions/schemas/question.schema";
 
 @Injectable()
 export class CoursesService {
@@ -101,11 +102,41 @@ export class CoursesService {
     return course;
   }
 
+  async getOneSession(id: String){
+    const session = await this.courseSessionModel.findById(id);
+    return session;
+  }
+
   async addAnsweredQuestion(sessionId: string, questionId: string) {
     const courseSession = await this.courseSessionModel.findById(sessionId);
     const question = await this.questionService.findOne(questionId);
     courseSession.answeredQuestions.push(question);
 
     return courseSession.save();
+  }
+
+  async assessAnswer(question: Question, answer: string){
+    const qtype = QuestionType[question.type]
+        
+    if(qtype == "MULTIPLE_CHOICE"){
+      const answerIdx = parseInt(question.correctAnswer as string, 10)
+      if(answer.toLowerCase() == question.answerOptions[answerIdx].toLowerCase()){
+        console.log("Benar");
+        return true
+      }
+    }
+    else if(qtype == "FILL_IN"){
+      const questionAnswer = (question.correctAnswer as string).toLowerCase()
+      if(answer.toLowerCase() == questionAnswer){
+        console.log("Benar");
+        return true
+      }
+    }
+    else if(qtype == "ESSAY"){
+      console.log("on work");
+      
+    }
+
+    return false
   }
 }

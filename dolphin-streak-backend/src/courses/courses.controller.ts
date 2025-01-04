@@ -38,6 +38,7 @@ import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
 import { QuestionsService } from "src/questions/questions.service";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
+import { QuestionSchema, QuestionType } from "src/questions/schemas/question.schema";
 
 @Controller("/api/courses")
 @UseGuards(BearerTokenGuard, RoleGuard)
@@ -393,19 +394,20 @@ export class CoursesController {
     const totalQuestions = questions.length; // Calculate total questions
 
     console.log(userId);
-    console.log(questions);
     console.log(totalQuestions);
     
 
     const expiresAt = DateTime.now().plus({ minutes: 30 }).toJSDate();
 
-    const session = this.coursesService.addSession({
+    const session = await this.coursesService.addSession({
       user: userId,
       course: courseId,
       questions: questions,
       expiresAt: expiresAt,
       score: 0
     });
+
+    console.log(session);
 
     return {
       messages: "Session started",
@@ -446,7 +448,7 @@ export class CoursesController {
     @Body("questionId") questionId: string,
     @Req() request: Request,
   ) {
-    const updatedSession = this.coursesService.addAnsweredQuestion(
+    const updatedSession = await this.coursesService.addAnsweredQuestion(
       sessionId,
       questionId,
     );
@@ -457,5 +459,79 @@ export class CoursesController {
         session: updatedSession,
       },
     };
+  }
+
+  @Get('session/:courseSessionId')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(BearerTokenGuard, RoleGuard)
+  @HasRoles(Role.USER, Role.ADMIN)
+  async getQuestionBySessionId(
+    @Param('courseSessionId') courseSessionId: string,
+    @Req() request: Request
+  ) {
+    const session = await this.coursesService.getOneSession(courseSessionId);
+    // console.log(session);
+
+    const questionIndex = session.answeredQuestions.length
+    const questionId = session.questions[session.answeredQuestions.length];
+    const question = await this.questionsService.findOne(questionId.toString())
+    console.log(question);
+    console.log(QuestionType[0]);
+
+    const newQuestion = {
+      question: question.question,
+      answerOptions: question.answerOptions
+    }
+
+    return {
+      messages: "Successfully get the next question",
+      data: {
+        question: newQuestion,
+        totalQuestion: session.questions.length,
+        questionIndex,
+        score: session.score
+      }
+    }
+  }
+
+  @Post('session/:courseSessionId/submit-answer')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(BearerTokenGuard, RoleGuard)
+  @HasRoles(Role.USER, Role.ADMIN)
+  async submitAnswer(
+    @Param('courseSessionId') courseSessionId: string,
+    @Body('answer') answer: string,
+    @Req() request: Request
+  ) {
+    const session = await this.coursesService.getOneSession(courseSessionId);
+    
+    const questionId = session.questions[session.answeredQuestions.length];
+    const question = await this.questionsService.findOne(questionId.toString());
+
+    console.log(question);
+    var isLatest = false;
+
+    const isCorrect = await this.coursesService.assessAnswer(question, answer)
+
+    if(isCorrect){
+      const updatedSession = await this.coursesService.addAnsweredQuestion(
+        courseSessionId,
+        questionId.toString(),
+      );
+    }
+
+    const newSession = await this.coursesService.getOneSession(courseSessionId);
+
+    if(newSession.answeredQuestions.length == newSession.questions.length){
+      isLatest = true
+    }
+
+    return {
+      messages: "Successfully Assessed the Answer",
+      data: {
+        isCorrect,
+        isLatest
+      }
+    }
   }
 }
