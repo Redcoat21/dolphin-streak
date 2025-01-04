@@ -17,7 +17,7 @@ import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { checkIfExist, formatGetAllMessages } from "src/lib/utils/response";
 import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
-import { FilterQuery } from "mongoose";
+import { FilterQuery, Types } from "mongoose";
 import { Course } from "./schemas/course.schema";
 import { FindAllCoursesQuery } from "./dto/find-all-query.dto";
 import { RoleGuard } from "src/lib/guard/role.guard";
@@ -188,6 +188,8 @@ export class CoursesController {
     if (findAllQuery.type) {
       filter.type = findAllQuery.type;
     }
+    console.log('findAllQuery:', findAllQuery);
+    console.log(filter);
 
     const foundedCourses = await this.coursesService.findAll(filter);
 
@@ -361,7 +363,7 @@ export class CoursesController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(BearerTokenGuard, RoleGuard)
   @HasRoles(Role.USER, Role.ADMIN)
-  @ApiOperation({ summary: "Start a question session for a specific level" })
+  @ApiOperation({ summary: "Start a question session for a specific course" })
   @ApiOkResponse({
     description: "Session started successfully",
     schema: {
@@ -413,7 +415,7 @@ export class CoursesController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(BearerTokenGuard, RoleGuard)
   @HasRoles(Role.USER, Role.ADMIN)
-  @ApiOperation({ summary: "Start a question session for a specific level" })
+  @ApiOperation({ summary: "Start a question session for a specific course" })
   @ApiOkResponse({
     description: "Session started successfully",
     schema: {

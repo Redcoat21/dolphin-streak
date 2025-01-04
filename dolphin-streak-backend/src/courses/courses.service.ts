@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { FilterQuery, Model, ProjectionType, QueryOptions } from "mongoose";
+import { FilterQuery, Model, ProjectionType, QueryOptions, Types } from "mongoose";
 import { Course, CourseDocument } from "./schemas/course.schema";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
@@ -36,11 +36,16 @@ export class CoursesService {
    * @returns {Promise<Course[]>} The list of matching courses.
    */
   async findAll(filter: FilterQuery<Course> = {}): Promise<Course[]> {
-    return this.courseModel
+    console.log('Filter in service:', filter);
+
+    const result = await this.courseModel
       .find(filter)
-      .populate("levels")
       .populate("language")
       .exec();
+  
+    console.log('Query Result:', result);
+  
+    return result;
   }
 
   /**
