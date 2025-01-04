@@ -57,7 +57,6 @@ export class CoursesService {
   async findOne(id: string): Promise<Course> {
     const course = await this.courseModel
       .findById(id)
-      .populate("levels")
       .populate("language")
       .exec();
 
@@ -77,7 +76,6 @@ export class CoursesService {
   async update(id: string, updateCourseDto: UpdateCourseDto): Promise<Course> {
     const updatedCourse = await this.courseModel
       .findByIdAndUpdate(id, updateCourseDto, { new: true })
-      .populate("levels")
       .populate("language")
       .exec();
 
