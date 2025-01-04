@@ -10,6 +10,8 @@ import {
 } from "./schemas/course-session.schema";
 import { QuestionsService } from "src/questions/questions.service";
 import { Question, QuestionType } from "src/questions/schemas/question.schema";
+import { env } from "process";
+import axios from "axios";
 
 @Injectable()
 export class CoursesService {
@@ -115,28 +117,66 @@ export class CoursesService {
     return courseSession.save();
   }
 
-  async assessAnswer(question: Question, answer: string){
+  async assessAnswer(question: Question, answer: string, accessToken: string){
     const qtype = QuestionType[question.type]
         
     if(qtype == "MULTIPLE_CHOICE"){
       const answerIdx = parseInt(question.correctAnswer as string, 10)
       if(answer.toLowerCase() == question.answerOptions[answerIdx].toLowerCase()){
         console.log("Benar");
-        return true
+        return { suggestion: null, isCorrect: true };
       }
     }
     else if(qtype == "FILL_IN"){
       const questionAnswer = (question.correctAnswer as string).toLowerCase()
       if(answer.toLowerCase() == questionAnswer){
         console.log("Benar");
-        return true
+        return { suggestion: null, isCorrect: true };
       }
     }
     else if(qtype == "ESSAY"){
-      console.log("on work");
+      const appHost = process.env.APP_HOST
+      const appPort = process.env.APP_PORT
+      console.log(appHost);
+      console.log(appPort);
+
+      const data = {
+        theme: question.question.text,
+        essay: answer
+      }
       
+      const url = `http://${appHost}:${appPort}/api/ai`
+      console.log(url);
+      console.log(question);
+
+      try {
+        const response = await axios.post(
+          url,                   // API endpoint
+          data,                  // Request body
+          {                      // Config (e.g., headers)
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json', // Optional, default is application/json
+            },
+          }
+        );
+
+        console.log(response.data);
+
+        const result = response.data.data
+        const suggestion = result.suggestion
+        
+        if(result.score >= 70){
+          return { suggestion: suggestion, isCorrect: true };
+        }
+        return { suggestion: suggestion, isCorrect: false };
+      } catch (error) {
+        console.error('Error calling API:', error.response?.data || error.message);
+        throw new Error('Failed to call API');
+      }
+
     }
 
-    return false
+    return { suggestion: null, isCorrect: false };
   }
 }

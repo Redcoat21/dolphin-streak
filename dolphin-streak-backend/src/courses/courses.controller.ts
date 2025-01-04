@@ -511,8 +511,13 @@ export class CoursesController {
     console.log(question);
     var isLatest = false;
 
-    const isCorrect = await this.coursesService.assessAnswer(question, answer)
+    const accessToken = request.headers.authorization.split(' ')[1]
+    console.log('Access Token:', accessToken);
 
+    const { suggestion, isCorrect } = await this.coursesService.assessAnswer(question, answer, accessToken)
+
+    console.log(suggestion);
+    
     if(isCorrect){
       const updatedSession = await this.coursesService.addAnsweredQuestion(
         courseSessionId,
@@ -529,6 +534,7 @@ export class CoursesController {
     return {
       messages: "Successfully Assessed the Answer",
       data: {
+        suggestion,
         isCorrect,
         isLatest
       }

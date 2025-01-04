@@ -1,6 +1,4 @@
 import { BadGatewayException, Injectable } from '@nestjs/common';
-import { CreateAiDto } from './dto/create-ai.dto';
-import { UpdateAiDto } from './dto/update-ai.dto';
 import { PromptDto } from './dto/prompt-ai.dto';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI } from '@google/generative-ai';
