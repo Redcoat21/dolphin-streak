@@ -5,10 +5,10 @@ import { forumRouter } from './forum';
 import { languageRouter } from './language';
 import { levelsRouter } from './levels';
 import { questionsRouter } from './questions';
-import { todoRouter } from './todo';
+// import { todoRouter } from './todo';
 
 export const appRouter = router({
-  todo: todoRouter,
+  // todo: todoRouter,
   auth: authRouter,
   forum: forumRouter,
   language: languageRouter,

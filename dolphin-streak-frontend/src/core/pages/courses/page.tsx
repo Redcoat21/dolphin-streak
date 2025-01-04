@@ -1,25 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Container } from "@/core/components/container";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { trpc } from "@/utils/trpc";
-import { useAuthStore } from "@/core/stores/authStore";
 import { Header } from "../dasboard/components/Header";
-import type { TCourse } from "@/server/types/courses";
-import Image from "next/image";
-import { ChevronLeft } from "lucide-react";
 import { CourseCard } from "./components/CourseCard";
 import { LoadingSkeleton } from "./components/LoadingSkeleton";
+import { trpc } from "@/utils/trpc";
+import { useAuthStore } from "@/core/stores/authStore";
+import { BookOpen, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 export function CoursePage() {
   const { getAccessToken } = useAuthStore();
   const accessToken = getAccessToken();
   const router = useRouter();
   const [selectedLanguage, setSelectedLanguage] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch languages data
   const { data: languagesData } = trpc.language.getLanguages.useQuery({
@@ -39,6 +34,12 @@ export function CoursePage() {
     type: 1,
   });
 
+  // Filter courses based on search query
+  const filteredCourses = coursesData?.data.filter(course =>
+    course.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    course.language.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <Container>
       <Header
@@ -48,28 +49,56 @@ export function CoursePage() {
         onLanguageChange={setSelectedLanguage}
       />
 
-      <main className="min-h-screen bg-slate-950 text-white pt-20 pb-8 px-4">
+      <main className="min-h-screen bg-slate-950 text-white pt-24 pb-8 px-4 md:mt-8 mt-24">
         <div className="max-w-7xl mx-auto">
+          {/* Header Section */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Available Courses</h1>
-            <p className="text-slate-400">Choose a course to begin your learning journey</p>
+            <div className="flex items-center gap-2 mb-2">
+              <BookOpen className="w-8 h-8 text-blue-400" />
+              <h1 className="text-3xl font-bold">Available Courses</h1>
+            </div>
+            <p className="text-slate-400">Explore our courses and begin your learning journey</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {isLoading ? (
-              <LoadingSkeleton count={3} type="course" cardClassName="" />
-            ) : (
-              coursesData?.data.map((course) => (<CourseCard
-                key={course._id}
-                course={course}
-                progress={35}
-                onClick={() => {
-                  router.push(`/course/${course._id}`);
-                }}
-              />
-              ))
-            )}
+          {/* Search Bar */}
+          <div className="mb-8 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+            <Input
+              type="text"
+              placeholder="Search courses by name or language..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 bg-slate-900 border-slate-800 text-white placeholder:text-slate-400"
+            />
           </div>
+
+          {/* Courses Grid */}
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <LoadingSkeleton count={3} />
+            </div>
+          ) : filteredCourses && filteredCourses.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredCourses.map((course) => (
+                <CourseCard
+                  key={course._id}
+                  course={course}
+                  onClick={() => router.push(`/course/${course._id}`)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <h3 className="text-xl font-semibold text-slate-400 mb-2">
+                No courses found
+              </h3>
+              <p className="text-slate-500">
+                {searchQuery
+                  ? "Try adjusting your search terms"
+                  : "Check back later for new courses"}
+              </p>
+            </div>
+          )}
         </div>
       </main>
     </Container>

@@ -4,12 +4,14 @@ import { z } from 'zod';
 import type {
   TCoursesResponse,
   TCourseResponse,
+  TStartCourseSessionResponse,
 } from '../types/courses';
 import {
   ZGetCoursesRequest,
   ZGetCourseByIdRequest,
   ZCoursesResponse,
   ZCourseResponse,
+  ZPostStartCourseSession,
 } from '../types/courses';
 
 export const coursesRouter = router({
@@ -24,6 +26,7 @@ export const coursesRouter = router({
           type: input.type,
         },
       });
+
       return response as TCoursesResponse;
     }),
 
@@ -31,6 +34,7 @@ export const coursesRouter = router({
   getCourseById: authedProcedure
     .input(ZGetCourseByIdRequest)
     .query(async ({ input }) => {
+      console.log({ url: `/api/courses/${input.id}` })
       const response = await fetchAPI(
         `/api/courses/${input.id}`,
         'GET',
@@ -38,6 +42,21 @@ export const coursesRouter = router({
           token: input.accessToken,
         }
       );
+      console.log({ response: JSON.stringify(response) })
+
       return response as TCourseResponse;
     }),
+  startCourse: authedProcedure
+    .input(ZPostStartCourseSession)
+    .mutation(async ({ input }) => {
+      const response = await fetchAPI(
+        `/api/courses/${input.courseId}/start-session`,
+        'POST',
+        {
+          token: input.accessToken,
+        }
+      );
+      return response as TStartCourseSessionResponse;
+    }),
 });
+

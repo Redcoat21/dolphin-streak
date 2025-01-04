@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Prettify, TDefaultResponse } from "./generic";
 
 // Schema for a single course level
 export const ZCourseLevel = z.object({
@@ -48,9 +49,28 @@ export const ZGetCourseByIdRequest = z.object({
   id: z.string(),
 });
 
+export const ZPostStartCourseSession = z.object({
+  courseId: z.string(),
+})
+
 // TypeScript types inferred from the Zod schemas
 export type TCourse = z.infer<typeof ZCourse>;
 export type TCoursesResponse = z.infer<typeof ZCoursesResponse>;
 export type TCourseResponse = z.infer<typeof ZCourseResponse>;
 export type TGetCoursesRequest = z.infer<typeof ZGetCoursesRequest>;
 export type TGetCourseByIdRequest = z.infer<typeof ZGetCourseByIdRequest>;
+
+export enum CourseType {
+  Daily = 0,
+  Weekly = 1,
+}
+export function isCourseType(value: number): value is CourseType {
+  return Object.values(CourseType).includes(value);
+}
+
+
+export type TStartCourseSessionResponse = TDefaultResponse<{
+  "sessionId": string,
+  "expiresAt": "2025-01-04T17:44:43.638Z",
+  "totalQuestions": number
+}>;

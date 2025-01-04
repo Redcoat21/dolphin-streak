@@ -199,7 +199,7 @@ export function Header({ currentPath, languageDropdown, selectedLanguage, onLang
 
   return (
     <header className="fixed top-0 w-full bg-gradient-to-r from-[#0A84FF] to-[#5AB9EA] p-4 z-50">
-      <div className="flex justify-between items-center max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row justify-between items-center max-w-7xl mx-auto space-y-3 sm:space-y-0">
         <div className="flex items-center gap-3">
           <Avatar className="h-12 w-12 border-2 border-white shadow-md">
             <AvatarImage src="/temps/User/imgSource/User.png" alt="User" />
@@ -207,7 +207,7 @@ export function Header({ currentPath, languageDropdown, selectedLanguage, onLang
           </Avatar>
           <h3 className="text-xl font-semibold text-white">Hello, User</h3>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap justify-center items-center gap-2">
           {renderHeader()}
         </div>
       </div>
