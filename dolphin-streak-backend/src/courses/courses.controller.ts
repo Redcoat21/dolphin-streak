@@ -470,18 +470,16 @@ export class CoursesController {
     @Req() request: Request
   ) {
     const session = await this.coursesService.getOneSession(courseSessionId);
-    console.log({ session });
     const questionIndex = session.answeredQuestions.length
     console.log({ questionIndex });
     const questionId = session.questions[session.answeredQuestions.length];
     console.log({ questionId });
     const question = await this.questionsService.findOne(questionId.toString())
-    console.log({ question });
-    console.log(QuestionType[0]);
 
     const newQuestion = {
       question: question.question,
-      answerOptions: question.answerOptions
+      answerOptions: question.answerOptions,
+      questionType: question.type
     }
 
     return {
@@ -509,17 +507,14 @@ export class CoursesController {
     const questionId = session.questions[session.answeredQuestions.length];
     const question = await this.questionsService.findOne(questionId.toString());
 
-    console.log(question);
+    // console.log(question);
     var isLatest = false;
 
     const accessToken = request.headers.authorization.split(' ')[1]
-    console.log('Access Token:', accessToken);
 
     const { suggestion, isCorrect } = await this.coursesService.assessAnswer(question, answer, accessToken)
-
-    console.log(suggestion);
-
-    if (isCorrect) {
+    
+    if(isCorrect){
       const updatedSession = await this.coursesService.addAnsweredQuestion(
         courseSessionId,
         questionId.toString(),

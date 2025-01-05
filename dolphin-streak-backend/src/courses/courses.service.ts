@@ -113,6 +113,7 @@ export class CoursesService {
     const courseSession = await this.courseSessionModel.findById(sessionId);
     const question = await this.questionService.findOne(questionId);
     courseSession.answeredQuestions.push(question);
+    courseSession.score += 10;
 
     return courseSession.save();
   }
@@ -123,14 +124,12 @@ export class CoursesService {
     if(qtype == "MULTIPLE_CHOICE"){
       const answerIdx = parseInt(question.correctAnswer as string, 10)
       if(answer.toLowerCase() == question.answerOptions[answerIdx].toLowerCase()){
-        console.log("Benar");
         return { suggestion: null, isCorrect: true };
       }
     }
     else if(qtype == "FILL_IN"){
       const questionAnswer = (question.correctAnswer as string).toLowerCase()
       if(answer.toLowerCase() == questionAnswer){
-        console.log("Benar");
         return { suggestion: null, isCorrect: true };
       }
     }

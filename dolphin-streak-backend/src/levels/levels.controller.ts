@@ -318,140 +318,140 @@ export class LevelsController {
   //   };
   // }
 
-  @Get(':id/question/:questionIndex')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(BearerTokenGuard, RoleGuard)
-  @HasRoles(Role.USER, Role.ADMIN)
-  @ApiOperation({ summary: 'Get a question by index and session ID' })
-  @ApiOkResponse({
-    description: 'Question retrieved successfully',
-    schema: {
-      example: {
-        messages: 'Question retrieved',
-        data: {
-          question: {
-            _id: 'question-123',
-            text: 'What is the capital of France?',
-            type: 'MULTIPLE_CHOICE',
-            answerOptions: ['Paris', 'London', 'Berlin', 'Madrid'],
-            correctAnswer: 'Paris',
-          },
-        },
-      },
-    },
-  })
-  @ApiNotFoundResponse({
-    description: 'Question not found',
-    schema: { example: { messages: 'Question not found', data: null } },
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Unauthorized',
-    schema: { example: { messages: 'Unauthorized', data: null } },
-  })
-  @ApiBearerAuth()
-  async getQuestionById(
-    @Param('id') levelId: string,
-    @Param('questionIndex') questionIndex: number,
-    @Query('sessionId') sessionId: string,
-    @Request() request: ExpressRequest,
-  ) {
-    const userId = request.user._id.toString();
-    const session = this.levelsService.getSession(sessionId);
-    if (!session || session.userId !== userId || session.levelId !== levelId) {
-      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
-    }
+  // @Get(':id/question/:questionIndex')
+  // @HttpCode(HttpStatus.OK)
+  // @UseGuards(BearerTokenGuard, RoleGuard)
+  // @HasRoles(Role.USER, Role.ADMIN)
+  // @ApiOperation({ summary: 'Get a question by index and session ID' })
+  // @ApiOkResponse({
+  //   description: 'Question retrieved successfully',
+  //   schema: {
+  //     example: {
+  //       messages: 'Question retrieved',
+  //       data: {
+  //         question: {
+  //           _id: 'question-123',
+  //           text: 'What is the capital of France?',
+  //           type: 'MULTIPLE_CHOICE',
+  //           answerOptions: ['Paris', 'London', 'Berlin', 'Madrid'],
+  //           correctAnswer: 'Paris',
+  //         },
+  //       },
+  //     },
+  //   },
+  // })
+  // @ApiNotFoundResponse({
+  //   description: 'Question not found',
+  //   schema: { example: { messages: 'Question not found', data: null } },
+  // })
+  // @ApiUnauthorizedResponse({
+  //   description: 'Unauthorized',
+  //   schema: { example: { messages: 'Unauthorized', data: null } },
+  // })
+  // @ApiBearerAuth()
+  // async getQuestionById(
+  //   @Param('id') levelId: string,
+  //   @Param('questionIndex') questionIndex: number,
+  //   @Query('sessionId') sessionId: string,
+  //   @Request() request: ExpressRequest,
+  // ) {
+  //   const userId = request.user._id.toString();
+  //   const session = this.levelsService.getSession(sessionId);
+  //   if (!session || session.userId !== userId || session.levelId !== levelId) {
+  //     throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+  //   }
 
-    const question = session.questions[questionIndex];
-    if (!question) {
-      throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
-    }
+  //   const question = session.questions[questionIndex];
+  //   if (!question) {
+  //     throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
+  //   }
 
-    return {
-      messages: 'Question retrieved',
-      data: { question },
-    };
-  }
+  //   return {
+  //     messages: 'Question retrieved',
+  //     data: { question },
+  //   };
+  // }
 
-  @Post('next-question')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(BearerTokenGuard, RoleGuard)
-  @HasRoles(Role.USER, Role.ADMIN)
-  @ApiOperation({ summary: 'Get the next question in a session' })
-  @ApiOkResponse({
-    description: 'Next question retrieved successfully',
-    schema: {
-      example: {
-        messages: 'Next question retrieved',
-        data: {
-          nextQuestionIndex: 1,
-          nextQuestion: {
-            _id: 'question-123',
-            text: 'What is the capital of France?',
-            type: 'MULTIPLE_CHOICE',
-            answerOptions: ['Paris', 'London', 'Berlin', 'Madrid'],
-            correctAnswer: 'Paris',
-          },
-        },
-      },
-    },
-  })
-  @ApiNotFoundResponse({
-    description: 'No more questions or session not found',
-    schema: { example: { messages: 'No more questions', data: null } },
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Unauthorized',
-    schema: { example: { messages: 'Unauthorized', data: null } },
-  })
-  @ApiBearerAuth()
-  async getNextQuestion(
-    @Query('sessionId') sessionId: string,
-    @Body('currentQuestionIndex') currentQuestionIndex: number,
-  ) {
-    const { nextQuestionIndex, nextQuestion } =
-      this.levelsService.getNextQuestion(sessionId, currentQuestionIndex);
-    return {
-      messages: 'Next question retrieved',
-      data: { nextQuestionIndex, nextQuestion },
-    };
-  }
+  // @Post('next-question')
+  // @HttpCode(HttpStatus.OK)
+  // @UseGuards(BearerTokenGuard, RoleGuard)
+  // @HasRoles(Role.USER, Role.ADMIN)
+  // @ApiOperation({ summary: 'Get the next question in a session' })
+  // @ApiOkResponse({
+  //   description: 'Next question retrieved successfully',
+  //   schema: {
+  //     example: {
+  //       messages: 'Next question retrieved',
+  //       data: {
+  //         nextQuestionIndex: 1,
+  //         nextQuestion: {
+  //           _id: 'question-123',
+  //           text: 'What is the capital of France?',
+  //           type: 'MULTIPLE_CHOICE',
+  //           answerOptions: ['Paris', 'London', 'Berlin', 'Madrid'],
+  //           correctAnswer: 'Paris',
+  //         },
+  //       },
+  //     },
+  //   },
+  // })
+  // @ApiNotFoundResponse({
+  //   description: 'No more questions or session not found',
+  //   schema: { example: { messages: 'No more questions', data: null } },
+  // })
+  // @ApiUnauthorizedResponse({
+  //   description: 'Unauthorized',
+  //   schema: { example: { messages: 'Unauthorized', data: null } },
+  // })
+  // @ApiBearerAuth()
+  // async getNextQuestion(
+  //   @Query('sessionId') sessionId: string,
+  //   @Body('currentQuestionIndex') currentQuestionIndex: number,
+  // ) {
+  //   const { nextQuestionIndex, nextQuestion } =
+  //     this.levelsService.getNextQuestion(sessionId, currentQuestionIndex);
+  //   return {
+  //     messages: 'Next question retrieved',
+  //     data: { nextQuestionIndex, nextQuestion },
+  //   };
+  // }
 
-  @Post('submit-answer')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(BearerTokenGuard, RoleGuard)
-  @HasRoles(Role.USER, Role.ADMIN)
-  @ApiOperation({ summary: 'Submit an answer for a question' })
-  @ApiOkResponse({
-    description: 'Answer submitted successfully',
-    schema: {
-      example: {
-        messages: 'Answer submitted',
-        data: { isCorrect: true },
-      },
-    },
-  })
-  @ApiNotFoundResponse({
-    description: 'Question or session not found',
-    schema: { example: { messages: 'Question not found', data: null } },
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Unauthorized',
-    schema: { example: { messages: 'Unauthorized', data: null } },
-  })
-  @ApiBearerAuth()
-  async submitAnswer(
-    @Query('sessionId') sessionId: string,
-    @Body('questionIndex') questionIndex: number,
-    @Body('answer') answer: string,
-  ) {
-    const { isCorrect } = this.levelsService.submitAnswer(
-      sessionId,
-      questionIndex,
-      answer,
-    );
-    return {
-      messages: 'Answer submitted',
-      data: { isCorrect },
-    };
-  }
+  // @Post('submit-answer')
+  // @HttpCode(HttpStatus.OK)
+  // @UseGuards(BearerTokenGuard, RoleGuard)
+  // @HasRoles(Role.USER, Role.ADMIN)
+  // @ApiOperation({ summary: 'Submit an answer for a question' })
+  // @ApiOkResponse({
+  //   description: 'Answer submitted successfully',
+  //   schema: {
+  //     example: {
+  //       messages: 'Answer submitted',
+  //       data: { isCorrect: true },
+  //     },
+  //   },
+  // })
+  // @ApiNotFoundResponse({
+  //   description: 'Question or session not found',
+  //   schema: { example: { messages: 'Question not found', data: null } },
+  // })
+  // @ApiUnauthorizedResponse({
+  //   description: 'Unauthorized',
+  //   schema: { example: { messages: 'Unauthorized', data: null } },
+  // })
+  // @ApiBearerAuth()
+  // async submitAnswer(
+  //   @Query('sessionId') sessionId: string,
+  //   @Body('questionIndex') questionIndex: number,
+  //   @Body('answer') answer: string,
+  // ) {
+  //   const { isCorrect } = this.levelsService.submitAnswer(
+  //     sessionId,
+  //     questionIndex,
+  //     answer,
+  //   );
+  //   return {
+  //     messages: 'Answer submitted',
+  //     data: { isCorrect },
+  //   };
+  // }
 }
