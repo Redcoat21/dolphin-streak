@@ -74,3 +74,8 @@ export type TStartCourseSessionResponse = TDefaultResponse<{
   "expiresAt": "2025-01-04T17:44:43.638Z",
   "totalQuestions": number
 }>;
+export const ZGetCourseSessionIdRequest = z.object({
+  courseSessionId: z.string(),
+});
+
+export type TGetCourseSessionIdRequest = z.infer<typeof ZGetCourseSessionIdRequest>;

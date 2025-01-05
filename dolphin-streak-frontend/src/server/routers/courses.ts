@@ -12,6 +12,7 @@ import {
   ZCoursesResponse,
   ZCourseResponse,
   ZPostStartCourseSession,
+  ZGetCourseSessionIdRequest,
 } from '../types/courses';
 
 export const coursesRouter = router({
@@ -58,5 +59,16 @@ export const coursesRouter = router({
       );
       return response as TStartCourseSessionResponse;
     }),
+  getCourseSessionId: authedProcedure.input(ZGetCourseSessionIdRequest).query(async ({ input }) => {
+    const response = await fetchAPI(
+      `/api/courses/session/${input.courseSessionId}`,
+      'GET',
+      {
+        token: input.accessToken,
+      }
+    );
+    console.log({ response });
+    return response;
+  })
 });
 

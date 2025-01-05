@@ -41,10 +41,9 @@ export function CoursePageID() {
         description: "Redirecting to your learning session...",
         variant: "default",
       });
-
-      // Redirect to session page with the new sessionId
+      
       if (data?.data?.sessionId) {
-        router.push(`/courses/session/${data.data.sessionId}`);
+        router.push(`/course/session/${data.data.sessionId}`);
       }
     },
     onError(error) {

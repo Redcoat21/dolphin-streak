@@ -72,7 +72,7 @@ export class CoursesController {
   constructor(
     private readonly coursesService: CoursesService,
     private readonly questionsService: QuestionsService,
-  ) {}
+  ) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -395,7 +395,7 @@ export class CoursesController {
 
     console.log(userId);
     console.log(totalQuestions);
-    
+
 
     const expiresAt = DateTime.now().plus({ minutes: 30 }).toJSDate();
 
@@ -470,12 +470,13 @@ export class CoursesController {
     @Req() request: Request
   ) {
     const session = await this.coursesService.getOneSession(courseSessionId);
-    // console.log(session);
-
+    console.log({ session });
     const questionIndex = session.answeredQuestions.length
+    console.log({ questionIndex });
     const questionId = session.questions[session.answeredQuestions.length];
+    console.log({ questionId });
     const question = await this.questionsService.findOne(questionId.toString())
-    console.log(question);
+    console.log({ question });
     console.log(QuestionType[0]);
 
     const newQuestion = {
@@ -504,7 +505,7 @@ export class CoursesController {
     @Req() request: Request
   ) {
     const session = await this.coursesService.getOneSession(courseSessionId);
-    
+
     const questionId = session.questions[session.answeredQuestions.length];
     const question = await this.questionsService.findOne(questionId.toString());
 
@@ -517,8 +518,8 @@ export class CoursesController {
     const { suggestion, isCorrect } = await this.coursesService.assessAnswer(question, answer, accessToken)
 
     console.log(suggestion);
-    
-    if(isCorrect){
+
+    if (isCorrect) {
       const updatedSession = await this.coursesService.addAnsweredQuestion(
         courseSessionId,
         questionId.toString(),
@@ -527,7 +528,7 @@ export class CoursesController {
 
     const newSession = await this.coursesService.getOneSession(courseSessionId);
 
-    if(newSession.answeredQuestions.length == newSession.questions.length){
+    if (newSession.answeredQuestions.length == newSession.questions.length) {
       isLatest = true
     }
 

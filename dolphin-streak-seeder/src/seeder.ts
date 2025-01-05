@@ -366,6 +366,10 @@ async function seedForums(userIds: string[]): Promise<void> {
     console.log('Forums seeded successfully.');
 }
 
+function getRandomCourseId(courseIds: string[]): string {
+    const randomIndex = Math.floor(Math.random() * courseIds.length);
+    return courseIds[randomIndex];
+}
 
 async function seedQuestions(courseIds: string[]): Promise<void> {
     console.log('Seeding questions...');
@@ -380,7 +384,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: ['Eat', 'Sleep', 'Drink', 'Play'],
                 correctAnswer: '0',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -389,7 +393,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: ['Madrid', 'Barcelona', 'Seville', 'Valencia'],
                 correctAnswer: '0',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -398,7 +402,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: ['Mars', 'Venus', 'Jupiter', 'Saturn'],
                 correctAnswer: '0',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -407,7 +411,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: ['Leonardo da Vinci', 'Michelangelo', 'Raphael', 'Donatello'],
                 correctAnswer: '0',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -416,7 +420,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: ['3', '4', '5', '6'],
                 correctAnswer: '1',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -425,7 +429,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: ['Cold', 'Warm', 'Dry', 'Wet'],
                 correctAnswer: '0',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -434,7 +438,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: ['Blue', 'Green', 'Red', 'Yellow'],
                 correctAnswer: '0',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -443,7 +447,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: ['7', '5', '6', '8'],
                 correctAnswer: '0',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -452,7 +456,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: ['Potato', 'Carrot', 'Banana', 'Cabbage'],
                 correctAnswer: '2',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -461,7 +465,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: ['Meow', 'Woof', 'Moo', 'Oink'],
                 correctAnswer: '1',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             // ESSAY
@@ -471,7 +475,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -480,7 +484,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -489,7 +493,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -498,7 +502,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -507,7 +511,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -516,7 +520,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -525,7 +529,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -534,7 +538,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -543,7 +547,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -552,7 +556,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             // FILL_IN
@@ -562,7 +566,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'do',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -571,7 +575,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'am',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -580,7 +584,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'are',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -589,7 +593,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'is',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -598,7 +602,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'were',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -607,7 +611,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'go',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -616,7 +620,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'lost',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -625,7 +629,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'have',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -634,7 +638,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'has',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -643,7 +647,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'have',
                 useAi: false,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             // VOICE
@@ -653,7 +657,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'how are you?',
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -662,7 +666,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'good morning',
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -671,7 +675,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'what time is it?',
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -680,7 +684,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'thank you',
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -689,7 +693,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'where are you?',
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -698,7 +702,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'i love you',
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -707,7 +711,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'see you later',
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -716,7 +720,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'lets go!',
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -725,7 +729,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'take a walk',
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -734,7 +738,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: 'have a good day',
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             // WRITING
@@ -744,7 +748,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -753,7 +757,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -762,7 +766,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -771,7 +775,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -780,7 +784,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -789,7 +793,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -798,7 +802,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -807,7 +811,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -816,7 +820,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             },
             {
@@ -825,7 +829,7 @@ async function seedQuestions(courseIds: string[]): Promise<void> {
                 answerOptions: null,
                 correctAnswer: null,
                 useAi: true,
-                courses: [courseIds[0]],
+                courses: [getRandomCourseId(courseIds)],
                 level: level._id,
             }
         ];
