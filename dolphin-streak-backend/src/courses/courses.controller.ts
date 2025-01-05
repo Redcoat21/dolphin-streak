@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -10,6 +11,7 @@ import {
   Post,
   Query,
   Req,
+  UnauthorizedException,
   UseGuards,
 } from "@nestjs/common";
 import { CoursesService } from "./courses.service";
@@ -39,6 +41,7 @@ import { QuestionsService } from "src/questions/questions.service";
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
 import { QuestionSchema, QuestionType } from "src/questions/schemas/question.schema";
+import { ValidatorConstraint } from "class-validator";
 
 @Controller("/api/courses")
 @UseGuards(BearerTokenGuard, RoleGuard)
@@ -465,15 +468,56 @@ export class CoursesController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(BearerTokenGuard, RoleGuard)
   @HasRoles(Role.USER, Role.ADMIN)
+  @ApiOperation({
+    summary: 'get the current question',
+    description: 'get the current question based on the course session ID',
+  })
+  @ApiOkResponse({
+    description: "Next question is acquired successfully",
+    schema: {
+      example: {
+        "messages": "Successfully get the next question",
+        "data": {
+          "question": {
+            "question": {
+              "type": "text",
+              "text": "Explain the impact of technology on society."
+            },
+            "answerOptions": null,
+            "questionType": 1
+          },
+          "totalQuestion": 74,
+          "questionIndex": 3,
+          "score": 30
+        }
+      }
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Happen when the id parameter is not a valid mongodb id',
+    example: {
+      "messages": [
+        "id must be a mongodb id"
+      ],
+      "data": null
+    }
+  })
   async getQuestionBySessionId(
     @Param('courseSessionId') courseSessionId: string,
     @Req() request: Request
   ) {
     const session = await this.coursesService.getOneSession(courseSessionId);
+
+    // checking if the owner or not
+    const userId = request.user._id.toString();
+    const userSession = session.user.toString();
+
+    if(userId !== userSession){
+      throw new UnauthorizedException();
+    }
+
     const questionIndex = session.answeredQuestions.length
-    console.log({ questionIndex });
     const questionId = session.questions[session.answeredQuestions.length];
-    console.log({ questionId });
     const question = await this.questionsService.findOne(questionId.toString())
 
     const newQuestion = {
@@ -497,6 +541,32 @@ export class CoursesController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(BearerTokenGuard, RoleGuard)
   @HasRoles(Role.USER, Role.ADMIN)
+  @ApiOperation({
+    summary: 'submit answer based on the current question',
+    description: 'submitting the answer based on the current question',
+  })
+  @ApiOkResponse({
+    description: "Answer is assessed successfully",
+    schema: {
+      example: {
+        messages: "Successfully Assessed the Answer",
+        data: {
+          suggestion: null,
+          isCorrect: true,
+          isLatest: false,
+        },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: "Bad request, e.g. missing required fields",
+    schema: {
+      example: {
+        "messages": "answer must be a string",
+        "data": null
+      }
+    },
+  })
   async submitAnswer(
     @Param('courseSessionId') courseSessionId: string,
     @Body('answer') answer: string,
@@ -504,11 +574,22 @@ export class CoursesController {
   ) {
     const session = await this.coursesService.getOneSession(courseSessionId);
 
+    // checking if the owner or not
+    const userId = request.user._id.toString();
+    const userSession = session.user.toString();
+
+    if(userId !== userSession){
+      throw new UnauthorizedException();
+    }
+
+    if(!answer){
+      throw new BadRequestException('answer must be a string')
+    }
+
     const questionId = session.questions[session.answeredQuestions.length];
     const question = await this.questionsService.findOne(questionId.toString());
 
     // console.log(question);
-    var isLatest = false;
 
     const accessToken = request.headers.authorization.split(' ')[1]
 
@@ -523,9 +604,7 @@ export class CoursesController {
 
     const newSession = await this.coursesService.getOneSession(courseSessionId);
 
-    if (newSession.answeredQuestions.length == newSession.questions.length) {
-      isLatest = true
-    }
+    const isLatest = (newSession.answeredQuestions.length == newSession.questions.length);
 
     return {
       messages: "Successfully Assessed the Answer",
