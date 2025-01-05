@@ -99,17 +99,17 @@ export class CoursesService {
     return result;
   }
 
-  async addSession(data: any) {
-    const course = await this.courseSessionModel.create(data);
-    return course;
+  async addSession(data: any): Promise<CourseSession> {
+    const courseSession = await this.courseSessionModel.create(data);
+    return courseSession;
   }
 
-  async getOneSession(id: String){
-    const session = await this.courseSessionModel.findById(id);
-    return session;
+  async getOneSession(id: String): Promise<CourseSession> {
+    const courseSession = await this.courseSessionModel.findById(id);
+    return courseSession;
   }
 
-  async addAnsweredQuestion(sessionId: string, questionId: string) {
+  async addAnsweredQuestion(sessionId: string, questionId: string): Promise<CourseSession> {
     const courseSession = await this.courseSessionModel.findById(sessionId);
     const question = await this.questionService.findOne(questionId);
     courseSession.answeredQuestions.push(question);
@@ -118,7 +118,7 @@ export class CoursesService {
     return courseSession.save();
   }
 
-  async assessAnswer(question: Question, answer: string, accessToken: string){
+  async assessAnswer(question: Question, answer: string, accessToken: string): Promise<any> {
     const qtype = QuestionType[question.type]
         
     if(qtype == "MULTIPLE_CHOICE"){
@@ -128,7 +128,16 @@ export class CoursesService {
       }
     }
     else if(qtype == "FILL_IN"){
-      const questionAnswer = (question.correctAnswer as string).toLowerCase()
+      var correctOne = "";
+      
+      if(Array.isArray(question.correctAnswer)){
+        correctOne = question.correctAnswer[0]
+      }
+      else{
+        correctOne = (question.correctAnswer as string)
+      }
+
+      const questionAnswer = correctOne.toLowerCase()
       if(answer.toLowerCase() == questionAnswer){
         return { suggestion: null, isCorrect: true };
       }
@@ -136,8 +145,6 @@ export class CoursesService {
     else if(qtype == "ESSAY"){
       const appHost = process.env.APP_HOST
       const appPort = process.env.APP_PORT
-      console.log(appHost);
-      console.log(appPort);
 
       const data = {
         theme: question.question.text,
@@ -145,8 +152,8 @@ export class CoursesService {
       }
       
       const url = `http://${appHost}:${appPort}/api/ai`
-      console.log(url);
-      console.log(question);
+      // console.log(url);
+      // console.log(question);
 
       try {
         const response = await axios.post(
@@ -160,7 +167,7 @@ export class CoursesService {
           }
         );
 
-        console.log(response.data);
+        // console.log(response.data);
 
         const result = response.data.data
         const suggestion = result.suggestion
