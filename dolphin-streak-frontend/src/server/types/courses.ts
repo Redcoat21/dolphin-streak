@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { Prettify, TDefaultResponse } from "./generic";
+import type { TDefaultResponse } from "./generic";
+import type { QuestionType } from "./questions";
 
 // Schema for a single course level
 export const ZCourseLevel = z.object({
@@ -78,4 +79,33 @@ export const ZGetCourseSessionIdRequest = z.object({
   courseSessionId: z.string(),
 });
 
+type TQuestion = {
+  question: {
+    type: string;
+    text: string;
+  };
+  answerOptions: string[];
+  questionType: QuestionType;
+};
+type TCourseSessionData = {
+  question: TQuestion;
+  totalQuestion: number;
+  questionIndex: number;
+  score: number;
+};
+
 export type TGetCourseSessionIdRequest = z.infer<typeof ZGetCourseSessionIdRequest>;
+export type TGetCourseSessionIdResponse = TDefaultResponse<TCourseSessionData>;
+
+export const ZPostSubmitAnswerRequest = z.object({
+  courseSessionId: z.string(),
+  answer: z.string(),
+})
+
+export type TAnswerResult = {
+  suggestion: string | null;
+  isCorrect: boolean;
+  isLatest: boolean;
+};
+
+export type TSubmitAnswerResponse = TDefaultResponse<TAnswerResult>;

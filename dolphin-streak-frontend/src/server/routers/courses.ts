@@ -5,6 +5,8 @@ import type {
   TCoursesResponse,
   TCourseResponse,
   TStartCourseSessionResponse,
+  TGetCourseSessionIdResponse,
+  TSubmitAnswerResponse,
 } from '../types/courses';
 import {
   ZGetCoursesRequest,
@@ -13,6 +15,7 @@ import {
   ZCourseResponse,
   ZPostStartCourseSession,
   ZGetCourseSessionIdRequest,
+  ZPostSubmitAnswerRequest,
 } from '../types/courses';
 
 export const coursesRouter = router({
@@ -68,7 +71,29 @@ export const coursesRouter = router({
       }
     );
     console.log({ response });
-    return response;
-  })
+    return response as TGetCourseSessionIdResponse;
+  }),
+  postSubmitAnswer: authedProcedure
+    .input(ZPostSubmitAnswerRequest)
+    .mutation(async ({ input }) => {
+      const response = await fetchAPI(
+        `/api/courses/session/${input.courseSessionId}/submit-answer`,
+        'POST',
+        {
+          token: input.accessToken,
+          body: {
+            answer: input.answer
+          }
+        }
+      );
+      console.log({ response })
+      // {
+      //   response: {
+      //     messages: 'Successfully Assessed the Answer',
+      //     data: { suggestion: null, isCorrect: true, isLatest: false }
+      //   }
+      // }
+      return response as TSubmitAnswerResponse;
+    }),
 });
 

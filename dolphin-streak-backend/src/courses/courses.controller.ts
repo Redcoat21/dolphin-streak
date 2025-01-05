@@ -424,7 +424,7 @@ export class CoursesController {
     };
   }
 
-  @Patch(":id/:session-id/answer")
+  @Patch(":id/:sessionId/answer")
   @HttpCode(HttpStatus.OK)
   @UseGuards(BearerTokenGuard, RoleGuard)
   @HasRoles(Role.USER, Role.ADMIN)
@@ -449,7 +449,7 @@ export class CoursesController {
   @ApiBearerAuth()
   async addAnsweredQuestion(
     @Param("id") courseId: string,
-    @Param("session-id") sessionId: string,
+    @Param("sessionId") sessionId: string,
     @Body("questionId") questionId: string,
     @Req() request: Request,
   ) {

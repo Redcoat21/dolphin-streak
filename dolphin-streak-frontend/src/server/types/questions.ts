@@ -1,4 +1,3 @@
-// dolphin-streak-frontend/src/server/types/questions.ts
 import { z } from 'zod';
 import type { TDefaultResponse } from './generic';
 
@@ -9,6 +8,7 @@ export enum QuestionType {
     VOICE = 3,
     WRITING = 4,
 }
+
 export const ZGetQuestionByIdRequest = z.object({
     levelId: z.string(),
     sessionId: z.string(),
@@ -44,7 +44,6 @@ export type TStartSessionRequest = z.infer<typeof ZStartSessionRequest>;
 export type TQuestion = {
     question: { type: string, text: string };
     _id: string;
-    level: string;
     __v: number;
     answerOptions: string[];
     correctAnswer: string[];
@@ -71,9 +70,9 @@ export type TNextQuestionResponse = TDefaultResponse<{
     nextQuestion: TQuestion;
 }>;
 
-export type TSubmitAnswerResponse = TDefaultResponse<{
-    isCorrect: boolean;
-}>;
+// export type TSubmitAnswerResponse = TDefaultResponse<{
+//     isCorrect: boolean;
+// }>;
 
 export type TStartSessionResponse = TDefaultResponse<{
     totalQuestions: number;

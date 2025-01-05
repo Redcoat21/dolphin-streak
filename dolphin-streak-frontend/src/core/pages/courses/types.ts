@@ -1,10 +1,12 @@
-export enum QuestionType {
-    MULTIPLE_CHOICE = 0,
-    ESSAY = 1,
-    FILL_IN = 2,
-    VOICE = 3,
-    WRITING = 4,
-}
+// export enum QuestionType {
+//     MULTIPLE_CHOICE = 0,
+//     ESSAY = 1,
+//     FILL_IN = 2,
+//     VOICE = 3,
+//     WRITING = 4,
+// }
+
+import { QuestionType } from "@/server/types/questions";
 
 export const CourseTypeLabels = {
     0: "Basic",
