@@ -3,9 +3,11 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -502,6 +504,13 @@ export class CoursesController {
       "data": null
     }
   })
+  @ApiNotFoundResponse({
+    description: 'Happen when the session unexpectedly do not have any question',
+    example: {
+      "messages": ['No questions available for this session.'],
+      "data": null
+    }
+  })
   async getQuestionBySessionId(
     @Param('courseSessionId') courseSessionId: string,
     @Req() request: Request
@@ -513,7 +522,11 @@ export class CoursesController {
     const userSession = session.user.toString();
 
     if(userId !== userSession){
-      throw new UnauthorizedException();
+      throw new ForbiddenException();
+    }
+
+    if(session.questions.length == 0){
+      throw new NotFoundException('No questions available for this session.');
     }
 
     const questionIndex = session.answeredQuestions.length
@@ -579,7 +592,7 @@ export class CoursesController {
     const userSession = session.user.toString();
 
     if(userId !== userSession){
-      throw new UnauthorizedException();
+      throw new ForbiddenException();
     }
 
     if(!answer){
