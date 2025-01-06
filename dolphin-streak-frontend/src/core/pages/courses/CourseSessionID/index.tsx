@@ -1,5 +1,4 @@
-// dolphin-streak-frontend/src/core/pages/courses/CourseSessionID/index.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuthStore } from "@/core/stores/authStore";
 import { trpc } from "@/utils/trpc";
 import { useParams, useRouter } from "next/navigation";
@@ -18,12 +17,12 @@ import {
   CheckCircle2,
   AlignJustify,
   Timer,
-  Undo2
+  Undo2,
 } from "lucide-react";
 import { Header } from "@/core/pages/dasboard/components/Header";
 import { QuestionType } from "@/server/types/questions";
 import { useToast } from "@/hooks/use-toast";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useAnimation } from "framer-motion";
 
 export function CourseSessionIDPage() {
   const router = useRouter();
@@ -37,15 +36,19 @@ export function CourseSessionIDPage() {
   const [lives, setLives] = useState(3);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(30); // 30 seconds timer
+  const [timeLeft, setTimeLeft] = useState(30);
   const { toast } = useToast();
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingNext, setIsLoadingNext] = useState(false);
+  const correctAnimationControls = useAnimation();
 
-  const { data: courseSessionData } = trpc.course.getCourseSessionId.useQuery({
-    accessToken: accessToken || "",
-    courseSessionId: courseSessionId as string,
-  });
+  const { data: courseSessionData, refetch: refetchCourseSession } =
+    trpc.course.getCourseSessionId.useQuery({
+      accessToken: accessToken || "",
+      courseSessionId: courseSessionId as string,
+      enabled: !isLoadingNext,
+    });
 
   useEffect(() => {
     if (!isAnswered && timeLeft > 0) {
@@ -56,28 +59,32 @@ export function CourseSessionIDPage() {
     }
   }, [timeLeft, isAnswered]);
 
-  const { mutate: postSubmitAnswer } = trpc.course.postSubmitAnswer.useMutation({
-    onSuccess(data) {
-      setIsSubmitting(false);
-      setIsCorrect(data.data?.isCorrect || null);
-      setIsAnswered(true);
-      if (data.data?.isCorrect) {
-        playSound("correct");
-      } else {
-        setLives((prev) => Math.max(0, prev - 1));
-        setSuggestion(data.data?.suggestion || null);
-        playSound("incorrect");
-      }
-    },
-    onError(error) {
-      setIsSubmitting(false);
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
+  const { mutate: postSubmitAnswer, isPending: isPostSubmitAnswerPending } =
+    trpc.course.postSubmitAnswer.useMutation({
+      onSuccess(data) {
+        setIsSubmitting(false);
+        setIsCorrect(data.data?.isCorrect || null);
+        setIsAnswered(true);
+        if (data.data?.isCorrect) {
+          playSound("correct");
+          correctAnimationControls.start({ scale: 1.1, transition: { duration: 0.2 } });
+          correctAnimationControls.start({ scale: 1, transition: { duration: 0.2, delay: 0.2 } });
+        } else {
+          setLives((prev) => Math.max(0, prev - 1));
+          setSuggestion(data.data?.suggestion || null);
+          playSound("incorrect");
+          setIsAnswered(false); // Allow re-answering if wrong
+        }
+      },
+      onError(error) {
+        setIsSubmitting(false);
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      },
+    });
 
   const playSound = (type: "correct" | "incorrect") => {
     const audio = new Audio(`/sounds/${type}.mp3`);
@@ -86,7 +93,7 @@ export function CourseSessionIDPage() {
 
   const questionData = courseSessionData?.data;
 
-  const handleSubmitAnswer = () => {
+  const handleSubmitAnswer = async () => {
     if (!isAnswered) {
       setIsSubmitting(true);
       let answer: string | null = null;
@@ -112,8 +119,12 @@ export function CourseSessionIDPage() {
         });
       }
     } else if (isCorrect) {
-      resetState();
-      router.refresh();
+      setIsLoadingNext(true);
+      setTimeout(async () => {
+        await refetchCourseSession();
+        resetState();
+        setIsLoadingNext(false);
+      }, 1000);
     }
   };
 
@@ -149,17 +160,16 @@ export function CourseSessionIDPage() {
                         : "default"
                       : "outline"
                   }
-                  className={`w-full h-16 text-lg font-medium transition-all ${
-                    isAnswered
-                      ? selectedAnswer === answer
-                        ? isCorrect
-                          ? "bg-green-600 hover:bg-green-600"
-                          : "bg-red-600 hover:bg-red-600"
-                        : "bg-slate-800 hover:bg-slate-800"
-                      : "hover:bg-slate-800"
-                  }`}
+                  className={`w-full h-16 text-lg font-medium transition-all ${isAnswered
+                    ? selectedAnswer === answer
+                      ? isCorrect
+                        ? "bg-green-600 hover:bg-green-600"
+                        : "bg-red-600 hover:bg-red-600"
+                      : "bg-slate-800 hover:bg-slate-800"
+                    : "hover:bg-slate-800"
+                    }`}
                   onClick={() => !isAnswered && setSelectedAnswer(answer)}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isAnswered}
                 >
                   {answer}
                 </Button>
@@ -171,6 +181,7 @@ export function CourseSessionIDPage() {
       case QuestionType.ESSAY:
         return (
           <div className="space-y-4">
+            <p className="text-slate-400 italic text-sm">Question Type: Essay</p>
             <Textarea
               value={textAnswer}
               onChange={(e) => setTextAnswer(e.target.value)}
@@ -187,7 +198,33 @@ export function CourseSessionIDPage() {
           </div>
         );
 
-      // Add other cases for FILL_IN and VOICE...
+      case QuestionType.FILL_IN:
+        return (
+          <div className="space-y-4">
+            <p className="text-slate-400 italic text-sm">Question Type: Fill In</p>
+            <div className="flex items-center gap-2">
+              <span className="text-lg text-slate-200">
+                {questionData.question.question.text.split("__")[0]}
+              </span>
+              <Input
+                value={textAnswer}
+                onChange={(e) => setTextAnswer(e.target.value)}
+                placeholder="Fill in the blank..."
+                className="w-32 bg-slate-900 border-slate-700 text-lg text-slate-200"
+                disabled={isAnswered}
+              />
+              <span className="text-lg text-slate-200">
+                {questionData.question.question.text.split("__")[1]}
+              </span>
+            </div>
+            {suggestion && isAnswered && (
+              <Alert className="bg-blue-900/50 border-blue-500 text-slate-200">
+                <AlignJustify className="w-4 h-4 text-blue-400" />
+                <AlertDescription>{suggestion}</AlertDescription>
+              </Alert>
+            )}
+          </div>
+        );
 
       default:
         return null;
@@ -227,7 +264,7 @@ export function CourseSessionIDPage() {
                 size="icon"
                 onClick={resetState}
                 className="hover:bg-slate-800"
-                disabled={!isAnswered}
+                disabled={(!isAnswered && !isLoadingNext) || isSubmitting}
               >
                 <Undo2 className="w-6 h-6 text-slate-400" />
               </Button>
@@ -242,13 +279,11 @@ export function CourseSessionIDPage() {
                       initial={{ scale: 1 }}
                       animate={{ scale: i < lives ? 1 : 0.8 }}
                       exit={{ scale: 0 }}
+                      transition={{ type: "spring", stiffness: 260, damping: 20 }}
                     >
                       <Heart
-                        className={`w-6 h-6 transition-colors ${
-                          i < lives
-                            ? "text-red-500"
-                            : "text-slate-700"
-                        }`}
+                        className={`w-6 h-6 transition-colors ${i < lives ? "text-red-500" : "text-slate-700"
+                          }`}
                         fill={i < lives ? "currentColor" : "none"}
                       />
                     </motion.div>
@@ -282,7 +317,7 @@ export function CourseSessionIDPage() {
                   <Volume2 className="w-6 h-6 text-blue-400" />
                 </Button>
                 <h2 className="text-2xl font-semibold text-slate-200">
-                  {questionData.question.question.text}
+                  {questionData?.question.question.text}
                 </h2>
               </div>
 
@@ -292,33 +327,34 @@ export function CourseSessionIDPage() {
             <AnimatePresence>
               {isAnswered && (
                 <motion.div
+                  key="answer-feedback"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
                 >
                   <Alert
-                    className={`${
-                      isCorrect === null
-                        ? "bg-yellow-900/50"
-                        : isCorrect
+                    className={`${isCorrect === null && isPostSubmitAnswerPending
+                      ? "bg-yellow-900/50"
+                      : isCorrect === true && !isPostSubmitAnswerPending
                         ? "bg-green-900/50"
                         : "bg-red-900/50"
-                    } border-none`}
+                      } border-none`}
                   >
                     <div className="flex items-center gap-2">
-                      {isCorrect === null ? (
+                      {isCorrect === null && isPostSubmitAnswerPending ? (
                         <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-yellow-500" />
-                      ) : isCorrect ? (
+                      ) : isCorrect === true && !isPostSubmitAnswerPending ? (
                         <CheckCircle2 className="w-5 h-5 text-green-400" />
                       ) : (
                         <XCircle className="w-5 h-5 text-red-400" />
                       )}
                       <AlertDescription className="text-lg text-slate-200">
-                        {isCorrect === null
+                        {isCorrect === null && isPostSubmitAnswerPending
                           ? "Checking your answer..."
-                          : isCorrect
-                          ? "Great job! That's correct!"
-                          : "Not quite right. Try again!"}
+                          : isCorrect === true && !isPostSubmitAnswerPending
+                            ? "Awesome! You got it right!"
+                            : "Not quite. Keep trying!"}
                       </AlertDescription>
                     </div>
                   </Alert>
@@ -326,20 +362,24 @@ export function CourseSessionIDPage() {
               )}
             </AnimatePresence>
 
-            <Button
-              className="w-full py-6 text-lg font-semibold bg-blue-600 hover:bg-blue-700"
-              disabled={
-                (!selectedAnswer && !textAnswer && !isSubmitting) ||
-                (isAnswered && !isCorrect)
-              }
-              onClick={handleSubmitAnswer}
-            >
-              {isSubmitting
-                ? "Checking..."
-                : isAnswered
-                ? "Continue"
-                : "Check Answer"}
-            </Button>
+            <motion.div animate={correctAnimationControls}>
+              <Button
+                className="w-full py-6 text-lg font-semibold bg-blue-600 hover:bg-blue-700"
+                disabled={
+                  (!selectedAnswer && !textAnswer && !isSubmitting) ||
+                  isLoadingNext
+                }
+                onClick={handleSubmitAnswer}
+              >
+                {isSubmitting
+                  ? "Checking..."
+                  : isAnswered
+                    ? isLoadingNext
+                      ? "Loading Next..."
+                      : "Continue"
+                    : "Check Answer"}
+              </Button>
+            </motion.div>
           </motion.div>
         </div>
       </main>
