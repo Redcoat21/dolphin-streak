@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuthStore } from "@/core/stores/authStore";
 import { trpc } from "@/utils/trpc";
 import { useParams, useRouter } from "next/navigation";
@@ -14,6 +14,7 @@ import { Header } from "@/core/pages/dasboard/components/Header";
 import { QuestionType } from "@/server/types/questions";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { VoiceRecorder } from "./components/voice-recorder";
 
 export function CourseSessionIDPage() {
     const router = useRouter();
@@ -25,8 +26,11 @@ export function CourseSessionIDPage() {
     // UI states
     const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
     const [textAnswer, setTextAnswer] = useState("");
+    // Use an object to store answers for fill-in-the-blank questions
+    const [fillInAnswers, setFillInAnswers] = useState<{ [key: string]: string }>({});
     const [isAnswered, setIsAnswered] = useState(false);
     const [lives, setLives] = useState(3);
+
 
     /**
      * We treat isCorrect as:
@@ -38,12 +42,14 @@ export function CourseSessionIDPage() {
     const [timeLeft, setTimeLeft] = useState(30); // 30 seconds timer
     const { toast } = useToast();
     const [suggestion, setSuggestion] = useState<string | null>(null);
+    const [recordedAudio, setRecordedAudio] = useState<Blob | null>(null);
 
     // Fetch session data
     const { data: courseSessionData, refetch } = trpc.course.getCourseSessionId.useQuery({
         accessToken: accessToken || "",
         courseSessionId: courseSessionId as string
     });
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     // Decrement timer if question not answered
     useEffect(() => {
@@ -91,7 +97,7 @@ export function CourseSessionIDPage() {
     const questionData = courseSessionData?.data;
 
     // Try to submit or reset answer
-    const handleSubmitAnswer = () => {
+    const handleSubmitAnswer = async () => {
         // If not answered yet, try to answer
         if (!isAnswered) {
             setIsAnswered(true);
@@ -102,11 +108,39 @@ export function CourseSessionIDPage() {
                     answer = selectedAnswer;
                     break;
                 case QuestionType.ESSAY:
-                case QuestionType.FILL_IN:
                     answer = textAnswer;
+                    break;
+                case QuestionType.FILL_IN:
+                    // Convert fillInAnswers object to a string, e.g., "answer1,answer2"
+                    answer = Object.values(fillInAnswers).join(",");
                     break;
                 case QuestionType.VOICE:
                     // Handle voice recording
+                    if (recordedAudio) {
+                        //   const formData = new FormData();
+                        //   formData.append('audio', recordedAudio, 'recording.webm'); // You can set the filename here
+                        //   console.log(formData);
+                        //   try {
+                        //     const response = await fetch('/api/upload-audio', {
+                        //       method: 'POST',
+                        //       body: formData
+                        //     });
+                        //     if (response.ok) {
+                        //       const data = await response.json();
+                        //       answer = data.url;
+                        //     } else {
+                        //       throw new Error("Failed to upload audio")
+                        //     }
+                        //   } catch (error) {
+                        //     toast({
+                        //       title: 'Error',
+                        //       description: (error as Error).message,
+                        //       variant: "destructive"
+                        //     });
+                        //   }
+                        answer = "recorded_audio"
+                    }
+
                     break;
             }
             // Only mutate if we have something
@@ -130,42 +164,47 @@ export function CourseSessionIDPage() {
         setIsAnswered(false);
         setSuggestion(null);
         setTimeLeft(30);
+        setFillInAnswers({});
+        setRecordedAudio(null);
         refetch();
     };
 
     // Fill in the blank UI
     const renderFillInBlank = (text: string) => {
         // Split on `__` placeholder
-        const parts = text.split("__");
+        const parts = text.split(/(__)/);
         if (parts.length === 1) {
             // No blank to fill in, fallback
-            return <p>{text}</p>;
+            return <p className="text-slate-200">{text}</p>;
         }
+
+        let inputIndex = 0;
         return (
-            <div className="space-y-2">
-                <div className="flex flex-wrap items-center gap-2 text-lg">
-                    {parts.map((part, i) => {
-                        // Insert input for everything except last chunk
-                        if (i < parts.length - 1) {
-                            return (
-                                <React.Fragment key={i}>
-                                    <span>{part}</span>
-                                    <Input
-                                        value={textAnswer}
-                                        onChange={(e) => setTextAnswer(e.target.value)}
-                                        className="w-40 bg-slate-900 text-lg caret-blue-400"
-                                        disabled={isAnswered}
-                                    />
-                                </React.Fragment>
-                            );
-                        }
-                        // Last chunk
-                        return <span key={i}>{part}</span>;
-                    })}
-                </div>
+            <div className="flex flex-wrap items-center gap-2 text-lg">
+                {parts.map((part, i) => {
+                    if (part === "__") {
+                        const currentInputIndex = inputIndex++;
+                        return (
+                            <Input
+                                key={`input-${currentInputIndex}`}
+                                value={fillInAnswers[currentInputIndex || ""]}
+                                onChange={(e) => {
+                                    setFillInAnswers(prev => ({
+                                        ...prev,
+                                        [currentInputIndex]: e.target.value
+                                    }))
+                                }}
+                                className="w-40 bg-slate-900 text-lg caret-blue-400 text-slate-200"
+                                disabled={isAnswered}
+                            />
+                        );
+                    }
+                    return <span key={i} className="text-slate-200">{part}</span>;
+                })}
             </div>
         );
     };
+
 
     // Render different question types
     const renderQuestionContent = () => {
@@ -184,15 +223,14 @@ export function CourseSessionIDPage() {
                             >
                                 <Button
                                     variant={selectedAnswer === answer ? "default" : "outline"}
-                                    className={`w-full h-16 text-lg font-medium transition-all ${
-                                        isAnswered
-                                            ? selectedAnswer === answer
-                                                ? isCorrect === true
-                                                    ? "bg-green-600 hover:bg-green-600"
-                                                    : "bg-red-600 hover:bg-red-600"
-                                                : "bg-slate-800 hover:bg-slate-800"
-                                            : "hover:bg-slate-800"
-                                    }`}
+                                    className={`w-full h-16 text-lg font-medium transition-all ${isAnswered
+                                        ? selectedAnswer === answer
+                                            ? isCorrect === true
+                                                ? "bg-green-600 hover:bg-green-600 text-slate-200"
+                                                : "bg-red-600 hover:bg-red-600 text-slate-200"
+                                            : "bg-slate-800 hover:bg-slate-800 text-slate-200"
+                                        : "hover:bg-slate-800 text-slate-200"
+                                        }`}
                                     onClick={() => !isAnswered && setSelectedAnswer(answer)}
                                     disabled={isPostSubmitAnswerPending || isAnswered}
                                 >
@@ -210,13 +248,13 @@ export function CourseSessionIDPage() {
                             value={textAnswer}
                             onChange={(e) => setTextAnswer(e.target.value)}
                             placeholder="Write your essay here..."
-                            className="min-h-[200px] bg-slate-900 border-slate-700 text-lg"
+                            className="min-h-[200px] bg-slate-900 border-slate-700 text-lg text-slate-200"
                             disabled={isAnswered}
                         />
                         {suggestion && isAnswered && (
                             <Alert className="bg-blue-900/50 border-blue-500">
                                 <AlignJustify className="w-4 h-4 text-blue-400" />
-                                <AlertDescription>{suggestion}</AlertDescription>
+                                <AlertDescription className="text-slate-200">{suggestion}</AlertDescription>
                             </Alert>
                         )}
                     </div>
@@ -228,12 +266,29 @@ export function CourseSessionIDPage() {
                         {renderFillInBlank(questionData.question.question.text)}
                     </div>
                 );
-
+            case QuestionType.VOICE:
+                return (
+                    <div className="space-y-4">
+                        <p className="text-slate-200 mb-4">{questionData.question.question.text}</p>
+                        <VoiceRecorder onRecordingComplete={(blob) => {
+                            setRecordedAudio(blob)
+                        }} />
+                        {recordedAudio && (
+                            <div className="mt-4">
+                                <audio controls ref={audioRef}>
+                                    <source src={URL.createObjectURL(recordedAudio)} type="audio/webm" />
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </div>
+                        )}
+                    </div>
+                );
             // Add other cases for VOICE, WRITING, etc. if needed
             default:
                 return null;
         }
     };
+
 
     // If no question data, show loader
     if (!questionData) {
@@ -314,7 +369,13 @@ export function CourseSessionIDPage() {
     // Decide button disabled
     const isButtonDisabled = (() => {
         // If we haven't selected or typed anything and haven't answered => disable
-        if (!selectedAnswer && !textAnswer && !isAnswered) {
+        if (
+            !selectedAnswer &&
+            !textAnswer &&
+            Object.keys(fillInAnswers).length === 0 &&
+            !isAnswered &&
+            !recordedAudio
+        ) {
             return true;
         }
         // If pending => disable
@@ -327,7 +388,7 @@ export function CourseSessionIDPage() {
     return (
         <Container>
             <Header currentPath="/course-session" />
-            
+
             <main className="min-h-screen bg-slate-950 text-white pt-24 pb-8 px-4">
                 <div className="max-w-3xl mx-auto">
                     {/* Top bar with back, lives, timer, progress */}
@@ -353,31 +414,31 @@ export function CourseSessionIDPage() {
                                             exit={{ scale: 0 }}
                                         >
                                             <Heart
-                                                className={`w-6 h-6 transition-colors ${
-                                                    i < lives ? "text-red-500" : "text-slate-700"
-                                                }`}
+                                                className={`w-6 h-6 transition-colors ${i < lives ? "text-red-500" : "text-slate-700"
+                                                    }`}
                                                 fill={i < lives ? "currentColor" : "none"}
                                             />
                                         </motion.div>
                                     ))}
                                 </AnimatePresence>
                             </div>
-                            
+
                             {/* Timer */}
                             <div className="flex items-center gap-2">
                                 <Timer className="w-5 h-5 text-blue-400" />
-                                <span className="text-lg font-medium">{timeLeft}s</span>
+                                <span className="text-lg font-medium text-slate-200">{timeLeft}s</span>
                             </div>
 
                             {/* Progress bar */}
                             <div className="w-32">
-                                <Progress 
-                                    value={progressPercentage} 
+                                <Progress
+                                    value={progressPercentage}
                                     className="h-2.5 bg-slate-700"
                                 />
                             </div>
                         </div>
                     </div>
+
 
                     {/* Question card */}
                     <motion.div
@@ -394,9 +455,9 @@ export function CourseSessionIDPage() {
                                 >
                                     <Volume2 className="w-6 h-6 text-blue-400" />
                                 </Button>
-                                <h2 className="text-2xl font-semibold text-slate-200">
-                                    {questionData.question.question.text}
-                                </h2>
+                                {questionData.question.questionType !== QuestionType.FILL_IN && <h2 className="text-2xl font-semibold text-slate-200">
+                                    {questionData?.question.question.text}
+                                </h2>}
                             </div>
 
                             {renderQuestionContent()}
@@ -413,7 +474,7 @@ export function CourseSessionIDPage() {
                                     <Alert className={`${alertBgClass} border-none`}>
                                         <div className="flex items-center gap-2">
                                             {alertIcon}
-                                            <AlertDescription className="text-lg">
+                                            <AlertDescription className="text-lg text-slate-200">
                                                 {alertMessage}
                                             </AlertDescription>
                                         </div>
@@ -424,7 +485,7 @@ export function CourseSessionIDPage() {
 
                         {/* Submit / Re-try / Continue button */}
                         <Button
-                            className="w-full py-6 text-lg font-semibold bg-blue-600 hover:bg-blue-700"
+                            className="w-full py-6 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-slate-200"
                             disabled={isButtonDisabled}
                             onClick={handleSubmitAnswer}
                         >
@@ -435,4 +496,4 @@ export function CourseSessionIDPage() {
             </main>
         </Container>
     );
-}
+}   
