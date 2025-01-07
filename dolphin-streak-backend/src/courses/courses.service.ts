@@ -120,6 +120,7 @@ export class CoursesService {
 
   async assessAnswer(question: Question, answer: string, accessToken: string): Promise<any> {
     const qtype = QuestionType[question.type]
+    console.log(qtype);
         
     if(qtype == "MULTIPLE_CHOICE"){
       const answerIdx = parseInt(question.correctAnswer as string, 10)
@@ -181,6 +182,12 @@ export class CoursesService {
         throw new Error('Failed to call API');
       }
 
+    }
+    else if(qtype == "VOICE"){
+      return true
+    }
+    else if(qtype == "WRITING"){
+      return true
     }
 
     return { suggestion: null, isCorrect: false };
