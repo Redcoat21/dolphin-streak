@@ -1,22 +1,19 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { QuestionType } from "@/server/types/questions";
 import { IQuestionTypeComponent } from "./types";
+import { TQuestion } from "@/server/types/questions";
 
 interface MultipleChoicePageProps extends IQuestionTypeComponent {
-    questionData: any; // Replace `any` with the correct type
+    questionData: { question: TQuestion, questionIndex: number, totalQuestions: number };
+    setSelectedAnswer: (answer: string | null) => void;
+    selectedAnswer: string | null;
+    lives: number;
+    timeLeft: number;
 }
 
-export default function MultipleChoicePage({ questionData, onSubmit }: MultipleChoicePageProps) {
-    const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-    const [isAnswered, setIsAnswered] = useState(false);
-    const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+export default function MultipleChoicePage({ questionData, setSelectedAnswer, selectedAnswer, lives, timeLeft }: MultipleChoicePageProps) {
 
-    const handleSubmitAnswer = () => {
-        setIsAnswered(true);
-        // Add logic to check if the answer is correct
-    };
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -29,24 +26,16 @@ export default function MultipleChoicePage({ questionData, onSubmit }: MultipleC
                 >
                     <Button
                         variant={selectedAnswer === answer ? "default" : "outline"}
-                        className={`w-full h-16 text-lg font-medium transition-all ${isAnswered
-                            ? selectedAnswer === answer
-                                ? isCorrect === true
-                                    ? "bg-green-600 hover:bg-green-600 text-slate-200"
-                                    : "bg-red-600 hover:bg-red-600 text-slate-200"
-                                : "bg-slate-800 hover:bg-slate-800 text-slate-200"
+                        className={`w-full h-16 text-lg font-medium transition-all ${selectedAnswer === answer
+                            ? "bg-blue-600 hover:bg-blue-700 text-slate-200"
                             : "hover:bg-slate-800 hover:text-slate-100"
                             }`}
-                        onClick={() => !isAnswered && setSelectedAnswer(answer)}
-                        disabled={isAnswered}
+                        onClick={() => setSelectedAnswer(answer)}
                     >
                         {answer}
                     </Button>
                 </motion.div>
             ))}
-            <Button onClick={handleSubmitAnswer} disabled={!selectedAnswer || isAnswered}>
-                Submit
-            </Button>
         </div>
     );
 }

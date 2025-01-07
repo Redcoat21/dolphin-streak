@@ -1,3 +1,5 @@
 export interface IQuestionTypeComponent {
-    onSubmit: () => void;
+    onSubmit: (answer: string | null) => void;
+    lives: number;
+    timeLeft: number;
 }

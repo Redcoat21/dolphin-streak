@@ -2,14 +2,18 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { IQuestionTypeComponent } from "./types";
+import { TQuestion } from "@/server/types/questions";
 
 interface FillInPageProps extends IQuestionTypeComponent {
-    questionData: any; // Replace `any` with the correct type
+    questionData: { question: TQuestion, questionIndex: number, totalQuestions: number };
+    setFillInAnswers: (answers: { [key: string]: string }) => void;
+    fillInAnswers: { [key: string]: string };
+    lives: number;
+    timeLeft: number;
 }
 
-export default function FillInPage({ questionData, onSubmit }: FillInPageProps) {
-    const [fillInAnswers, setFillInAnswers] = useState<{ [key: string]: string }>({});
-    const [isAnswered, setIsAnswered] = useState(false);
+export default function FillInPage({ questionData, setFillInAnswers, fillInAnswers, lives, timeLeft }: FillInPageProps) {
+
 
     const renderFillInBlank = (text: string) => {
         const parts = text.split(/(__)/);
@@ -26,7 +30,7 @@ export default function FillInPage({ questionData, onSubmit }: FillInPageProps) 
                         return (
                             <Input
                                 key={`input-${currentInputIndex}`}
-                                value={fillInAnswers[currentInputIndex || ""]}
+                                value={fillInAnswers[currentInputIndex] || ""}
                                 onChange={(e) => {
                                     setFillInAnswers((prev) => ({
                                         ...prev,
@@ -34,7 +38,6 @@ export default function FillInPage({ questionData, onSubmit }: FillInPageProps) 
                                     }));
                                 }}
                                 className="w-40 bg-slate-900 text-lg caret-blue-400 text-slate-200"
-                                disabled={isAnswered}
                             />
                         );
                     }
@@ -44,17 +47,10 @@ export default function FillInPage({ questionData, onSubmit }: FillInPageProps) 
         );
     };
 
-    const handleSubmitAnswer = () => {
-        setIsAnswered(true);
-        // Add logic to check the answers
-    };
 
     return (
         <div className="space-y-4">
             {renderFillInBlank(questionData.question.question.text)}
-            <Button onClick={handleSubmitAnswer} disabled={isAnswered}>
-                Submit
-            </Button>
         </div>
     );
 }

@@ -371,476 +371,316 @@ function getRandomCourseId(courseIds: string[]): string {
     return courseIds[randomIndex];
 }
 
-async function seedQuestions(courseIds: string[]): Promise<void> {
+async function seedQuestions(courseIds: string[], languageIds: string[]): Promise<void> {
     console.log('Seeding questions...');
-    const levels = await Level.find();
 
-    const questions = levels.flatMap(level => {
-        return [
-            // MULTIPLE_CHOICE
-            {
-                question: { type: 'text', text: 'Apa bahasa inggrisnya makan?' },
-                type: QuestionType.MULTIPLE_CHOICE,
-                answerOptions: ['Eat', 'Sleep', 'Drink', 'Play'],
-                correctAnswer: '0',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'What is the capital of Spain?' },
-                type: QuestionType.MULTIPLE_CHOICE,
-                answerOptions: ['Madrid', 'Barcelona', 'Seville', 'Valencia'],
-                correctAnswer: '0',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Which planet is known as the Red Planet?' },
-                type: QuestionType.MULTIPLE_CHOICE,
-                answerOptions: ['Mars', 'Venus', 'Jupiter', 'Saturn'],
-                correctAnswer: '0',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Who painted the Mona Lisa?' },
-                type: QuestionType.MULTIPLE_CHOICE,
-                answerOptions: ['Leonardo da Vinci', 'Michelangelo', 'Raphael', 'Donatello'],
-                correctAnswer: '0',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'What is 2 + 2?' },
-                type: QuestionType.MULTIPLE_CHOICE,
-                answerOptions: ['3', '4', '5', '6'],
-                correctAnswer: '1',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'The opposite of hot is?' },
-                type: QuestionType.MULTIPLE_CHOICE,
-                answerOptions: ['Cold', 'Warm', 'Dry', 'Wet'],
-                correctAnswer: '0',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'What is the color of the sky?' },
-                type: QuestionType.MULTIPLE_CHOICE,
-                answerOptions: ['Blue', 'Green', 'Red', 'Yellow'],
-                correctAnswer: '0',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'How many days are there in a week?' },
-                type: QuestionType.MULTIPLE_CHOICE,
-                answerOptions: ['7', '5', '6', '8'],
-                correctAnswer: '0',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Which of these is a fruit?' },
-                type: QuestionType.MULTIPLE_CHOICE,
-                answerOptions: ['Potato', 'Carrot', 'Banana', 'Cabbage'],
-                correctAnswer: '2',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'What does a dog say?' },
-                type: QuestionType.MULTIPLE_CHOICE,
-                answerOptions: ['Meow', 'Woof', 'Moo', 'Oink'],
-                correctAnswer: '1',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            // ESSAY
-            {
-                question: { type: 'text', text: 'make an essay about mother\'s day' },
-                type: QuestionType.ESSAY,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Describe the benefits of learning a new language.' },
-                type: QuestionType.ESSAY,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Discuss the importance of environmental conservation.' },
-                type: QuestionType.ESSAY,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Explain the impact of technology on society.' },
-                type: QuestionType.ESSAY,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Reflect on a personal challenge you overcame.' },
-                type: QuestionType.ESSAY,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Write about the future of space exploration.' },
-                type: QuestionType.ESSAY,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Explain how the internet has changed communication.' },
-                type: QuestionType.ESSAY,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'What is the importance of education?' },
-                type: QuestionType.ESSAY,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'How does arts and music change the world?' },
-                type: QuestionType.ESSAY,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Write about a book that inspired you?' },
-                type: QuestionType.ESSAY,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            // FILL_IN
-            {
-                question: { type: 'text', text: '__ you like this apple?' },
-                type: QuestionType.FILL_IN,
-                answerOptions: null,
-                correctAnswer: 'do',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'I __ going to the store' },
-                type: QuestionType.FILL_IN,
-                answerOptions: null,
-                correctAnswer: 'am',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'They __ playing football now' },
-                type: QuestionType.FILL_IN,
-                answerOptions: null,
-                correctAnswer: 'are',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'She __ a doctor' },
-                type: QuestionType.FILL_IN,
-                answerOptions: null,
-                correctAnswer: 'is',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'We __ tired yesterday' },
-                type: QuestionType.FILL_IN,
-                answerOptions: null,
-                correctAnswer: 'were',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'I will __ to the beach' },
-                type: QuestionType.FILL_IN,
-                answerOptions: null,
-                correctAnswer: 'go',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'He __ his keys' },
-                type: QuestionType.FILL_IN,
-                answerOptions: null,
-                correctAnswer: 'lost',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'They __ arrived at noon' },
-                type: QuestionType.FILL_IN,
-                answerOptions: null,
-                correctAnswer: 'have',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'She __ a nice dress' },
-                type: QuestionType.FILL_IN,
-                answerOptions: null,
-                correctAnswer: 'has',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'We __ seen the movie' },
-                type: QuestionType.FILL_IN,
-                answerOptions: null,
-                correctAnswer: 'have',
-                useAi: false,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            // VOICE
-            {
-                question: { type: 'voice', text: 'How are you?', voice: 'link_to_voice_1' },
-                type: QuestionType.VOICE,
-                answerOptions: null,
-                correctAnswer: 'how are you?',
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'voice', text: 'Good morning', voice: 'link_to_voice_2' },
-                type: QuestionType.VOICE,
-                answerOptions: null,
-                correctAnswer: 'good morning',
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'voice', text: 'What time is it?', voice: 'link_to_voice_3' },
-                type: QuestionType.VOICE,
-                answerOptions: null,
-                correctAnswer: 'what time is it?',
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'voice', text: 'Thank you', voice: 'link_to_voice_4' },
-                type: QuestionType.VOICE,
-                answerOptions: null,
-                correctAnswer: 'thank you',
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'voice', text: 'Where are you?', voice: 'link_to_voice_5' },
-                type: QuestionType.VOICE,
-                answerOptions: null,
-                correctAnswer: 'where are you?',
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'voice', text: 'I love you', voice: 'link_to_voice_6' },
-                type: QuestionType.VOICE,
-                answerOptions: null,
-                correctAnswer: 'i love you',
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'voice', text: 'See you later', voice: 'link_to_voice_7' },
-                type: QuestionType.VOICE,
-                answerOptions: null,
-                correctAnswer: 'see you later',
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'voice', text: 'Lets go!', voice: 'link_to_voice_8' },
-                type: QuestionType.VOICE,
-                answerOptions: null,
-                correctAnswer: 'lets go!',
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'voice', text: 'Take a walk', voice: 'link_to_voice_9' },
-                type: QuestionType.VOICE,
-                answerOptions: null,
-                correctAnswer: 'take a walk',
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'voice', text: 'Have a good day', voice: 'link_to_voice_10' },
-                type: QuestionType.VOICE,
-                answerOptions: null,
-                correctAnswer: 'have a good day',
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            // WRITING
-            {
-                question: { type: 'text', text: 'Write a short story about a cat' },
-                type: QuestionType.WRITING,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Write a letter to your future self' },
-                type: QuestionType.WRITING,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Write a paragraph about your favorite food' },
-                type: QuestionType.WRITING,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Write a review about a movie you watched' },
-                type: QuestionType.WRITING,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Write a journal entry about your day' },
-                type: QuestionType.WRITING,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Write about a person you admire' },
-                type: QuestionType.WRITING,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Describe a place you\'d like to visit' },
-                type: QuestionType.WRITING,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Write a poem about nature' },
-                type: QuestionType.WRITING,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Write about a memorable event' },
-                type: QuestionType.WRITING,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            },
-            {
-                question: { type: 'text', text: 'Write a how-to guide about a skill you have' },
-                type: QuestionType.WRITING,
-                answerOptions: null,
-                correctAnswer: null,
-                useAi: true,
-                courses: [getRandomCourseId(courseIds)],
-                level: level._id,
-            }
-        ];
-    });
+    for (const languageId of languageIds) {
+        const levels = await Level.find({ language: languageId });
+        const courses = await Course.find({ language: languageId });
+        const language = await Language.findById(languageId);
 
-    for (const question of questions) {
-        await Question.updateOne(
-            { 'question.type.text': question.question.text, level: question.level },
-            question,
-            { upsert: true }
-        );
+        if (!language) {
+            console.error(`Language not found for ID: ${languageId}`);
+            continue;
+        }
+
+        const multipleChoiceLevel = levels.find(level => level.name === 'Beginner');
+        const essayLevel = levels.find(level => level.name === 'Intermediate');
+        const fillInLevel = levels.find(level => level.name === 'Advanced');
+        const voiceLevel = levels.find(level => level.name === 'Beginner');
+        const writingLevel = levels.find(level => level.name === 'Intermediate');
+
+        if (!multipleChoiceLevel || !essayLevel || !fillInLevel || !voiceLevel || !writingLevel) {
+            console.error(`Could not find all levels for language: ${language.name}`);
+            continue;
+        }
+
+        // Questions based on language
+        const questions = [];
+
+        if (language.name === 'Chinese') {
+            questions.push(
+                // Writing Questions
+                {
+                    question: { type: 'text', text: '写一个关于你最喜欢的季节的短文' },
+                    type: QuestionType.WRITING,
+                    answerOptions: null,
+                    correctAnswer: null,
+                    useAi: true,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: writingLevel._id,
+                },
+                {
+                    question: { type: 'text', text: '描述你的家人' },
+                    type: QuestionType.WRITING,
+                    answerOptions: null,
+                    correctAnswer: null,
+                    useAi: true,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: writingLevel._id,
+                },
+                {
+                    question: { type: 'text', text: '写一篇关于你的梦想的文章' },
+                    type: QuestionType.WRITING,
+                    answerOptions: null,
+                    correctAnswer: null,
+                    useAi: true,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: writingLevel._id,
+                },
+                // Multiple Choice Questions
+                 {
+                    question: { type: 'text', text: '中国的首都是哪里？' },
+                    type: QuestionType.MULTIPLE_CHOICE,
+                    answerOptions: ['北京', '上海', '广州', '深圳'],
+                    correctAnswer: '0',
+                    useAi: false,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: multipleChoiceLevel._id,
+                },
+                {
+                    question: { type: 'text', text: '你好 用中文怎么说？' },
+                    type: QuestionType.MULTIPLE_CHOICE,
+                    answerOptions: ['你好', '再见', '谢谢', '不客气'],
+                    correctAnswer: '0',
+                    useAi: false,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: multipleChoiceLevel._id,
+                },
+                // Fill In Questions
+                {
+                    question: { type: 'text', text: '我 __ 喜欢吃饺子' },
+                    type: QuestionType.FILL_IN,
+                    answerOptions: null,
+                    correctAnswer: ['很'],
+                    useAi: false,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: fillInLevel._id,
+                },
+                 {
+                    question: { type: 'text', text: '他 __ 去了商店' },
+                    type: QuestionType.FILL_IN,
+                    answerOptions: null,
+                    correctAnswer: ['已经'],
+                    useAi: false,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: fillInLevel._id,
+                },
+                // Voice Questions
+                {
+                    question: { type: 'voice', text: '你好', voice: 'link_to_chinese_voice_1' },
+                    type: QuestionType.VOICE,
+                    answerOptions: null,
+                    correctAnswer: '你好',
+                    useAi: true,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: voiceLevel._id,
+                },
+                {
+                    question: { type: 'voice', text: '谢谢', voice: 'link_to_chinese_voice_2' },
+                    type: QuestionType.VOICE,
+                    answerOptions: null,
+                    correctAnswer: '谢谢',
+                    useAi: true,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: voiceLevel._id,
+                },
+            );
+        } else if (language.name === 'Indonesian') {
+             questions.push(
+                // Writing Questions
+                {
+                    question: { type: 'text', text: 'Tulis esai pendek tentang hari ibu' },
+                    type: QuestionType.WRITING,
+                    answerOptions: null,
+                    correctAnswer: null,
+                    useAi: true,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: writingLevel._id,
+                },
+                {
+                    question: { type: 'text', text: 'Jelaskan tentang keluarga kamu' },
+                    type: QuestionType.WRITING,
+                    answerOptions: null,
+                    correctAnswer: null,
+                    useAi: true,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: writingLevel._id,
+                },
+                {
+                    question: { type: 'text', text: 'Tulis tentang impian kamu' },
+                    type: QuestionType.WRITING,
+                    answerOptions: null,
+                    correctAnswer: null,
+                    useAi: true,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: writingLevel._id,
+                },
+                // Multiple Choice Questions
+                {
+                    question: { type: 'text', text: 'Apa ibukota Indonesia?' },
+                    type: QuestionType.MULTIPLE_CHOICE,
+                    answerOptions: ['Jakarta', 'Surabaya', 'Medan', 'Bandung'],
+                    correctAnswer: '0',
+                    useAi: false,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: multipleChoiceLevel._id,
+                },
+                {
+                    question: { type: 'text', text: 'Bahasa Inggrisnya "terima kasih" adalah?' },
+                    type: QuestionType.MULTIPLE_CHOICE,
+                    answerOptions: ['Thank you', 'Sorry', 'Hello', 'Goodbye'],
+                    correctAnswer: '0',
+                    useAi: false,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: multipleChoiceLevel._id,
+                },
+                // Fill In Questions
+                {
+                    question: { type: 'text', text: 'Saya __ pergi ke pasar' },
+                    type: QuestionType.FILL_IN,
+                    answerOptions: null,
+                    correctAnswer: ['akan'],
+                    useAi: false,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: fillInLevel._id,
+                },
+                {
+                    question: { type: 'text', text: 'Dia __ seorang guru' },
+                    type: QuestionType.FILL_IN,
+                    answerOptions: null,
+                    correctAnswer: ['adalah'],
+                    useAi: false,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: fillInLevel._id,
+                },
+                // Voice Questions
+                {
+                    question: { type: 'voice', text: 'Selamat pagi', voice: 'link_to_indonesian_voice_1' },
+                    type: QuestionType.VOICE,
+                    answerOptions: null,
+                    correctAnswer: 'selamat pagi',
+                    useAi: true,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: voiceLevel._id,
+                },
+                {
+                    question: { type: 'voice', text: 'Apa kabar?', voice: 'link_to_indonesian_voice_2' },
+                    type: QuestionType.VOICE,
+                    answerOptions: null,
+                    correctAnswer: 'apa kabar?',
+                    useAi: true,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: voiceLevel._id,
+                },
+            );
+        } else if (language.name === 'English') {
+            questions.push(
+                // Multiple Choice
+                {
+                    question: { type: 'text', text: 'What is the capital of Spain?' },
+                    type: QuestionType.MULTIPLE_CHOICE,
+                    answerOptions: ['Madrid', 'Barcelona', 'Seville', 'Valencia'],
+                    correctAnswer: '0',
+                    useAi: false,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: multipleChoiceLevel._id,
+                },
+                {
+                    question: { type: 'text', text: 'Which planet is known as the Red Planet?' },
+                    type: QuestionType.MULTIPLE_CHOICE,
+                    answerOptions: ['Mars', 'Venus', 'Jupiter', 'Saturn'],
+                    correctAnswer: '0',
+                    useAi: false,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: multipleChoiceLevel._id,
+                },
+                 // ESSAY
+                {
+                    question: { type: 'text', text: 'make an essay about mother\'s day' },
+                    type: QuestionType.ESSAY,
+                    answerOptions: null,
+                    correctAnswer: null,
+                    useAi: true,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: essayLevel._id,
+                },
+                {
+                    question: { type: 'text', text: 'Describe the benefits of learning a new language.' },
+                    type: QuestionType.ESSAY,
+                    answerOptions: null,
+                    correctAnswer: null,
+                    useAi: true,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: essayLevel._id,
+                },
+                // FILL_IN
+                {
+                    question: { type: 'text', text: '__ you like this apple?' },
+                    type: QuestionType.FILL_IN,
+                    answerOptions: null,
+                    correctAnswer: ['do'],
+                    useAi: false,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: fillInLevel._id,
+                },
+                {
+                    question: { type: 'text', text: 'I __ going to the store' },
+                    type: QuestionType.FILL_IN,
+                    answerOptions: null,
+                    correctAnswer: ['am'],
+                    useAi: false,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: fillInLevel._id,
+                },
+                // VOICE
+                 {
+                    question: { type: 'voice', text: 'How are you?', voice: 'link_to_voice_1' },
+                    type: QuestionType.VOICE,
+                    answerOptions: null,
+                    correctAnswer: ['how are you?'],
+                    useAi: true,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: voiceLevel._id,
+                },
+                {
+                    question: { type: 'voice', text: 'Good morning', voice: 'link_to_voice_2' },
+                    type: QuestionType.VOICE,
+                    answerOptions: null,
+                    correctAnswer: 'good morning',
+                    useAi: true,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: voiceLevel._id,
+                },
+                // WRITING
+                {
+                    question: { type: 'text', text: 'Write a short story about a cat' },
+                    type: QuestionType.WRITING,
+                    answerOptions: null,
+                    correctAnswer: null,
+                    useAi: true,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: writingLevel._id,
+                },
+                {
+                    question: { type: 'text', text: 'Write a letter to your future self' },
+                    type: QuestionType.WRITING,
+                    answerOptions: null,
+                    correctAnswer: null,
+                    useAi: true,
+                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    level: writingLevel._id,
+                },
+            );
+        }
+
+        for (const question of questions) {
+            await Question.updateOne(
+                { 'question.text': question.question.text, level: question.level, type: question.type },
+                question,
+                { upsert: true }
+            );
+        }
     }
     console.log('Questions seeded successfully.');
 }
@@ -906,7 +746,7 @@ async function seed(): Promise<void> {
 
         // Seed related content
         await seedForums(userIds);
-        await seedQuestions(courseIds);
+        await seedQuestions(courseIds, languageIds);
         await seedFeedback(userIds);
     } catch (error) {
         console.error('Error seeding data:', error);

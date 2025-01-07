@@ -1,42 +1,79 @@
-import { useState } from "react";
-import { Textarea } from "@/components/ui/textarea";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlignJustify } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { IQuestionTypeComponent } from "./types";
+import { TQuestion } from "@/server/types/questions";
+import HanziWriter from 'hanzi-writer';
 
 interface WritingPageProps extends IQuestionTypeComponent {
-    questionData: any; // Replace `any` with the correct type
+    questionData: { question: TQuestion, questionIndex: number, totalQuestions: number };
+    setTextAnswer: (answer: string) => void;
+    textAnswer: string;
+    lives: number;
+    timeLeft: number;
 }
 
-export default function WritingPage({ questionData, onSubmit }: WritingPageProps) {
-    const [textAnswer, setTextAnswer] = useState("");
-    const [isAnswered, setIsAnswered] = useState(false);
-    const [suggestion, setSuggestion] = useState<string | null>(null);
+export default function WritingPage({ questionData, setTextAnswer, textAnswer, lives, timeLeft }: WritingPageProps) {
+    const writerRef = useRef<HTMLDivElement>(null);
+    const [writer, setWriter] = useState<any>(null);
 
-    const handleSubmitAnswer = () => {
-        setIsAnswered(true);
-        // Add logic to check the writing and set suggestion
+
+    useEffect(() => {
+        if (writerRef.current && questionData.question.question.text) {
+            const newWriter = HanziWriter.create(writerRef.current, questionData.question.question.text, {
+                width: 400,
+                height: 400,
+                padding: 5,
+                showOutline: true,
+                strokeColor: '#FFFFFF',
+                radicalColor: '#FFFFFF',
+                showCharacter: false,
+                
+            });
+            setWriter(newWriter);
+        }
+    }, [questionData.question.question.text]);
+
+    const handleStartDrawing = () => {
+        if (writer) {
+            writer.startQuiz({
+                onComplete: (summaryData: any) => {
+                    setTextAnswer(summaryData.characterTraced);
+                }
+            });
+        }
+    };
+
+
+    const clearCanvas = () => {
+        if (writer) {
+            writer.cancelQuiz();
+            setTextAnswer('');
+        }
     };
 
     return (
         <div className="space-y-4">
-            <Textarea
-                value={textAnswer}
-                onChange={(e) => setTextAnswer(e.target.value)}
-                placeholder="Write your answer here..."
-                className="min-h-[200px] bg-slate-900 border-slate-700 text-lg text-slate-200"
-                disabled={isAnswered}
-            />
-            {suggestion && isAnswered && (
-                <Alert className="bg-blue-900/50 border-blue-500">
-                    <AlignJustify className="w-4 h-4 text-blue-400" />
-                    <AlertDescription className="text-slate-200">{suggestion}</AlertDescription>
-                </Alert>
-            )}
-            <Button onClick={handleSubmitAnswer} disabled={!textAnswer || isAnswered}>
-                Submit
-            </Button>
+            <div className="relative">
+                <div
+                    ref={writerRef}
+                    className="border-2 border-slate-700 rounded-lg bg-slate-900"
+                />
+                <Button
+                    onClick={clearCanvas}
+                    className="absolute top-2 right-2 bg-slate-800 hover:bg-slate-700"
+                >
+                    Clear
+                </Button>
+                <Button
+                    onClick={handleStartDrawing}
+                    className="absolute top-2 left-2 bg-slate-800 hover:bg-slate-700"
+                >
+                    Start
+                </Button>
+            </div>
+            <div className="text-center text-slate-400 text-sm">
+                Write the character in the box above
+            </div>
         </div>
     );
 }

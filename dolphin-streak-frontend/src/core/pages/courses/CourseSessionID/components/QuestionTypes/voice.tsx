@@ -2,19 +2,18 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { IQuestionTypeComponent } from "./types";
 import { VoiceRecorder } from "../voice-recorder";
+import { TQuestion } from "@/server/types/questions";
 
 interface VoicePageProps extends IQuestionTypeComponent {
-    questionData: any; // Replace `any` with the correct type
+    questionData: { question: TQuestion, questionIndex: number, totalQuestions: number };
+    setRecordedAudio: (audio: Blob | null) => void;
+    recordedAudio: Blob | null;
+    lives: number;
+    timeLeft: number;
 }
 
-export default function VoicePage({ questionData, onSubmit }: VoicePageProps) {
-    const [recordedAudio, setRecordedAudio] = useState<Blob | null>(null);
-    const [isAnswered, setIsAnswered] = useState(false);
+export default function VoicePage({ questionData, setRecordedAudio, recordedAudio, lives, timeLeft }: VoicePageProps) {
 
-    const handleSubmitAnswer = () => {
-        setIsAnswered(true);
-        // Add logic to handle the recorded audio
-    };
 
     return (
         <div className="space-y-4">
@@ -28,9 +27,6 @@ export default function VoicePage({ questionData, onSubmit }: VoicePageProps) {
                     </audio>
                 </div>
             )}
-            <Button onClick={handleSubmitAnswer} disabled={!recordedAudio || isAnswered}>
-                Submit
-            </Button>
         </div>
     );
 }
