@@ -30,6 +30,7 @@ import { Role } from "src/users/schemas/user.schema";
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
@@ -428,7 +429,7 @@ export class CoursesController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(BearerTokenGuard, RoleGuard)
   @HasRoles(Role.USER, Role.ADMIN)
-  @ApiOperation({ summary: "Start a question session for a specific course" })
+  @ApiOperation({ summary: "Mark a question to be answered" })
   @ApiOkResponse({
     description: "Session started successfully",
     schema: {
@@ -557,6 +558,20 @@ export class CoursesController {
   @ApiOperation({
     summary: 'submit answer based on the current question',
     description: 'submitting the answer based on the current question',
+  })
+  @ApiBody({
+    description: 'Answer to the current question',
+    schema: {
+      type: 'object',
+      properties: {
+        answer: {
+          type: 'string',
+          example: 'Your answer here',
+          description: 'The answer to the current question',
+        },
+      },
+      required: ['answer'],
+    },
   })
   @ApiOkResponse({
     description: "Answer is assessed successfully",
