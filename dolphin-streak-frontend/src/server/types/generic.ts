@@ -11,3 +11,9 @@ export type Prettify<T> = {
 export function isDefaultResponse<T>(response: unknown): response is TDefaultResponse<T> {
     return typeof response === 'object' && response !== null && 'data' in response;
 }
+
+export type TAnswerResult = {
+    suggestion: string | null;
+    isCorrect: boolean;
+    isLatest: boolean;
+};

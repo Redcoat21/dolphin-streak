@@ -1,6 +1,6 @@
 import { z } from "zod";
-import type { TDefaultResponse } from "./generic";
-import { QuestionType } from "./questions";
+import type { TAnswerResult, TDefaultResponse } from "./generic";
+import { QuestionType, TQuestion } from "./questions";
 
 // Schema for a single course level
 export const ZCourseLevel = z.object({
@@ -69,7 +69,6 @@ export function isCourseType(value: number): value is CourseType {
   return Object.values(CourseType).includes(value);
 }
 
-
 export type TStartCourseSessionResponse = TDefaultResponse<{
   "sessionId": string,
   "expiresAt": "2025-01-04T17:44:43.638Z",
@@ -79,14 +78,6 @@ export const ZGetCourseSessionIdRequest = z.object({
   courseSessionId: z.string(),
 });
 
-type TQuestion = {
-  question: {
-    type: string;
-    text: string;
-  };
-  answerOptions: string[];
-  questionType: QuestionType;
-};
 export type TCourseSessionData = {
   question: TQuestion;
   totalQuestion: number;
@@ -102,11 +93,5 @@ export const ZPostSubmitAnswerRequest = z.object({
   answer: z.string(),
   questionType: z.nativeEnum(QuestionType)
 })
-
-export type TAnswerResult = {
-  suggestion: string | null;
-  isCorrect: boolean;
-  isLatest: boolean;
-};
 
 export type TSubmitAnswerResponse = TDefaultResponse<TAnswerResult>;

@@ -26,14 +26,12 @@ export const ZSubmitAnswerRequest = z.object({
 });
 export type TSubmitAnswerRequest = z.infer<typeof ZSubmitAnswerRequest>;
 
-
 export const ZNextQuestionInput = z.object({
     sessionId: z.string(),
     currentQuestionIndex: z.number(),
     accessToken: z.string(),
 });
 export type TNextQuestionInput = z.infer<typeof ZNextQuestionInput>;
-
 
 export const ZStartSessionRequest = z.object({
     levelId: z.string(),
@@ -42,7 +40,10 @@ export const ZStartSessionRequest = z.object({
 export type TStartSessionRequest = z.infer<typeof ZStartSessionRequest>;
 
 export type TQuestion = {
-    question: { type: string, text: string };
+    question: {
+        type: string;
+        text: string;
+    };
     _id: string;
     __v: number;
     answerOptions: string[];
@@ -60,7 +61,6 @@ export type TQuestion = {
     useAi: boolean;
 };
 
-
 export type TQuestionResponse = TDefaultResponse<{
     question: TQuestion;
 }>;
@@ -69,10 +69,6 @@ export type TNextQuestionResponse = TDefaultResponse<{
     nextQuestionIndex: number;
     nextQuestion: TQuestion;
 }>;
-
-// export type TSubmitAnswerResponse = TDefaultResponse<{
-//     isCorrect: boolean;
-// }>;
 
 export type TStartSessionResponse = TDefaultResponse<{
     totalQuestions: number;

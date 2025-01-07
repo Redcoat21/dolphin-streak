@@ -1,6 +1,5 @@
 import { withAuth } from "@/core/components/hoc/withAuth";
-// import DailyChallenge from "../daily-challenge";
-import Challenge from "@/core/pages/challenges/page";
+import { Challenge } from "@/core/pages/daily-challenge/page";
 
 function Challenges() {
   return <Challenge />;

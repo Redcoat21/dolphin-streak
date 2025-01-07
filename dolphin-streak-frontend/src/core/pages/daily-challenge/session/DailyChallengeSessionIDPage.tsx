@@ -7,12 +7,11 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Heart, Volume2, XCircle, Mic, CheckCircle2, AlignJustify, Timer as TimerIcon } from "lucide-react";
+import { Volume2, XCircle, CheckCircle2, Timer as TimerIcon } from "lucide-react";
 import { Header } from "@/core/pages/dasboard/components/Header";
-import { QuestionType, TQuestion } from "@/server/types/questions";
+import { QuestionType } from "@/server/types/questions";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { VoiceRecorder } from "../../../components/courses/voice-recorder";
 import WritingPage from "../../../components/courses/QuestionTypes/writing";
 import VoicePage from "../../../components/courses/QuestionTypes/voice";
 import FillInPage from "../../../components/courses/QuestionTypes/fill-in";
@@ -21,42 +20,34 @@ import MultipleChoicePage from "../../../components/courses/QuestionTypes/multip
 import { LivesIndicator } from "../../../components/courses/lives-indicator";
 import { Timer } from "../../../components/courses/timer";
 
-export function CourseSessionIDPage() {
+export function DailyChallengeSessionIDPage() {
     const router = useRouter();
     const { getAccessToken } = useAuthStore();
     const accessToken = getAccessToken();
     const params = useParams();
-    const courseSessionId = params?.courseSessionId as string;
+    const dailyChallengeSessionId = params?.dailyChallengeSessionId as string;
 
     // UI states
     const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
     const [textAnswer, setTextAnswer] = useState("");
-    // Use an object to store answers for fill-in-the-blank questions
     const [fillInAnswers, setFillInAnswers] = useState<{ [key: string]: string }>({});
     const [isAnswered, setIsAnswered] = useState(false);
     const [lives, setLives] = useState(3);
-
-    /**
-     * We treat isCorrect as:
-     * - true if correct
-     * - null if waiting
-     * - false if incorrect
-     */
     const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-    const [isRecording, setIsRecording] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(30); // 30 seconds timer
-    const { toast } = useToast();
+    const [timeLeft, setTimeLeft] = useState(30);
     const [suggestion, setSuggestion] = useState<string | null>(null);
     const [recordedAudio, setRecordedAudio] = useState<Blob | null>(null);
 
-    // Fetch session data
-    const { data: courseSessionData, refetch } = trpc.course.getCourseSessionId.useQuery({
-        accessToken: accessToken || "",
-        courseSessionId: courseSessionId as string
-    });
+    const { toast } = useToast();
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    // Decrement timer if question not answered
+    // Fetch session data
+    const { data: dailyChallengeSessionData, refetch } = trpc.daily.getDailySession.useQuery({
+        accessToken: accessToken || "",
+        dailySessionId: dailyChallengeSessionId
+    });
+
+    // Timer effect
     useEffect(() => {
         if (!isAnswered && timeLeft > 0) {
             const timer = setInterval(() => {
@@ -66,19 +57,17 @@ export function CourseSessionIDPage() {
         }
     }, [timeLeft, isAnswered]);
 
-    // Submit answer
+    // Submit answer mutation
     const {
         mutate: postSubmitAnswer,
         isPending: isPostSubmitAnswerPending
-    } = trpc.course.postSubmitAnswer.useMutation({
+    } = trpc.daily.postSubmitDailyAnswer.useMutation({
         onSuccess(data) {
-            // If correct => set isCorrect to true
-            // If incorrect => set isCorrect to null
             if (data.data?.isCorrect) {
                 setIsCorrect(true);
                 playSound("correct");
             } else {
-                setIsCorrect(null);
+                setIsCorrect(false);
                 setLives(prev => Math.max(0, prev - 1));
                 setSuggestion(data.data?.suggestion || null);
                 playSound("incorrect");
@@ -93,36 +82,32 @@ export function CourseSessionIDPage() {
         },
     });
 
-    // Play correct/incorrect sounds
+    // Sound effects
     const playSound = (type: "correct" | "incorrect") => {
         const audio = new Audio(`/sounds/${type}.mp3`);
         audio.play().catch(console.error);
     };
 
-    const questionData = courseSessionData?.data;
+    const questionData = dailyChallengeSessionData?.data;
 
-    // Try to submit or reset answer
+    // Handle answer submission
     const handleSubmitAnswer = async (answer: string | null) => {
-        // If not answered yet, try to answer
         if (!isAnswered) {
             setIsAnswered(true);
-
-            // Only mutate if we have something
             if (answer) {
                 postSubmitAnswer({
-                    questionType: questionData?.question.questionType as QuestionType,
+                    questionType: questionData?.question.type as QuestionType,
                     accessToken: accessToken || "",
-                    courseSessionId: courseSessionId,
+                    dailySessionId: dailyChallengeSessionId,
                     answer: answer
                 });
             }
         } else {
-            // If answered and we click this again, we reset
-            // This allows re-answering if wrong
             resetQuestionState();
         }
     };
 
+    // Reset question state
     const resetQuestionState = () => {
         setSelectedAnswer(null);
         setTextAnswer("");
@@ -131,42 +116,32 @@ export function CourseSessionIDPage() {
         setTimeLeft(30);
         setFillInAnswers({});
         setRecordedAudio(null);
+        setIsCorrect(null);
         refetch();
     };
 
+    const progressPercentage = questionData
+        ? (questionData.questionIndex / questionData.totalQuestion) * 100
+        : 0;
 
-    const progressPercentage =
-        questionData ? (questionData.questionIndex / questionData.totalQuestions) * 100 : 0;
-
-    // Decide alert background color
+    // UI state computations
     const alertBgClass = (() => {
-        if (isCorrect === true && !isPostSubmitAnswerPending) {
-            // user is correct
-            return "bg-green-900/50";
-        }
-        if (isCorrect === null && isAnswered && !isPostSubmitAnswerPending) {
-            // user is wrong
-            return "bg-red-900/50";
-        }
-        if (isCorrect === null && isPostSubmitAnswerPending) {
-            // checking
-            return "bg-yellow-900/50";
-        }
+        if (isCorrect === true && !isPostSubmitAnswerPending) return "bg-green-900/50";
+        if (isCorrect === false && !isPostSubmitAnswerPending) return "bg-red-900/50";
+        if (isPostSubmitAnswerPending) return "bg-yellow-900/50";
         return "bg-slate-900/50";
     })();
 
-    // Decide alert icon + message
     const alertIcon = (() => {
         if (isCorrect === true && !isPostSubmitAnswerPending) {
             return <CheckCircle2 className="w-5 h-5 text-green-400" />;
         }
-        if (isCorrect === null && isPostSubmitAnswerPending) {
+        if (isPostSubmitAnswerPending) {
             return <TimerIcon className="w-5 h-5 text-yellow-400" />;
         }
-        if (isCorrect === null && isAnswered && !isPostSubmitAnswerPending) {
+        if (isCorrect === false && !isPostSubmitAnswerPending) {
             return <XCircle className="w-5 h-5 text-red-400" />;
         }
-        // Default or not answered
         return <XCircle className="w-5 h-5 text-slate-400" />;
     })();
 
@@ -174,64 +149,39 @@ export function CourseSessionIDPage() {
         if (isCorrect === true && !isPostSubmitAnswerPending) {
             return "Great job! That's correct!";
         }
-        console.log({ isCorrect, isPostSubmitAnswerPending })
-        if (isCorrect === null && isPostSubmitAnswerPending) {
+        if (isPostSubmitAnswerPending) {
             return "Checking your answer...";
         }
-        if (isCorrect === null && isAnswered && !isPostSubmitAnswerPending) {
+        if (isCorrect === false && !isPostSubmitAnswerPending) {
             return "Not quite right. Try again!";
         }
         return "Answer not submitted yet.";
     })();
 
-    // Decide button label
-    const buttonLabel = (() => {
-        if (!isAnswered) {
-            return "Check Answer";
-        }
-        // If correct => "Continue"
-        if (isCorrect === true && !isPostSubmitAnswerPending) {
-            return "Continue";
-        }
-        // If pending => "Checking..."
-        if (isCorrect === null && isPostSubmitAnswerPending) {
-            return "Checking...";
-        }
-        // If wrong => "Try Again"
-        if (isCorrect === null && !isPostSubmitAnswerPending) {
-            return "Try Again";
-        }
-        return "Answer Submitted";
-    })();
+    const buttonLabel = isAnswered ? "Try Again" : "Check Answer";
 
-    // Decide button disabled
     const isButtonDisabled = (() => {
         if (!questionData) return true;
-        // If we haven't selected or typed anything and haven't answered => disable
-        if (questionData.question.questionType === QuestionType.MULTIPLE_CHOICE && !selectedAnswer && !isAnswered) {
-            return true;
-        }
-        if (questionData.question.questionType === QuestionType.ESSAY && !textAnswer && !isAnswered) {
-            return true;
-        }
-        if (questionData.question.questionType === QuestionType.FILL_IN && Object.keys(fillInAnswers).length === 0 && !isAnswered) {
-            return true;
-        }
-        if (questionData.question.questionType === QuestionType.VOICE && !recordedAudio && !isAnswered) {
-            return true;
-        }
-        if (questionData.question.questionType === QuestionType.WRITING && !textAnswer && !isAnswered) {
-            return true;
-        }
-        // If pending => disable
-        if (isPostSubmitAnswerPending) {
-            return true;
+        if (isPostSubmitAnswerPending) return true;
+
+        if (!isAnswered) {
+            switch (questionData.question.type) {
+                case QuestionType.MULTIPLE_CHOICE:
+                    return !selectedAnswer;
+                case QuestionType.ESSAY:
+                case QuestionType.WRITING:
+                    return !textAnswer;
+                case QuestionType.FILL_IN:
+                    return Object.keys(fillInAnswers).length === 0;
+                case QuestionType.VOICE:
+                    return !recordedAudio;
+                default:
+                    return false;
+            }
         }
         return false;
     })();
 
-
-    // Render the appropriate page based on question type
     if (!questionData) {
         return (
             <div className="min-h-screen bg-slate-950 flex items-center justify-center">
@@ -240,17 +190,13 @@ export function CourseSessionIDPage() {
         );
     }
 
-    const handleQuestionSubmit = (answer: string | null) => {
-        handleSubmitAnswer(answer);
-    };
-
     return (
         <Container>
-            <Header currentPath="/course-session" />
+            <Header currentPath="/daily-challenge" />
 
             <main className="min-h-screen bg-slate-950 text-white pt-24 pb-8 px-4">
                 <div className="max-w-3xl mx-auto">
-                    {/* Top bar with back, lives, timer, progress */}
+                    {/* Top bar */}
                     <div className="flex items-center justify-between mb-8">
                         <Button
                             variant="ghost"
@@ -262,13 +208,8 @@ export function CourseSessionIDPage() {
                         </Button>
 
                         <div className="flex items-center gap-6">
-                            {/* Lives */}
                             <LivesIndicator lives={lives} />
-
-                            {/* Timer */}
                             <Timer timeLeft={timeLeft} />
-
-                            {/* Progress bar */}
                             <div className="w-32">
                                 <Progress
                                     value={progressPercentage}
@@ -277,7 +218,6 @@ export function CourseSessionIDPage() {
                             </div>
                         </div>
                     </div>
-
 
                     {/* Question card */}
                     <motion.div
@@ -294,12 +234,15 @@ export function CourseSessionIDPage() {
                                 >
                                     <Volume2 className="w-6 h-6 text-blue-400" />
                                 </Button>
-                                {questionData.question.questionType !== QuestionType.FILL_IN && <h2 className="text-2xl font-semibold text-slate-200">
-                                    {questionData?.question.question.text}
-                                </h2>}
+                                {questionData.question.type !== QuestionType.FILL_IN && (
+                                    <h2 className="text-2xl font-semibold text-slate-200">
+                                        {questionData.question.question.text}
+                                    </h2>
+                                )}
                             </div>
 
-                            {questionData.question.questionType === QuestionType.MULTIPLE_CHOICE && (
+                            {/* Question type components */}
+                            {questionData.question.type === QuestionType.MULTIPLE_CHOICE && (
                                 <MultipleChoicePage
                                     questionData={questionData}
                                     setSelectedAnswer={setSelectedAnswer}
@@ -308,7 +251,7 @@ export function CourseSessionIDPage() {
                                     timeLeft={timeLeft}
                                 />
                             )}
-                            {questionData.question.questionType === QuestionType.ESSAY && (
+                            {questionData.question.type === QuestionType.ESSAY && (
                                 <EssayPage
                                     questionData={questionData}
                                     setTextAnswer={setTextAnswer}
@@ -318,7 +261,7 @@ export function CourseSessionIDPage() {
                                     suggestion={suggestion || ''}
                                 />
                             )}
-                            {questionData.question.questionType === QuestionType.FILL_IN && (
+                            {questionData.question.type === QuestionType.FILL_IN && (
                                 <FillInPage
                                     questionData={questionData}
                                     setFillInAnswers={setFillInAnswers}
@@ -327,7 +270,7 @@ export function CourseSessionIDPage() {
                                     timeLeft={timeLeft}
                                 />
                             )}
-                            {questionData.question.questionType === QuestionType.VOICE && (
+                            {questionData.question.type === QuestionType.VOICE && (
                                 <VoicePage
                                     questionData={questionData}
                                     setRecordedAudio={setRecordedAudio}
@@ -336,7 +279,7 @@ export function CourseSessionIDPage() {
                                     timeLeft={timeLeft}
                                 />
                             )}
-                            {questionData.question.questionType === QuestionType.WRITING && (
+                            {questionData.question.type === QuestionType.WRITING && (
                                 <WritingPage
                                     questionData={questionData}
                                     setTextAnswer={setTextAnswer}
@@ -347,7 +290,7 @@ export function CourseSessionIDPage() {
                             )}
                         </Card>
 
-                        {/* Alert for correct/wrong/pending states */}
+                        {/* Alert for feedback */}
                         <AnimatePresence>
                             {isAnswered && (
                                 <motion.div
@@ -367,30 +310,32 @@ export function CourseSessionIDPage() {
                             )}
                         </AnimatePresence>
 
-                        {/* Submit / Re-try / Continue button */}
+                        {/* Submit button */}
                         <Button
                             className="w-full py-6 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-slate-200"
                             disabled={isButtonDisabled}
                             onClick={() => {
                                 let answer = null;
-                                if (questionData.question.questionType === QuestionType.MULTIPLE_CHOICE) {
-                                    answer = selectedAnswer;
-                                } else if (questionData.question.questionType === QuestionType.ESSAY || questionData.question.questionType === QuestionType.WRITING) {
-                                    answer = textAnswer;
-                                } else if (questionData.question.questionType === QuestionType.FILL_IN) {
-                                    answer = fillInAnswers[0];
-                                } else if (questionData.question.questionType === QuestionType.VOICE) {
-                                    if (recordedAudio) {
-                                        const reader = new FileReader();
-                                        reader.readAsDataURL(recordedAudio);
-                                        reader.onloadend = () => {
-                                            // console.log({ reader })
-                                            const base64Audio = reader.result as string;
-                                            // console.log({ base64Audio })
-                                            handleSubmitAnswer(base64Audio);
-                                        };
-                                        return;
-                                    }
+                                switch (questionData.question.type) {
+                                    case QuestionType.MULTIPLE_CHOICE:
+                                        answer = selectedAnswer;
+                                        break;
+                                    case QuestionType.ESSAY:
+                                    case QuestionType.WRITING:
+                                        answer = textAnswer;
+                                        break;
+                                    case QuestionType.FILL_IN:
+                                        answer = JSON.stringify(fillInAnswers);
+                                        break;
+                                    case QuestionType.VOICE:
+                                        if (recordedAudio) {
+                                            const reader = new FileReader();
+                                            reader.readAsDataURL(recordedAudio);
+                                            reader.onloadend = () => {
+                                                handleSubmitAnswer(reader.result as string);
+                                            };
+                                            return;
+                                        }
                                 }
                                 handleSubmitAnswer(answer);
                             }}
@@ -400,6 +345,6 @@ export function CourseSessionIDPage() {
                     </motion.div>
                 </div>
             </main>
-        </Container >
+        </Container>
     );
 }

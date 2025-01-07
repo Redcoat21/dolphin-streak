@@ -19,6 +19,7 @@ import { ForumsModule } from "./forums/forums.module";
 import { AiModule } from "./ai/ai.module";
 import { ViewController } from "./views/view.controller";
 import { VoiceaiModule } from './voiceai/voiceai.module';
+import { DailyModule } from "./daily/daily.module";
 
 @Module({
   imports: [
@@ -49,8 +50,9 @@ import { VoiceaiModule } from './voiceai/voiceai.module';
     ForumsModule,
     AiModule,
     VoiceaiModule,
+    DailyModule,
   ],
   controllers: [AppController, ViewController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
