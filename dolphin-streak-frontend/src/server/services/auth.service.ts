@@ -114,4 +114,8 @@ export class AuthService {
       }
     }
   }
+
+  static async getProfile(accessToken: string) { 
+    // TODO Implement
+  }
 }
