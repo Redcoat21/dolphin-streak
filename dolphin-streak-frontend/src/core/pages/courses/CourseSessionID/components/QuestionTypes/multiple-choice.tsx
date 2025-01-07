@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { IQuestionTypeComponent } from "./types";
 import { TQuestion } from "@/server/types/questions";
+import { TCourseSessionData } from "@/server/types/courses";
 
 interface MultipleChoicePageProps extends IQuestionTypeComponent {
-    questionData: { question: TQuestion, questionIndex: number, totalQuestions: number };
+    questionData: TCourseSessionData;
     setSelectedAnswer: (answer: string | null) => void;
     selectedAnswer: string | null;
     lives: number;

@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { IQuestionTypeComponent } from "./types";
 import { TQuestion } from "@/server/types/questions";
 import HanziWriter from 'hanzi-writer';
+import { TCourseSessionData } from "@/server/types/courses";
 
 interface WritingPageProps extends IQuestionTypeComponent {
-    questionData: { question: TQuestion, questionIndex: number, totalQuestions: number };
+    questionData: TCourseSessionData;
     setTextAnswer: (answer: string) => void;
     textAnswer: string;
     lives: number;

@@ -17,6 +17,7 @@ import {
   ZGetCourseSessionIdRequest,
   ZPostSubmitAnswerRequest,
 } from '../types/courses';
+import { QuestionType } from '../types/questions';
 
 export const coursesRouter = router({
   // Get all courses with filters
@@ -76,24 +77,51 @@ export const coursesRouter = router({
   postSubmitAnswer: authedProcedure
     .input(ZPostSubmitAnswerRequest)
     .mutation(async ({ input }) => {
-      const response = await fetchAPI(
-        `/api/courses/session/${input.courseSessionId}/submit-answer`,
-        'POST',
-        {
-          token: input.accessToken,
-          body: {
-            answer: input.answer
-          }
+      if (input.questionType == QuestionType.VOICE) {
+        // Convert base64 to blob
+        const base64Data = input.answer.split(',')[1];
+        const binaryData = atob(base64Data);
+        const arrayBuffer = new Uint8Array(binaryData.length);
+        for (let i = 0; i < binaryData.length; i++) {
+          arrayBuffer[i] = binaryData.charCodeAt(i);
         }
-      );
-      console.log({ response })
-      // {
-      //   response: {
-      //     messages: 'Successfully Assessed the Answer',
-      //     data: { suggestion: null, isCorrect: true, isLatest: false }
-      //   }
-      // }
-      return response as TSubmitAnswerResponse;
+        const blob = new Blob([arrayBuffer], { type: 'audio/webm' });
+
+        // Create FormData and append the blob
+        const formData = new FormData();
+        formData.append('audio', blob, 'recording.webm');
+
+        const response = await fetchAPI(
+          `/api/courses/session/${input.courseSessionId}/submit-answer`,
+          'POST',
+          {
+            token: input.accessToken,
+            body: formData,
+            // Don't set Content-Type header, let the browser set it with boundary
+            isFormData: true
+          }
+        );
+        return response as TSubmitAnswerResponse;
+      } else {
+        const response = await fetchAPI(
+          `/api/courses/session/${input.courseSessionId}/submit-answer`,
+          'POST',
+          {
+            token: input.accessToken,
+            body: {
+              answer: input.answer
+            }
+          }
+        );
+        console.log({ response })
+        // {
+        //   response: {
+        //     messages: 'Successfully Assessed the Answer',
+        //     data: { suggestion: null, isCorrect: true, isLatest: false }
+        //   }
+        // }
+        return response as TSubmitAnswerResponse;
+      }
     }),
 });
 

@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { IQuestionTypeComponent } from "./types";
 import { VoiceRecorder } from "../voice-recorder";
 import { TQuestion } from "@/server/types/questions";
+import { TCourseSessionData } from "@/server/types/courses";
 
 interface VoicePageProps extends IQuestionTypeComponent {
-    questionData: { question: TQuestion, questionIndex: number, totalQuestions: number };
+    questionData: TCourseSessionData;
     setRecordedAudio: (audio: Blob | null) => void;
     recordedAudio: Blob | null;
     lives: number;

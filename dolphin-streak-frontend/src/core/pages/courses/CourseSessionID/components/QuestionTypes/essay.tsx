@@ -5,9 +5,10 @@ import { AlignJustify } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { IQuestionTypeComponent } from "./types";
 import { TQuestion } from "@/server/types/questions";
+import { TCourseSessionData } from "@/server/types/courses";
 
 interface EssayPageProps extends IQuestionTypeComponent {
-    questionData: { question: TQuestion, questionIndex: number, totalQuestions: number };
+    questionData: TCourseSessionData;
     setTextAnswer: (answer: string) => void;
     textAnswer: string;
     lives: number;

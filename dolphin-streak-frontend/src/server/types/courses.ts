@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { TDefaultResponse } from "./generic";
-import type { QuestionType } from "./questions";
+import { QuestionType } from "./questions";
 
 // Schema for a single course level
 export const ZCourseLevel = z.object({
@@ -87,7 +87,7 @@ type TQuestion = {
   answerOptions: string[];
   questionType: QuestionType;
 };
-type TCourseSessionData = {
+export type TCourseSessionData = {
   question: TQuestion;
   totalQuestion: number;
   questionIndex: number;
@@ -100,6 +100,7 @@ export type TGetCourseSessionIdResponse = TDefaultResponse<TCourseSessionData>;
 export const ZPostSubmitAnswerRequest = z.object({
   courseSessionId: z.string(),
   answer: z.string(),
+  questionType: z.nativeEnum(QuestionType)
 })
 
 export type TAnswerResult = {

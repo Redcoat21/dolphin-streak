@@ -377,13 +377,15 @@ export function CourseSessionIDPage() {
                                 } else if (questionData.question.questionType === QuestionType.ESSAY || questionData.question.questionType === QuestionType.WRITING) {
                                     answer = textAnswer;
                                 } else if (questionData.question.questionType === QuestionType.FILL_IN) {
-                                    answer = JSON.stringify(fillInAnswers);
+                                    answer = fillInAnswers[0];
                                 } else if (questionData.question.questionType === QuestionType.VOICE) {
                                     if (recordedAudio) {
                                         const reader = new FileReader();
                                         reader.readAsDataURL(recordedAudio);
                                         reader.onloadend = () => {
+                                            // console.log({ reader })
                                             const base64Audio = reader.result as string;
+                                            // console.log({ base64Audio })
                                             handleSubmitAnswer(base64Audio);
                                         };
                                         return;

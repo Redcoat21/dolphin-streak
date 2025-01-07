@@ -3,9 +3,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { IQuestionTypeComponent } from "./types";
 import { TQuestion } from "@/server/types/questions";
+import { TCourseSessionData } from "@/server/types/courses";
 
 interface FillInPageProps extends IQuestionTypeComponent {
-    questionData: { question: TQuestion, questionIndex: number, totalQuestions: number };
+    questionData: TCourseSessionData;
     setFillInAnswers: (answers: { [key: string]: string }) => void;
     fillInAnswers: { [key: string]: string };
     lives: number;

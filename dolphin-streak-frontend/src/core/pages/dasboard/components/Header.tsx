@@ -52,6 +52,7 @@ export function Header({ currentPath, languageDropdown, selectedLanguage, onLang
   const renderHeader = () => {
     switch (currentPath) {
       case "/":
+      case undefined:
         return (
           <>
             {languageDropdown && languagesData?.data && (
