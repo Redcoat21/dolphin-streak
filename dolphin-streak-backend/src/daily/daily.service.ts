@@ -33,8 +33,19 @@ export class DailyService {
       throw new NotFoundException(`No courses found for language ID: ${languageId}`);
     }
 
-    const randomIndex = Math.floor(Math.random() * courses.length);
-    const selectedCourse = courses[randomIndex];
+    const filteredCourses = [];
+    for (let i = 0; i < courses.length; i++) {
+      if (!courses[i].name.toUpperCase().includes("ESSAY")) {
+        filteredCourses.push(courses[i]);
+      }
+    }
+
+    if (filteredCourses.length === 0) {
+      throw new NotFoundException(`No courses found (excluding ESSAY courses) for language ID: ${languageId}`);
+    }
+
+    const randomIndex = Math.floor(Math.random() * filteredCourses.length);
+    const selectedCourse = filteredCourses[randomIndex];
 
     const expiresAt = DateTime.now().plus({ days: 1 }).startOf('day').toJSDate();
 

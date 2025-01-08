@@ -266,7 +266,7 @@ export class DailyController {
         }
 
         const questionId = session.questions[session.answeredQuestions.length];
-        const question = await this.q.getQuestionById(questionId.toString());
+        const question = await this.questionsService.findOne(questionId.toString());
 
         // console.log(question);
 

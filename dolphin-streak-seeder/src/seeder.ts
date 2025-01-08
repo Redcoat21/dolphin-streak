@@ -83,31 +83,42 @@ async function seedCourses(languageIds: string[]): Promise<void> {
     console.log('Seeding courses...');
     for (const languageId of languageIds) {
         const levels = await Level.find({ language: languageId });
+        const language = await Language.findById(languageId);
 
-        const courses = [
-            {
-                name: 'Course 1',
-                levels: levels.map(l => l._id),
-                language: languageId,
-                type: CourseType.Daily,
-                thumbnail: 'https://example.com/course1.png'
-            },
-            {
-                name: 'Course 2',
-                levels: levels.map(l => l._id),
-                language: languageId,
-                type: CourseType.Weekly,
-                thumbnail: 'https://example.com/course2.png'
-            }
-        ];
-
-        for (const course of courses) {
-            await Course.updateOne(
-                { name: course.name, language: languageId },
-                course,
-                { upsert: true }
-            );
+        if (!language) {
+            console.error(`Language not found for ID: ${languageId}`);
+            continue;
         }
+
+        // Main course for multiple choice, voice and fill in
+        const mainCourse = {
+            name: `${language.name} Course`,
+            levels: levels.map(l => l._id),
+            language: languageId,
+            type: CourseType.Daily,
+            thumbnail: `https://example.com/${language.name.toLowerCase()}_course.png`
+        };
+
+        await Course.updateOne(
+            { name: mainCourse.name, language: languageId },
+            mainCourse,
+            { upsert: true }
+        );
+
+        // Essay course
+        const essayCourse = {
+            name: `ESSAY: ${language.name}`,
+            levels: levels.filter(level => level.name === 'Intermediate').map(l => l._id),
+            language: languageId,
+            type: CourseType.Weekly,
+            thumbnail: `https://example.com/${language.name.toLowerCase()}_essay_course.png`
+        };
+
+        await Course.updateOne(
+            { name: essayCourse.name, language: languageId },
+            essayCourse,
+            { upsert: true }
+        );
     }
     console.log('Courses seeded successfully.');
 }
@@ -395,6 +406,14 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
             continue;
         }
 
+        const mainCourse = courses.find(course => course.name === `${language.name} Course`);
+        const essayCourse = courses.find(course => course.name === `ESSAY: ${language.name}`);
+
+        if (!mainCourse || !essayCourse) {
+            console.error(`Could not find courses for language: ${language.name}`);
+            continue;
+        }
+
         // Questions based on language
         const questions = [];
 
@@ -407,7 +426,7 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: null,
                     correctAnswer: null,
                     useAi: true,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
                     level: writingLevel._id,
                 },
                 {
@@ -416,7 +435,7 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: null,
                     correctAnswer: null,
                     useAi: true,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
                     level: writingLevel._id,
                 },
                 {
@@ -425,17 +444,17 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: null,
                     correctAnswer: null,
                     useAi: true,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
                     level: writingLevel._id,
                 },
                 // Multiple Choice Questions
-                 {
+                {
                     question: { type: 'text', text: '中国的首都是哪里？' },
                     type: QuestionType.MULTIPLE_CHOICE,
                     answerOptions: ['北京', '上海', '广州', '深圳'],
                     correctAnswer: '0',
                     useAi: false,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
                     level: multipleChoiceLevel._id,
                 },
                 {
@@ -444,7 +463,25 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: ['你好', '再见', '谢谢', '不客气'],
                     correctAnswer: '0',
                     useAi: false,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
+                    level: multipleChoiceLevel._id,
+                },
+                {
+                    question: { type: 'text', text: '今天天气怎么样？' },
+                    type: QuestionType.MULTIPLE_CHOICE,
+                    answerOptions: ['晴天', '雨天', '阴天', '雪天'],
+                    correctAnswer: '0',
+                    useAi: false,
+                    courses: [mainCourse._id],
+                    level: multipleChoiceLevel._id,
+                },
+                {
+                    question: { type: 'text', text: '你喜欢什么颜色？' },
+                    type: QuestionType.MULTIPLE_CHOICE,
+                    answerOptions: ['红色', '蓝色', '绿色', '黄色'],
+                    correctAnswer: '0',
+                    useAi: false,
+                    courses: [mainCourse._id],
                     level: multipleChoiceLevel._id,
                 },
                 // Fill In Questions
@@ -454,16 +491,34 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: null,
                     correctAnswer: ['很'],
                     useAi: false,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
                     level: fillInLevel._id,
                 },
-                 {
+                {
                     question: { type: 'text', text: '他 __ 去了商店' },
                     type: QuestionType.FILL_IN,
                     answerOptions: null,
                     correctAnswer: ['已经'],
                     useAi: false,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
+                    level: fillInLevel._id,
+                },
+                {
+                    question: { type: 'text', text: '我们 __ 去看电影' },
+                    type: QuestionType.FILL_IN,
+                    answerOptions: null,
+                    correctAnswer: ['一起'],
+                    useAi: false,
+                    courses: [mainCourse._id],
+                    level: fillInLevel._id,
+                },
+                {
+                    question: { type: 'text', text: '这个苹果 __ 好吃' },
+                    type: QuestionType.FILL_IN,
+                    answerOptions: null,
+                    correctAnswer: ['真'],
+                    useAi: false,
+                    courses: [mainCourse._id],
                     level: fillInLevel._id,
                 },
                 // Voice Questions
@@ -473,7 +528,7 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: null,
                     correctAnswer: '你好',
                     useAi: true,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
                     level: voiceLevel._id,
                 },
                 {
@@ -482,40 +537,40 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: null,
                     correctAnswer: '谢谢',
                     useAi: true,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
                     level: voiceLevel._id,
+                },
+                {
+                    question: { type: 'voice', text: '早上好', voice: 'link_to_chinese_voice_3' },
+                    type: QuestionType.VOICE,
+                    answerOptions: null,
+                    correctAnswer: '早上好',
+                    useAi: true,
+                    courses: [mainCourse._id],
+                    level: voiceLevel._id,
+                },
+                {
+                    question: { type: 'voice', text: '再见', voice: 'link_to_chinese_voice_4' },
+                    type: QuestionType.VOICE,
+                    answerOptions: null,
+                    correctAnswer: '再见',
+                    useAi: true,
+                    courses: [mainCourse._id],
+                    level: voiceLevel._id,
+                },
+                // Essay Question
+                {
+                    question: { type: 'text', text: '写一篇关于你最喜欢的中国城市的文章' },
+                    type: QuestionType.ESSAY,
+                    answerOptions: null,
+                    correctAnswer: null,
+                    useAi: true,
+                    courses: [essayCourse._id],
+                    level: essayLevel._id,
                 },
             );
         } else if (language.name === 'Indonesian') {
-             questions.push(
-                // Writing Questions
-                {
-                    question: { type: 'text', text: 'Tulis esai pendek tentang hari ibu' },
-                    type: QuestionType.WRITING,
-                    answerOptions: null,
-                    correctAnswer: null,
-                    useAi: true,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
-                    level: writingLevel._id,
-                },
-                {
-                    question: { type: 'text', text: 'Jelaskan tentang keluarga kamu' },
-                    type: QuestionType.WRITING,
-                    answerOptions: null,
-                    correctAnswer: null,
-                    useAi: true,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
-                    level: writingLevel._id,
-                },
-                {
-                    question: { type: 'text', text: 'Tulis tentang impian kamu' },
-                    type: QuestionType.WRITING,
-                    answerOptions: null,
-                    correctAnswer: null,
-                    useAi: true,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
-                    level: writingLevel._id,
-                },
+            questions.push(
                 // Multiple Choice Questions
                 {
                     question: { type: 'text', text: 'Apa ibukota Indonesia?' },
@@ -523,7 +578,7 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: ['Jakarta', 'Surabaya', 'Medan', 'Bandung'],
                     correctAnswer: '0',
                     useAi: false,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
                     level: multipleChoiceLevel._id,
                 },
                 {
@@ -532,7 +587,25 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: ['Thank you', 'Sorry', 'Hello', 'Goodbye'],
                     correctAnswer: '0',
                     useAi: false,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
+                    level: multipleChoiceLevel._id,
+                },
+                {
+                    question: { type: 'text', text: 'Apa warna bendera Indonesia?' },
+                    type: QuestionType.MULTIPLE_CHOICE,
+                    answerOptions: ['Merah dan Putih', 'Hijau dan Kuning', 'Biru dan Putih', 'Hitam dan Putih'],
+                    correctAnswer: '0',
+                    useAi: false,
+                    courses: [mainCourse._id],
+                    level: multipleChoiceLevel._id,
+                },
+                {
+                    question: { type: 'text', text: 'Siapa presiden pertama Indonesia?' },
+                    type: QuestionType.MULTIPLE_CHOICE,
+                    answerOptions: ['Soekarno', 'Soeharto', 'Habibie', 'Gus Dur'],
+                    correctAnswer: '0',
+                    useAi: false,
+                    courses: [mainCourse._id],
                     level: multipleChoiceLevel._id,
                 },
                 // Fill In Questions
@@ -542,7 +615,7 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: null,
                     correctAnswer: ['akan'],
                     useAi: false,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
                     level: fillInLevel._id,
                 },
                 {
@@ -551,7 +624,25 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: null,
                     correctAnswer: ['adalah'],
                     useAi: false,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
+                    level: fillInLevel._id,
+                },
+                {
+                    question: { type: 'text', text: 'Mereka __ bermain sepak bola' },
+                    type: QuestionType.FILL_IN,
+                    answerOptions: null,
+                    correctAnswer: ['sedang'],
+                    useAi: false,
+                    courses: [mainCourse._id],
+                    level: fillInLevel._id,
+                },
+                {
+                    question: { type: 'text', text: 'Buku itu __ di atas meja' },
+                    type: QuestionType.FILL_IN,
+                    answerOptions: null,
+                    correctAnswer: ['ada'],
+                    useAi: false,
+                    courses: [mainCourse._id],
                     level: fillInLevel._id,
                 },
                 // Voice Questions
@@ -561,7 +652,7 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: null,
                     correctAnswer: 'selamat pagi',
                     useAi: true,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
                     level: voiceLevel._id,
                 },
                 {
@@ -570,8 +661,36 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: null,
                     correctAnswer: 'apa kabar?',
                     useAi: true,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
                     level: voiceLevel._id,
+                },
+                {
+                    question: { type: 'voice', text: 'Terima kasih', voice: 'link_to_indonesian_voice_3' },
+                    type: QuestionType.VOICE,
+                    answerOptions: null,
+                    correctAnswer: 'terima kasih',
+                    useAi: true,
+                    courses: [mainCourse._id],
+                    level: voiceLevel._id,
+                },
+                {
+                    question: { type: 'voice', text: 'Sampai jumpa', voice: 'link_to_indonesian_voice_4' },
+                    type: QuestionType.VOICE,
+                    answerOptions: null,
+                    correctAnswer: 'sampai jumpa',
+                    useAi: true,
+                    courses: [mainCourse._id],
+                    level: voiceLevel._id,
+                },
+                // Essay Question
+                {
+                    question: { type: 'text', text: 'Tulis esai pendek tentang hari kemerdekaan Indonesia' },
+                    type: QuestionType.ESSAY,
+                    answerOptions: null,
+                    correctAnswer: null,
+                    useAi: true,
+                    courses: [essayCourse._id],
+                    level: essayLevel._id,
                 },
             );
         } else if (language.name === 'English') {
@@ -583,7 +702,7 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: ['Madrid', 'Barcelona', 'Seville', 'Valencia'],
                     correctAnswer: '0',
                     useAi: false,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
                     level: multipleChoiceLevel._id,
                 },
                 {
@@ -592,27 +711,26 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: ['Mars', 'Venus', 'Jupiter', 'Saturn'],
                     correctAnswer: '0',
                     useAi: false,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
                     level: multipleChoiceLevel._id,
                 },
-                 // ESSAY
                 {
-                    question: { type: 'text', text: 'make an essay about mother\'s day' },
-                    type: QuestionType.ESSAY,
-                    answerOptions: null,
-                    correctAnswer: null,
-                    useAi: true,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
-                    level: essayLevel._id,
+                    question: { type: 'text', text: 'What is the largest mammal in the world?' },
+                    type: QuestionType.MULTIPLE_CHOICE,
+                    answerOptions: ['Blue Whale', 'Elephant', 'Giraffe', 'Hippopotamus'],
+                    correctAnswer: '0',
+                    useAi: false,
+                    courses: [mainCourse._id],
+                    level: multipleChoiceLevel._id,
                 },
                 {
-                    question: { type: 'text', text: 'Describe the benefits of learning a new language.' },
-                    type: QuestionType.ESSAY,
-                    answerOptions: null,
-                    correctAnswer: null,
-                    useAi: true,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
-                    level: essayLevel._id,
+                    question: { type: 'text', text: 'Who painted the Mona Lisa?' },
+                    type: QuestionType.MULTIPLE_CHOICE,
+                    answerOptions: ['Leonardo da Vinci', 'Michelangelo', 'Raphael', 'Donatello'],
+                    correctAnswer: '0',
+                    useAi: false,
+                    courses: [mainCourse._id],
+                    level: multipleChoiceLevel._id,
                 },
                 // FILL_IN
                 {
@@ -621,7 +739,7 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: null,
                     correctAnswer: ['do'],
                     useAi: false,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
                     level: fillInLevel._id,
                 },
                 {
@@ -630,17 +748,35 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: null,
                     correctAnswer: ['am'],
                     useAi: false,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
+                    level: fillInLevel._id,
+                },
+                {
+                    question: { type: 'text', text: 'She __ a doctor' },
+                    type: QuestionType.FILL_IN,
+                    answerOptions: null,
+                    correctAnswer: ['is'],
+                    useAi: false,
+                    courses: [mainCourse._id],
+                    level: fillInLevel._id,
+                },
+                {
+                    question: { type: 'text', text: 'They __ playing football' },
+                    type: QuestionType.FILL_IN,
+                    answerOptions: null,
+                    correctAnswer: ['are'],
+                    useAi: false,
+                    courses: [mainCourse._id],
                     level: fillInLevel._id,
                 },
                 // VOICE
-                 {
+                {
                     question: { type: 'voice', text: 'How are you?', voice: 'link_to_voice_1' },
                     type: QuestionType.VOICE,
                     answerOptions: null,
                     correctAnswer: ['how are you?'],
                     useAi: true,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
                     level: voiceLevel._id,
                 },
                 {
@@ -649,27 +785,36 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     answerOptions: null,
                     correctAnswer: 'good morning',
                     useAi: true,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
+                    courses: [mainCourse._id],
                     level: voiceLevel._id,
                 },
-                // WRITING
                 {
-                    question: { type: 'text', text: 'Write a short story about a cat' },
-                    type: QuestionType.WRITING,
+                    question: { type: 'voice', text: 'What time is it?', voice: 'link_to_voice_3' },
+                    type: QuestionType.VOICE,
                     answerOptions: null,
-                    correctAnswer: null,
+                    correctAnswer: 'what time is it?',
                     useAi: true,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
-                    level: writingLevel._id,
+                    courses: [mainCourse._id],
+                    level: voiceLevel._id,
                 },
                 {
-                    question: { type: 'text', text: 'Write a letter to your future self' },
-                    type: QuestionType.WRITING,
+                    question: { type: 'voice', text: 'Goodbye', voice: 'link_to_voice_4' },
+                    type: QuestionType.VOICE,
+                    answerOptions: null,
+                    correctAnswer: 'goodbye',
+                    useAi: true,
+                    courses: [mainCourse._id],
+                    level: voiceLevel._id,
+                },
+                // Essay Question
+                {
+                    question: { type: 'text', text: 'Write an essay about the importance of education' },
+                    type: QuestionType.ESSAY,
                     answerOptions: null,
                     correctAnswer: null,
                     useAi: true,
-                    courses: [getRandomCourseId(courses.map(c => c._id.toString()))],
-                    level: writingLevel._id,
+                    courses: [essayCourse._id],
+                    level: essayLevel._id,
                 },
             );
         }
