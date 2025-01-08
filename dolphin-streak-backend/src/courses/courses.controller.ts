@@ -14,7 +14,9 @@ import {
   Query,
   Req,
   UnauthorizedException,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from "@nestjs/common";
 import { CoursesService } from "./courses.service";
 import { CreateCourseDto } from "./dto/create-course.dto";
@@ -31,6 +33,7 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
@@ -45,6 +48,7 @@ import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
 import { QuestionSchema, QuestionType } from "src/questions/schemas/question.schema";
 import { ValidatorConstraint } from "class-validator";
+import { FileInterceptor } from "@nestjs/platform-express";
 
 @Controller("/api/courses")
 @UseGuards(BearerTokenGuard, RoleGuard)
@@ -595,13 +599,17 @@ export class CoursesController {
       }
     },
   })
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
   async submitAnswer(
     @Param('courseSessionId') courseSessionId: string,
     @Body('answer') answer: string,
+    @UploadedFile() file: Express.Multer.File,
     @Req() request: Request
   ) {
     const session = await this.coursesService.getOneSession(courseSessionId);
-
+    console.log(file);
+    
     // checking if the owner or not
     const userId = request.user._id.toString();
     const userSession = session.user.toString();
@@ -610,18 +618,23 @@ export class CoursesController {
       throw new ForbiddenException();
     }
 
-    if(!answer){
-      throw new BadRequestException('answer must be a string')
-    }
-
     const questionId = session.questions[session.answeredQuestions.length];
     const question = await this.questionsService.findOne(questionId.toString());
 
     // console.log(question);
+    const qtype = QuestionType[question.type]
+    
+    if(!answer && qtype != "VOICE"){
+      throw new BadRequestException('answer must be a string')
+    }
+
+    if(!file && qtype == "VOICE"){
+      throw new BadRequestException('file must be passed')
+    }
 
     const accessToken = request.headers.authorization.split(' ')[1]
 
-    const { suggestion, isCorrect } = await this.coursesService.assessAnswer(question, answer, accessToken)
+    const { suggestion, isCorrect } = await this.coursesService.assessAnswer(question, answer, accessToken, file)
     
     if(isCorrect){
       const updatedSession = await this.coursesService.addAnsweredQuestion(

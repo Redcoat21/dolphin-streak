@@ -43,6 +43,7 @@
     "class-validator": "^0.14.1",
     "cloudinary": "^2.5.1",
     "express-handlebars": "^8.0.1",
+    "form-data": "^4.0.1",
     "hbs": "^4.2.0",
     "luxon": "^3.5.0",
     "mongoose": "^8.7.3",
