@@ -20,6 +20,7 @@ import { AiModule } from "./ai/ai.module";
 import { ViewController } from "./views/view.controller";
 import { VoiceaiModule } from './voiceai/voiceai.module';
 import { DailyModule } from "./daily/daily.module";
+import { ComprehensionModule } from "./comprehension/comprehension.module";
 
 @Module({
   imports: [
@@ -42,7 +43,9 @@ import { DailyModule } from "./daily/daily.module";
     UsersModule,
     SubscriptionsModule,
     QuestionsModule,
+    DailyModule,
     CoursesModule,
+    ComprehensionModule,
     LanguagesModule,
     LevelsModule,
     MailModule,
@@ -50,7 +53,6 @@ import { DailyModule } from "./daily/daily.module";
     ForumsModule,
     AiModule,
     VoiceaiModule,
-    DailyModule,
   ],
   controllers: [AppController, ViewController],
   providers: [AppService],

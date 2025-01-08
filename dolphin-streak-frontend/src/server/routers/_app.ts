@@ -1,5 +1,6 @@
 import { baseProcedure, router } from '../trpc';
 import { authRouter } from './auth';
+import { comprehensionRouter } from './comprehension';
 import { coursesRouter } from './courses';
 import { dailyRouter } from './daily';
 import { forumRouter } from './forum';
@@ -11,6 +12,7 @@ import { questionsRouter } from './questions';
 export const appRouter = router({
   // todo: todoRouter,
   auth: authRouter,
+  comprehension: comprehensionRouter,
   forum: forumRouter,
   language: languageRouter,
   course: coursesRouter,
