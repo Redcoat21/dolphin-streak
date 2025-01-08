@@ -384,9 +384,9 @@ export function CourseSessionIDPage() {
                                         const reader = new FileReader();
                                         reader.readAsDataURL(recordedAudio);
                                         reader.onloadend = () => {
-                                            // console.log({ reader })
+                                            console.log({ reader })
                                             const base64Audio = reader.result as string;
-                                            // console.log({ base64Audio })
+                                            console.log({ base64Audio })
                                             handleSubmitAnswer(base64Audio);
                                         };
                                         return;

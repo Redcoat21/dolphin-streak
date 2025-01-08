@@ -1,6 +1,6 @@
-import { Controller, Get, Post, HttpCode, HttpStatus, Body, Req, Param, ForbiddenException, BadRequestException, NotFoundException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, HttpCode, HttpStatus, Body, Req, Param, ForbiddenException, BadRequestException, NotFoundException, UseGuards, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { DailyService } from './daily.service';
-import { ApiBody, ApiOperation, ApiOkResponse, ApiUnauthorizedResponse, ApiBearerAuth, ApiBadRequestResponse, ApiNotFoundResponse } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiOkResponse, ApiUnauthorizedResponse, ApiBearerAuth, ApiBadRequestResponse, ApiNotFoundResponse, ApiConsumes } from '@nestjs/swagger';
 import { StartDailyDto } from './dto/start-daily.dto';
 import { CoursesService } from 'src/courses/courses.service';
 import { DateTime } from 'luxon';
@@ -9,6 +9,7 @@ import { BearerTokenGuard } from 'src/auth/guard/bearer-token.guard';
 import { HasRoles } from 'src/lib/decorators/has-role.decorator';
 import { Role } from 'src/users/schemas/user.schema';
 import { QuestionsService } from 'src/questions/questions.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('/api/daily')
 export class DailyController {
@@ -246,9 +247,12 @@ export class DailyController {
         },
     })
     @ApiBearerAuth()
+    @UseInterceptors(FileInterceptor('file'))
+    @ApiConsumes('multipart/form-data')
     async submitAnswer(
         @Param('dailySessionId') dailySessionId: string,
         @Body('answer') answer: string,
+        @UploadedFile() file: Express.Multer.File,
         @Req() request: Request
     ) {
         const session = await this.coursesService.getOneSession(dailySessionId);
@@ -272,10 +276,11 @@ export class DailyController {
 
         const accessToken = request.headers.authorization?.split(' ')[1]
 
-        const { suggestion, isCorrect } = await this.coursesService.assessAnswer(question, answer, accessToken)
+        const { suggestion, isCorrect } = await this.coursesService.assessAnswer(question, answer, accessToken, file)
 
+        let updatedSession;
         if (isCorrect) {
-            const updatedSession = await this.coursesService.addAnsweredQuestion(
+            updatedSession = await this.coursesService.addAnsweredQuestion(
                 dailySessionId,
                 questionId.toString(),
             );
@@ -284,13 +289,15 @@ export class DailyController {
         const newSession = await this.coursesService.getOneSession(dailySessionId);
 
         const isLatest = (newSession.answeredQuestions.length == newSession.questions.length);
+        const score = newSession.score;
 
         return {
             messages: "Successfully Assessed the Answer",
             data: {
                 suggestion,
                 isCorrect,
-                isLatest
+                isLatest,
+                score
             }
         }
     }

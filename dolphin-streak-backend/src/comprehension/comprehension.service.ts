@@ -14,21 +14,8 @@ export class ComprehensionService {
         private readonly questionsService: QuestionsService,
     ) { }
 
-    async startComprehension(languageId: string, userId: string) {
-        const courses = await this.coursesService.findAll({ language: languageId, type: 1 });
-
-        if (!courses || courses.length === 0) {
-            throw new NotFoundException(`No courses found for language ID: ${languageId}`);
-        }
-
-        const filteredCourses = courses.filter(course => !course.name.toUpperCase().includes("ESSAY"));
-
-        if (filteredCourses.length === 0) {
-            throw new NotFoundException(`No courses found (excluding ESSAY courses) for language ID: ${languageId}`);
-        }
-
-        const randomIndex = Math.floor(Math.random() * filteredCourses.length);
-        const selectedCourse: Course = filteredCourses[randomIndex];
+    async startComprehension(comprehensionId: string, userId: string) {
+        const selectedCourse: Course = await this.coursesService.findOne(comprehensionId);
 
         const questions = await this.questionsService.getQuestionsByCourse(selectedCourse._id);
         const totalQuestions = questions.length;

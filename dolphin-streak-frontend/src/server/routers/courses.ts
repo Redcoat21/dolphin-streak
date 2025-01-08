@@ -86,11 +86,11 @@ export const coursesRouter = router({
           arrayBuffer[i] = binaryData.charCodeAt(i);
         }
         const blob = new Blob([arrayBuffer], { type: 'audio/webm' });
-
+        console.log({ blob })
         // Create FormData and append the blob
         const formData = new FormData();
-        formData.append('audio', blob, 'recording.webm');
-
+        formData.append('file', blob, 'recording.webm');
+        console.log({ formData });
         const response = await fetchAPI(
           `/api/courses/session/${input.courseSessionId}/submit-answer`,
           'POST',
@@ -101,6 +101,7 @@ export const coursesRouter = router({
             isFormData: true
           }
         );
+        console.log({ response })
         return response as TSubmitAnswerResponse;
       } else {
         const response = await fetchAPI(

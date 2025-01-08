@@ -21,7 +21,7 @@ export class CoursesService {
       CourseSessionDocument
     >,
     private readonly questionService: QuestionsService,
-  ) {}
+  ) { }
 
   /**
    * Creates a new course.
@@ -45,9 +45,9 @@ export class CoursesService {
       .find(filter)
       .populate("language")
       .exec();
-  
+
     console.log('Query Result:', result);
-  
+
     return result;
   }
 
@@ -121,29 +121,29 @@ export class CoursesService {
   async assessAnswer(question: Question, answer: string, accessToken: string, file: Express.Multer.File): Promise<any> {
     const qtype = QuestionType[question.type]
     console.log(file);
-        
-    if(qtype == "MULTIPLE_CHOICE"){
+
+    if (qtype == "MULTIPLE_CHOICE") {
       const answerIdx = parseInt(question.correctAnswer as string, 10)
-      if(answer.toLowerCase() == question.answerOptions[answerIdx].toLowerCase()){
+      if (answer.toLowerCase() == question.answerOptions[answerIdx].toLowerCase()) {
         return { suggestion: null, isCorrect: true };
       }
     }
-    else if(qtype == "FILL_IN"){
+    else if (qtype == "FILL_IN") {
       var correctOne = "";
-      
-      if(Array.isArray(question.correctAnswer)){
+
+      if (Array.isArray(question.correctAnswer)) {
         correctOne = question.correctAnswer[0]
       }
-      else{
+      else {
         correctOne = (question.correctAnswer as string)
       }
 
       const questionAnswer = correctOne.toLowerCase()
-      if(answer.toLowerCase() == questionAnswer){
+      if (answer.toLowerCase() == questionAnswer) {
         return { suggestion: null, isCorrect: true };
       }
     }
-    else if(qtype == "ESSAY"){
+    else if (qtype == "ESSAY") {
       const appHost = process.env.APP_HOST
       const appPort = process.env.APP_PORT
 
@@ -151,7 +151,7 @@ export class CoursesService {
         theme: question.question.text,
         essay: answer
       }
-      
+
       const url = `http://${appHost}:${appPort}/api/ai`
       // console.log(url);
       // console.log(question);
@@ -172,8 +172,8 @@ export class CoursesService {
 
         const result = response.data.data
         const suggestion = result.suggestion
-        
-        if(result.score >= 70){
+
+        if (result.score >= 70) {
           return { suggestion: suggestion, isCorrect: true };
         }
         return { suggestion: suggestion, isCorrect: false };
@@ -183,9 +183,9 @@ export class CoursesService {
       }
 
     }
-    else if(qtype == "VOICE"){
+    else if (qtype == "VOICE") {
       const format = file.originalname.split(".")[1]
-
+      console.log({ format, originalName: file.originalname });
       const formData = new FormData();
       formData.append('file', Buffer.from(file.buffer), {
         filename: file.originalname,
@@ -199,7 +199,7 @@ export class CoursesService {
       console.log(formData);
 
       const questionQuestion = question.question.text.replace(/[^a-zA-Z]/g, '');
-      
+
       const url = `http://${appHost}:${appPort}/api/voiceai/transcribe`
 
       try {
@@ -219,14 +219,14 @@ export class CoursesService {
         const transcript = response.data?.data?.transcript;
         const confidence = response.data?.data?.confidence;
 
-        if(confidence < 0.6){
-          return { 
-            suggestion: "Please speak more clearly and try again", 
+        if (confidence < 0.6) {
+          return {
+            suggestion: "Please speak more clearly and try again",
             isCorrect: false
           };
         }
 
-        if(transcript.replace(/[^a-zA-Z]/g, '') == questionQuestion){
+        if (transcript.replace(/[^a-zA-Z]/g, '') == questionQuestion) {
           return { suggestion: null, isCorrect: true }
         }
 
@@ -236,7 +236,7 @@ export class CoursesService {
         throw new Error('Failed to call API');
       }
     }
-    else if(qtype == "WRITING"){
+    else if (qtype == "WRITING") {
       return { suggestion: null, isCorrect: true }
     }
 

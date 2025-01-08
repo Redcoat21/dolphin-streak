@@ -29,9 +29,35 @@ export function ComprehensionPageID() {
     });
 
 
+    const { mutate: startComprehensionSession, isPending: isStarting } = trpc.comprehension.startComprehension.useMutation({
+        onSuccess(data) {
+            toast({
+                title: "Comprehension Started",
+                description: "Redirecting to your learning session...",
+                variant: "default",
+            });
+
+            if (data?.data?.comprehensionId) {
+                router.push(`/comprehension/session/${data.data.comprehensionId}`);
+            }
+        },
+        onError(error) {
+            toast({
+                title: "Failed to start comprehension",
+                description: error.message,
+                variant: "destructive",
+            });
+        },
+    });
     const handleBackToComprehensions = useCallback(() => {
         router.back();
     }, [router]);
+    const handleStartLearning = useCallback(
+        (comprehensionId: string) => {
+            startComprehensionSession({ courseId: comprehensionId, accessToken: accessToken || "" });
+        },
+        [startComprehensionSession, accessToken]
+    );
 
 
     if (isLoading) {
@@ -133,9 +159,20 @@ export function ComprehensionPageID() {
                                 <Button
                                     size="lg"
                                     className="bg-blue-600 hover:bg-blue-700 text-white transition-colors w-full sm:w-auto relative overflow-hidden group disabled:opacity-70"
-                                    onClick={() => router.push(`/comprehension/session/${comprehension._id}`)}
+                                    onClick={() => handleStartLearning(comprehension._id)}
+                                    disabled={isStarting}
                                 >
-                                    Start Comprehension
+                                    {isStarting ? (
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                            Starting...
+                                        </div>
+                                    ) : (
+                                        <>
+                                            Start Comprehension
+                                            <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-200" />
+                                        </>
+                                    )}
                                     <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-200" />
                                 </Button>
                                 <Button

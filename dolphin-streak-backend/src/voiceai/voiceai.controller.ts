@@ -4,9 +4,13 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { RecognizeSpeechDto } from './dto/recognizeSpeech.dto';
 import { ApiBadRequestResponse, ApiConsumes, ApiForbiddenResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 import { BearerTokenGuard } from 'src/auth/guard/bearer-token.guard';
+import { RoleGuard } from 'src/lib/guard/role.guard';
+import { Role } from 'src/users/schemas/user.schema';
+import { HasRoles } from 'src/lib/decorators/has-role.decorator';
 
 @Controller('/api/voiceai')
-@UseGuards(BearerTokenGuard)
+@UseGuards(BearerTokenGuard, RoleGuard) // TODO: pastiin ini jalan
+@HasRoles(Role.USER, Role.ADMIN) // TODO: pastiin ini jalan
 @ApiUnauthorizedResponse({
   description:
     "Happen because the user is not authorized (doesn't have a valid access token)",
@@ -69,6 +73,8 @@ export class VoiceaiController {
       "data": null
     }
   })
+  // @UseGuards(BearerTokenGuard, RoleGuard)
+  // @HasRoles(Role.USER, Role.ADMIN)
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   async recognize(
@@ -76,7 +82,7 @@ export class VoiceaiController {
     @UploadedFile() file: Express.Multer.File,
   ): Promise<any> {
     const { format } = RecognizeSpeechDto; 
-
+    console.log({ format, file });
     if (!file) {
       throw new BadRequestException('Audio file is required.');
     }

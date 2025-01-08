@@ -1,16 +1,17 @@
 import { selectBackendUrl } from "./backend-selector";
 
 interface FetchOptions {
-  body?: Record<string, any>;
+  body?: Record<string, any> | FormData;
   params?: Record<string, string>;
   query?: Record<string, string | number | boolean>;
   token?: string;
+  isFormData?: boolean;
 }
 
 export const fetchAPI = async <T>(
   endpoint: string,
   method: "GET" | "POST" | "PUT" | "DELETE",
-  { body, params, query, token }: FetchOptions = {}
+  { body, params, query, token, isFormData }: FetchOptions = {}
 ): Promise<T> => {
   const backendUrl = selectBackendUrl();
   const url = new URL(`${backendUrl}${endpoint}`);
@@ -34,20 +35,16 @@ export const fetchAPI = async <T>(
   }
 
   // Set up headers
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-  };
-
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
+  const headers: HeadersInit = isFormData
+    ? { Authorization: `Bearer ${token}` }  // Don't set Content-Type for FormData
+    : { "Content-Type": "application/json", ...(token && { Authorization: `Bearer ${token}` }) };
 
   try {
     console.log("Fetching:", url.toString());
     const response = await fetch(url.toString(), {
       method,
       headers,
-      body: body ? JSON.stringify(body) : undefined,
+      body: isFormData ? (body as FormData) : (body ? JSON.stringify(body) : undefined),
     });
 
     // Handle non-OK responses
@@ -69,6 +66,7 @@ export const fetchAPI = async <T>(
     throw error;
   }
 };
+
 export function formatDate(dateString: string): string {
   const date = new Date(dateString);
   return new Intl.DateTimeFormat("en-US", {

@@ -40,9 +40,9 @@ export function ComprehensionSessionIDPage() {
     const [suggestion, setSuggestion] = useState<string | null>(null);
 
     // Fetch session data
-    const { data: comprehensionSessionData, refetch } = trpc.comprehension.getComprehensionSessionId.useQuery({
+    const { data: comprehensionSessionData, refetch } = trpc.course.getCourseSessionId.useQuery({
         accessToken: accessToken || "",
-        comprehensionSessionId: comprehensionSessionId as string
+        courseSessionId: comprehensionSessionId as string
     });
 
     // Decrement timer if question not answered
@@ -72,6 +72,7 @@ export function ComprehensionSessionIDPage() {
                 setSuggestion(data.data?.suggestion || null);
                 playSound("incorrect");
             }
+            data.data?.isLatest
         },
         onError(error) {
             toast({
@@ -101,7 +102,7 @@ export function ComprehensionSessionIDPage() {
                 postSubmitAnswer({
                     questionType: questionData?.question.questionType as QuestionType,
                     accessToken: accessToken || "",
-                    comprehensionSessionId: comprehensionSessionId,
+                    courseSessionId: comprehensionSessionId,
                     answer: answer
                 });
             }

@@ -195,6 +195,7 @@ export class CoursesController {
     if (findAllQuery.language) {
       filter.language = findAllQuery.language;
     }
+    filter.name = { $not: { $regex: "ESSAY", $options: "i" } };
 
     // if (findAllQuery.type) {
     //   filter.type = findAllQuery.type;
@@ -520,17 +521,19 @@ export class CoursesController {
     @Param('courseSessionId') courseSessionId: string,
     @Req() request: Request
   ) {
+    console.log({ courseSessionId })
     const session = await this.coursesService.getOneSession(courseSessionId);
-
+    console.log({ session })
     // checking if the owner or not
     const userId = request.user._id.toString();
+    console.log({ userId, userSession: session.user.toString() })
     const userSession = session.user.toString();
 
-    if(userId !== userSession){
+    if (userId !== userSession) {
       throw new ForbiddenException();
     }
 
-    if(session.questions.length == 0){
+    if (session.questions.length == 0) {
       throw new NotFoundException('No questions available for this session.');
     }
 
@@ -586,6 +589,7 @@ export class CoursesController {
           suggestion: null,
           isCorrect: true,
           isLatest: false,
+          score: 10,
         },
       },
     },
@@ -608,13 +612,13 @@ export class CoursesController {
     @Req() request: Request
   ) {
     const session = await this.coursesService.getOneSession(courseSessionId);
-    console.log(file);
-    
+    console.log({ session, file });
+
     // checking if the owner or not
     const userId = request.user._id.toString();
     const userSession = session.user.toString();
 
-    if(userId !== userSession){
+    if (userId !== userSession) {
       throw new ForbiddenException();
     }
 
@@ -623,20 +627,20 @@ export class CoursesController {
 
     // console.log(question);
     const qtype = QuestionType[question.type]
-    
-    if(!answer && qtype != "VOICE"){
+
+    if (!answer && qtype != "VOICE") {
       throw new BadRequestException('answer must be a string')
     }
 
-    if(!file && qtype == "VOICE"){
+    if (!file && qtype == "VOICE") {
       throw new BadRequestException('file must be passed')
     }
 
     const accessToken = request.headers.authorization.split(' ')[1]
 
     const { suggestion, isCorrect } = await this.coursesService.assessAnswer(question, answer, accessToken, file)
-    
-    if(isCorrect){
+
+    if (isCorrect) {
       const updatedSession = await this.coursesService.addAnsweredQuestion(
         courseSessionId,
         questionId.toString(),
@@ -646,13 +650,14 @@ export class CoursesController {
     const newSession = await this.coursesService.getOneSession(courseSessionId);
 
     const isLatest = (newSession.answeredQuestions.length == newSession.questions.length);
-
+    const score = newSession.score;
     return {
       messages: "Successfully Assessed the Answer",
       data: {
         suggestion,
         isCorrect,
-        isLatest
+        isLatest,
+        score
       }
     }
   }

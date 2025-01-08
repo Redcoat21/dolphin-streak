@@ -19,7 +19,7 @@ export class ComprehensionController {
         private readonly questionsService: QuestionsService
     ) { }
 
-    @Post('start')
+    @Post(':id/start')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: "Start a comprehension challenge" })
     @UseGuards(BearerTokenGuard, RoleGuard)
@@ -40,18 +40,18 @@ export class ComprehensionController {
     })
     @ApiBearerAuth()
     async startComprehension(
-        @Body() startComprehensionDto: StartComprehensionDto,
+        @Param("id") comprehensionId: string,
         @Req() request: Request,
     ) {
         const userId = request.user._id.toString();
         // Fetch comprehension challenge questions based on language ID
-        const comprehensionChallenge = await this.comprehensionService.startComprehension(startComprehensionDto.languageId, userId);
+        const comprehensionChallenge = await this.comprehensionService.startComprehension(comprehensionId, userId);
         // Get the first course ID from the comprehension challenge
         // const courseId = comprehensionChallenge.courseId;
-        const courseId = comprehensionChallenge.courseId;
+        
         // Get the questions for the course
         // const questions = await this.questionsService.getQuestionsByCourse(courseId);
-        const questions = await this.questionsService.getQuestionsByCourse(courseId);
+        const questions = await this.questionsService.getQuestionsByCourse(comprehensionId);
         const totalQuestions = questions.length;
         // Set the session expiration time
         // const expiresAt = DateTime.now().plus({ minutes: 30 }).toJSDate();
@@ -60,7 +60,7 @@ export class ComprehensionController {
         // const session = await this.coursesService.addSession({
         const session = await this.coursesService.addSession({
             user: userId,
-            course: courseId,
+            course: comprehensionId,
             questions: questions,
             expiresAt: expiresAt,
             score: 0
@@ -206,6 +206,7 @@ export class ComprehensionController {
                     suggestion: null,
                     isCorrect: true,
                     isLatest: false,
+                    score: 10,
                 },
             },
         },
@@ -254,7 +255,6 @@ export class ComprehensionController {
         }
 
         const newSession = await this.coursesService.getOneSession(comprehensionSessionId);
-
         const isLatest = (newSession.answeredQuestions.length == newSession.questions.length);
 
         return {
@@ -262,7 +262,8 @@ export class ComprehensionController {
             data: {
                 suggestion,
                 isCorrect,
-                isLatest
+                isLatest,
+                score: newSession.score
             }
         }
     }

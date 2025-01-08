@@ -21,13 +21,10 @@ export const comprehensionRouter = router({
         .input(ZPostStartComprehension)
         .mutation(async ({ input }) => {
             const response = await fetchAPI(
-                `/api/comprehension/start`,
+                `/api/comprehension/${input.courseId}/start`,
                 'POST',
                 {
                     token: input.accessToken,
-                    body: {
-                        courseId: input.courseId
-                    }
                 }
             );
             return response as TStartComprehensionResponse;

@@ -57,7 +57,7 @@ export type TQuestion = {
         thumbnail: string;
         type: number;
     }[];
-    type: QuestionType;
+    questionType?: QuestionType;
     useAi: boolean;
 };
 
