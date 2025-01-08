@@ -75,11 +75,12 @@ export class VoiceaiController {
     @Body() RecognizeSpeechDto: RecognizeSpeechDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<any> {
-    const { format } = RecognizeSpeechDto;
+    const { format } = RecognizeSpeechDto; 
 
     if (!file) {
       throw new BadRequestException('Audio file is required.');
     }
+    console.log("di voice ai");
 
     const data = await this.voiceaiService.recognizeSpeech(file.buffer, format);
 

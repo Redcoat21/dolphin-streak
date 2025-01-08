@@ -5,6 +5,8 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { CourseSchema } from "./schemas/course.schema";
 import { CourseSessionSchema } from "./schemas/course-session.schema";
 import { QuestionsModule } from "src/questions/questions.module";
+import { ConfigModule } from "@nestjs/config";
+import { MulterModule } from "@nestjs/platform-express";
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { QuestionsModule } from "src/questions/questions.module";
       schema: CourseSessionSchema,
     }]),
     QuestionsModule,
+    ConfigModule,
+    MulterModule.register(),
   ],
   controllers: [CoursesController],
   providers: [CoursesService],

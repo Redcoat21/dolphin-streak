@@ -10,8 +10,8 @@ import {
 } from "./schemas/course-session.schema";
 import { QuestionsService } from "src/questions/questions.service";
 import { Question, QuestionType } from "src/questions/schemas/question.schema";
-import { env } from "process";
 import axios from "axios";
+import FormData from "form-data";
 
 @Injectable()
 export class CoursesService {
@@ -118,9 +118,9 @@ export class CoursesService {
     return courseSession.save();
   }
 
-  async assessAnswer(question: Question, answer: string, accessToken: string): Promise<any> {
+  async assessAnswer(question: Question, answer: string, accessToken: string, file: Express.Multer.File): Promise<any> {
     const qtype = QuestionType[question.type]
-    console.log(qtype);
+    console.log(file);
         
     if(qtype == "MULTIPLE_CHOICE"){
       const answerIdx = parseInt(question.correctAnswer as string, 10)
@@ -184,10 +184,60 @@ export class CoursesService {
 
     }
     else if(qtype == "VOICE"){
-      return true
+      const format = file.originalname.split(".")[1]
+
+      const formData = new FormData();
+      formData.append('file', Buffer.from(file.buffer), {
+        filename: file.originalname,
+        contentType: file.mimetype
+      });
+      formData.append('format', format);
+
+      const appHost = process.env.APP_HOST
+      const appPort = process.env.APP_PORT
+
+      console.log(formData);
+
+      const questionQuestion = question.question.text.replace(/[^a-zA-Z]/g, '');
+      
+      const url = `http://${appHost}:${appPort}/api/voiceai/transcribe`
+
+      try {
+        const response = await axios.post(
+          url,                   // API endpoint
+          formData,                  // Request body
+          {                      // Config (e.g., headers)
+            headers: {
+              ...formData.getHeaders(),
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        console.log(response.data);
+
+        const transcript = response.data?.data?.transcript;
+        const confidence = response.data?.data?.confidence;
+
+        if(confidence < 0.6){
+          return { 
+            suggestion: "Please speak more clearly and try again", 
+            isCorrect: false
+          };
+        }
+
+        if(transcript.replace(/[^a-zA-Z]/g, '') == questionQuestion){
+          return { suggestion: null, isCorrect: true }
+        }
+
+        return { suggestion: "Your pronunciation is wrong. Try again!", isCorrect: false };
+      } catch (error) {
+        console.error('Error calling API:', error.response?.data || error.message);
+        throw new Error('Failed to call API');
+      }
     }
     else if(qtype == "WRITING"){
-      return true
+      return { suggestion: null, isCorrect: true }
     }
 
     return { suggestion: null, isCorrect: false };
