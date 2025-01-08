@@ -192,9 +192,9 @@ export class CoursesController {
       filter.language = findAllQuery.language;
     }
 
-    if (findAllQuery.type) {
-      filter.type = findAllQuery.type;
-    }
+    // if (findAllQuery.type) {
+    //   filter.type = findAllQuery.type;
+    // }
     console.log('findAllQuery:', findAllQuery);
     console.log(filter);
 

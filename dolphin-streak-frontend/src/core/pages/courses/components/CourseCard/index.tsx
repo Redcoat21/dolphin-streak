@@ -2,18 +2,7 @@
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import { Shield } from "lucide-react";
-
-type TCourse = {
-    _id: string;
-    language: {
-        _id: string;
-        name: string;
-        image: string;
-    };
-    name: string;
-    thumbnail: string;
-    type: number;
-};
+import { TCourse } from "@/server/types/courses";
 
 type CourseCardProps = { course: TCourse; onClick: () => void };
 

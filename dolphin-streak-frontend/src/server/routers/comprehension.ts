@@ -5,16 +5,16 @@ import type {
     TStartComprehensionResponse,
     TGetComprehensionSessionResponse,
     TSubmitComprehensionAnswerResponse,
-    TGetAllComprehensionsResponse
+    TGetAllComprehensionsResponse,
+    TComprehensionResponse
 } from '../types/comprehension';
 import {
     ZPostStartComprehension,
     ZGetComprehensionSessionRequest,
     ZPostSubmitComprehensionAnswerRequest,
     ZGetAllComprehensionsRequest,
+    ZGetComprehensionByIdRequest,
 } from '../types/comprehension';
-import { QuestionType } from '../types/questions';
-
 
 export const comprehensionRouter = router({
     startComprehension: authedProcedure
@@ -26,7 +26,7 @@ export const comprehensionRouter = router({
                 {
                     token: input.accessToken,
                     body: {
-                        languageId: input.languageId
+                        courseId: input.courseId
                     }
                 }
             );
@@ -34,7 +34,7 @@ export const comprehensionRouter = router({
         }),
     getQuestionBySessionId: authedProcedure.input(ZGetComprehensionSessionRequest).mutation(async ({ input }) => {
         const response = await fetchAPI(
-            `/api/comprehension/session/${input.comprehensionSessionId}`,
+            `/api/comprehension/session/${input.id}`,
             'GET',
             {
                 token: input.accessToken,
@@ -46,7 +46,7 @@ export const comprehensionRouter = router({
         .input(ZPostSubmitComprehensionAnswerRequest)
         .mutation(async ({ input }) => {
             const response = await fetchAPI(
-                `/api/comprehension/session/${input.comprehensionSessionId}/submit-answer`,
+                `/api/comprehension/session/${input.courseSessionId}/submit-answer`,
                 'POST',
                 {
                     token: input.accessToken,
@@ -61,13 +61,10 @@ export const comprehensionRouter = router({
         .input(ZGetAllComprehensionsRequest)
         .query(async ({ input }) => {
             const response = await fetchAPI(
-                `/api/comprehension`,
+                `/api/comprehension/language/${input.language}`,
                 'GET',
                 {
                     token: input.accessToken,
-                    params: {
-                        language: input.language,
-                    }
                 }
             );
             return response as TGetAllComprehensionsResponse;

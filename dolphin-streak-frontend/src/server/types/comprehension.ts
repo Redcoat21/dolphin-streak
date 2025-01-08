@@ -1,11 +1,13 @@
 import { z } from "zod";
 import { QuestionType, TQuestion } from "./questions";
 import { TDefaultResponse, TAnswerResult } from "./generic";
+import { ZCourse, ZGetCourseByIdRequest, ZGetCoursesRequest, ZPostStartCourseSession, ZPostSubmitAnswerRequest } from "./courses";
 
-export const ZPostStartComprehension = z.object({
-    accessToken: z.string(),
-    languageId: z.string(),
-});
+// export const ZPostStartComprehension = z.object({
+//     accessToken: z.string(),
+//     languageId: z.string(),
+// });
+export const ZPostStartComprehension = ZPostStartCourseSession
 
 export type TStartComprehensionResponse = TDefaultResponse<{
     comprehensionId: string;
@@ -13,10 +15,7 @@ export type TStartComprehensionResponse = TDefaultResponse<{
     totalQuestions: number;
 }>;
 
-export const ZGetComprehensionSessionRequest = z.object({
-    accessToken: z.string(),
-    comprehensionSessionId: z.string(),
-});
+export const ZGetComprehensionSessionRequest = ZGetCourseByIdRequest
 
 export type TGetComprehensionSessionResponse = TDefaultResponse<{
     question: TQuestion;
@@ -25,27 +24,13 @@ export type TGetComprehensionSessionResponse = TDefaultResponse<{
     score: number;
 }>;
 
-export const ZPostSubmitComprehensionAnswerRequest = z.object({
-    accessToken: z.string(),
-    comprehensionSessionId: z.string(),
-    answer: z.string(),
-});
+export const ZPostSubmitComprehensionAnswerRequest = ZPostSubmitAnswerRequest
 
 export type TSubmitComprehensionAnswerResponse = TDefaultResponse<TAnswerResult>;
 
-export const ZGetAllComprehensionsRequest = z.object({
-    accessToken: z.string(),
-    language: z.string(),
-});
+export const ZGetAllComprehensionsRequest = ZGetCoursesRequest
 
-
-export const ZComprehension = z.object({
-    _id: z.string(),
-    name: z.string(),
-    language: z.string(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-});
+export const ZComprehension = ZCourse
 
 export const ZGetAllComprehensionsResponse = z.object({
     data: z.array(ZComprehension),
@@ -54,3 +39,9 @@ export const ZGetAllComprehensionsResponse = z.object({
 });
 
 export type TGetAllComprehensionsResponse = z.infer<typeof ZGetAllComprehensionsResponse>;
+
+export const ZGetComprehensionByIdRequest = z.object({
+    id: z.string(),
+});
+
+export type TComprehensionResponse = TDefaultResponse<z.infer<typeof ZComprehension>>;

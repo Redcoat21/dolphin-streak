@@ -118,9 +118,8 @@ export class ComprehensionService {
     }
 
     async findAllComprehension(languageId: string) {
-        const filter: FilterQuery<Course> = { language: languageId };
+        const filter: FilterQuery<Course> = { language: languageId, name: { $regex: 'ESSAY', $options: 'i' } };
         const courses = await this.coursesService.findAll(filter);
-        return courses
-
+        return courses;
     }
 }
