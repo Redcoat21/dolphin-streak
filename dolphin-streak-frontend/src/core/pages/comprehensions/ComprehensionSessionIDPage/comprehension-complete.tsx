@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Trophy, Star, Home, RotateCcw } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useEffect, useRef, useCallback } from 'react';
+import { Header } from '../../dasboard/components/Header';
 
 interface ComprehensionCompleteProps {
     score: number;
@@ -57,6 +58,7 @@ export function ComprehensionComplete({ score }: ComprehensionCompleteProps) {
 
     return (
         <Container>
+            {/* <Header currentPath="/comprehensions" /> */}
             <main className="min-h-screen bg-slate-950 text-white flex items-center justify-center px-4">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
