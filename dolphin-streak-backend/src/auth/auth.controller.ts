@@ -33,6 +33,8 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiUnauthorizedResponse,
+  ApiConsumes,
+  ApiBadGatewayResponse,
 } from "@nestjs/swagger";
 import { CreateUserDto } from "src/users/dto/create-user.dto";
 import { ForgotPasswordDto } from "./dto/forgot-password.dto";
@@ -51,6 +53,7 @@ import { UpdateUserByTokenDto } from "./session/dto/update-by-token.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
 import { CloudinaryService } from "src/upload/cloudinary.service";
+import { RoleGuard } from "src/lib/guard/role.guard";
 
 @Controller("/api/auth")
 @ApiInternalServerErrorResponse({
@@ -67,7 +70,7 @@ export class AuthController {
     private readonly sessionService: SessionService,
     private readonly usersService: UsersService,
     private readonly cloudinaryService: CloudinaryService,
-  ) {}
+  ) { }
 
   @UseGuards(LocalAuthGuard)
   @Post("login")
@@ -346,7 +349,7 @@ export class AuthController {
   @ApiOperation({
     summary: "Get user profile information using access token",
     description:
-      "This endpoint retrieves the user's profile information based on the provided valid access token.",
+      "This endpoint retrieves the user's profile information based on the provided valid access token in the Authorization header.",
   })
   @ApiOkResponse({
     description: "Successfully retrieved user profile",
@@ -379,6 +382,7 @@ export class AuthController {
       data: null,
     },
   })
+  @ApiBearerAuth()
   @UseGuards(BearerTokenGuard)
   async getProfile(@Req() req: Request): Promise<ApiResponse> {
     //@ts-ignore
@@ -389,27 +393,124 @@ export class AuthController {
       data: user,
     };
   }
-
+  
   @Put("users")
   @UseGuards(BearerTokenGuard)
+  @ApiOperation({
+    summary: "Update user information",
+    description:
+      "This endpoint allows users to update their profile information using a valid access token in the Authorization header. The password and role cannot be updated using this endpoint.",
+  })
+  @ApiBearerAuth()
+  @ApiBody({
+    description: "User update data",
+    type: "object",
+    schema: {
+      $ref: "#/components/schemas/UpdateUserDto",
+    },
+  })
+  @ApiOkResponse({
+    description: "User updated successfully",
+    schema: {
+      type: "object",
+      properties: {
+        messages: { type: "string", example: "User updated successfully" },
+        data: {
+          type: "object",
+          properties: {
+            _id: {
+              type: "string",
+              description: "User ID"
+            },
+            firstName: {
+              type: "string",
+              description: "User's first name"
+            },
+            lastName: {
+              type: "string",
+              description: "User's last name"
+            },
+            email: {
+              type: "string",
+              description: "User's email address"
+            },
+            birthDate: {
+              type: "string",
+              format: "date-time",
+              description: "User's birth date"
+            },
+            loginHistories: {
+              type: "array",
+              items: {
+                type: "string"
+              },
+              description: "User's login history"
+            },
+            languages: {
+              type: "array",
+              items: {
+                type: "string"
+              },
+              description: "User's languages"
+            },
+            completedCourses: {
+              type: "array",
+              items: {
+                type: "string"
+              },
+              description: "User's completed courses"
+            },
+            createdAt: {
+              type: "string",
+              format: "date-time",
+              description: "User's creation timestamp"
+            },
+            updatedAt: {
+              type: "string",
+              format: "date-time",
+              description: "User's last update timestamp"
+            },
+            __v: {
+              type: "number",
+              description: "User's version"
+            }
+          },
+          required: [
+            "_id",
+            "firstName",
+            "email",
+            "createdAt",
+            "updatedAt",
+            "__v"
+          ]
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: "Happen when the access token is invalid or expired.",
+    example: {
+      messages: "Invalid or expired token",
+      data: null,
+    },
+  })
+  @ApiNotFoundResponse({
+    description: "Happen when the user with this token is not found",
+    example: {
+      messages: "User not founded",
+      data: null,
+    },
+  })
   async update(
-    @Body() updateUserByTokenDto: UpdateUserByTokenDto,
+    @Req() req: Request,
+    @Body() updateUserDto: UpdateUserDto,
   ): Promise<ApiResponse> {
-    // Extracted the password and role since this two should'have never been updated directly.
-    const { password, role, ...newUpdateUserDto } = updateUserByTokenDto;
-
-    const { user } = await this.sessionService.findOne({
-      "accessToken.token": updateUserByTokenDto.accessToken,
-    });
-
-    if (!user) {
-      throw new HttpException("User not founded", 404);
-    }
+    //@ts-ignore
+    const userId = req.user._id.toString();
 
     const updatedUser = await this.usersService.update(
-      //@ts-ignore
-      user._id,
-      newUpdateUserDto,
+      userId,
+      updateUserDto,
     );
 
     const userResponse = extractPassword(updatedUser);
@@ -423,8 +524,53 @@ export class AuthController {
   @Put("users/profile-picture")
   @UseInterceptors(FileInterceptor("profilePicture"))
   @UseGuards(BearerTokenGuard)
+  @ApiOperation({
+    summary: "Upload a user's profile picture",
+    description:
+      "Is used to upload a user's profile picture. Sorry that no body example in here, i don't know how",
+  })
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        profilePicture: {
+          type: "string",
+          format: "binary",
+          description: "The profile picture to upload",
+        },
+      },
+    },
+  })
+  @ApiOkResponse({
+    description: "Return the uploaded profile picture",
+    example: {
+      messages: "Profile picture uploaded successfully",
+      data: {
+        imageUrl: "https://placehold.jp/150x150.png",
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description:
+      "Happen when the user doesn't upload a file or the file MIME type is not allowed",
+    example: {
+      messages: "Validation failed (expected type is /(jpg|jpeg|png|webp)$/)",
+      data: null,
+    },
+  })
+  @ApiBadGatewayResponse({
+    description:
+      "Happen when the image failed to upload to Cloudinary, it can be because of the network or the image itself",
+    example: {
+      messages: "Failed to upload image to Cloudinary",
+      data: null,
+    },
+  })
+  @UseGuards(BearerTokenGuard, RoleGuard)
+  @HasRoles(Role.USER, Role.ADMIN)
   async uploadProfilePicture(
-    @Body("accessToken") accessToken: string,
+    @Req() req: Request,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
@@ -439,20 +585,13 @@ export class AuthController {
       }),
     ) file: Express.Multer.File,
   ): Promise<ApiResponse> {
+    console.log({ file, user: req.user });
     if (!file) {
       throw new BadRequestException("No file uploaded");
     }
 
-    const { user } = await this.sessionService.findOne({
-      "accessToken.token": accessToken,
-    });
-
-    if (!user) {
-      throw new HttpException("User not founded", 404);
-    }
-
     //@ts-ignore
-    const userId = user._id;
+    const userId = req.user._id;
 
     try {
       const imageUrl = await this.cloudinaryService.uploadImage(

@@ -113,3 +113,10 @@ export const ZUpdateProfileInput = z.object({
 });
 
 export type TUpdateProfileInput = z.infer<typeof ZUpdateProfileInput>;
+
+export const ZUpdateProfilePictureInput = z.object({
+  profilePicture: z.string(),
+});
+
+export type TUpdateProfilePictureInput = z.infer<typeof ZUpdateProfilePictureInput>;
+export type TUpdateProfilePictureResponse = TDefaultResponse<{ imageUrl: string }>;

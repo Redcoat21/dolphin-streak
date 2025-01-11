@@ -1,5 +1,7 @@
+import { withAuth } from "@/core/components/hoc/withAuth";
 import { ProfilePage } from "@/core/pages/profile";
 
-export default function Profile(){
+function Profile() {
     return <ProfilePage />
 }
+export default withAuth(Profile);

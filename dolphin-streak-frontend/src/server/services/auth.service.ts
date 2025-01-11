@@ -12,6 +12,7 @@ import {
   TGetUserProfileDataResponse,
   TUpdateProfileInput,
   TUserProfileData,
+  TUpdateProfilePictureResponse,
 } from "../types/auth";
 import { z } from "zod";
 
@@ -137,7 +138,7 @@ export class AuthService {
 
   static async updateProfile(input: TUpdateProfileInput, accessToken: string) {
     try {
-      const response = await fetchAPI<TGetUserProfileDataResponse>("/api/auth/profile", "PUT", {
+      const response = await fetchAPI<TGetUserProfileDataResponse>("/api/auth/users", "PUT", {
         body: input,
         token: accessToken,
       });
@@ -147,6 +148,26 @@ export class AuthService {
         throw new Error("Update profile failed: " + error.message);
       } else {
         throw new Error("Update profile failed: Unknown error");
+      }
+    }
+  }
+
+  static async updateProfilePicture(profilePicture: string, accessToken: string) {
+    try {
+      const blob = await fetch(profilePicture).then(res => res.blob());
+      const formData = new FormData();
+      formData.append("profilePicture", blob);
+      const response = await fetchAPI<TUpdateProfilePictureResponse>("/api/auth/users/profile-picture", "PUT", {
+        body: formData,
+        token: accessToken,
+        isFormData: true,
+      });
+      return response;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error("Update profile picture failed: " + error.message);
+      } else {
+        throw new Error("Update profile picture failed: Unknown error");
       }
     }
   }

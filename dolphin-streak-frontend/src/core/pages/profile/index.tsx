@@ -1,7 +1,6 @@
 import { Container } from "@/core/components/container";
 import { useAuthStore } from "@/core/stores/authStore";
-import { Header } from "../dasboard/components/Header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/utils/trpc";
@@ -16,7 +15,7 @@ import { LogoutButton } from "./components/logout";
 import { ChangeProfilePicture } from "./components/change-profile-picture";
 import { ProfileEdit } from "./components/profile-edit";
 import { ProfileDisplay } from "./components/profile-display";
-
+import { Header } from "../dasboard/components/Header";
 
 export function ProfilePage() {
   const { getAccessToken, getUserData, setUserData } = useAuthStore();
@@ -30,63 +29,89 @@ export function ProfilePage() {
     pushNotifications: true,
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [userProfilePicture, setUserProfilePicture] = useState(userData?.profilePicture);
 
 
-  const { mutateAsync: updateProfile } = trpc.auth.updateProfile.useMutation();
+  const { mutate: updateProfile } = trpc.auth.updateProfile.useMutation({
+    onSuccess(data, variables, context) {
+      setUserData({
+        ...userData!,
+        firstName: data.data?.firstName || "",
+        lastName: data.data?.lastName || "",
+      });
+      setIsEditing(false);
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+    },
+    onError(error, variables, context) {
+      toast({
+        title: error.message,
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  const { mutate: updateProfilePicture } = trpc.auth.updateProfilePicture.useMutation({
+    onSuccess(data, variables, context) {
+      setUserData({
+        ...userData!,
+        profilePicture: data.data?.imageUrl || ""
+      });
+      setUserProfilePicture(data.data?.imageUrl || "");
+      toast({
+        title: "Success",
+        description: "Profile picture updated successfully",
+      });
+    },
+    onError(error, variables, context) {
+      toast({
+        title: error.message,
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleEditProfile = () => {
     setIsEditing(true);
   };
 
   const handleSaveProfile = async (values: TUpdateProfileInput) => {
-    try {
-      const result = await updateProfile({
-        accessToken: accessToken || "",
-        ...values,
-      });
-
-      if (result.success) {
-        setUserData({
-          ...userData!,
-          ...values,
-        });
-        setIsEditing(false);
-        toast({
-          title: "Success",
-          description: "Profile updated successfully",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update profile",
-        variant: "destructive",
-      });
-    }
+    await updateProfile({
+      accessToken: accessToken || "",
+      ...values,
+    });
   };
 
   const handleProfilePictureChange = () => {
     setIsDialogOpen(true);
   };
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          resolve(reader.result);
+        } else {
+          reject(new Error("Failed to convert file to base64"));
+        }
+      };
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+  };
+
+
   const handleFileAccepted = async (file: File) => {
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("accessToken", accessToken || "");
-
-      const result = await trpc.auth.updateProfilePicture.mutateAsync(formData);
-
-      if (result.success) {
-        setUserData({
-          ...userData!,
-          profilePicture: result.profilePicture,
-        });
-        toast({
-          title: "Success",
-          description: "Profile picture updated successfully",
-        });
-      }
+      const base64String = await fileToBase64(file);
+      updateProfilePicture({
+        profilePicture: base64String,
+        accessToken: accessToken || "",
+      });
     } catch (error) {
       toast({
         title: "Error",
@@ -111,89 +136,120 @@ export function ProfilePage() {
     });
   };
 
-  const handleLanguageChange = () => {
-    router.push("/learning");
-  };
-
-
   return (
     <Container>
       <Header currentPath="/profile" />
-      <div className="mt-24 max-w-4xl mx-auto p-4">
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* Profile Header */}
+        {/* <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h1 className="text-3xl font-bold tracking-tight">Profile Settings</h1>
+          <LogoutButton />
+        </div> */}
+
+        {/* Main Profile Card */}
         <Card className="shadow-lg">
-          <CardHeader className="space-y-1">
-            <div className="flex justify-between items-center">
-              <CardTitle className="text-2xl font-bold">Profile Settings</CardTitle>
-              <LogoutButton />
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="p-6 space-y-8">
             {/* Profile Section */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-20 w-20 border-2">
-                  <AvatarImage src={userData?.profilePicture} alt={userData?.firstName} />
-                  <AvatarFallback>
+            <div className="flex flex-col md:flex-row gap-8 items-start">
+              {/* Avatar Section */}
+              <div className="flex flex-col items-center space-y-4">
+                <Avatar className="h-32 w-32 border-4 border-primary/10 shadow-md hover:shadow-lg transition-shadow">
+                  <AvatarImage
+                    src={userProfilePicture}
+                    alt={userData?.firstName}
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="text-2xl">
                     {userData?.firstName?.charAt(0)}{userData?.lastName?.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="space-y-1">
-                  {isEditing ? (
-                    <ProfileEdit
-                      userData={userData}
-                      onCancel={() => setIsEditing(false)}
-                      onSave={handleSaveProfile}
-                    />
-                  ) : (
-                    <ProfileDisplay
-                      userData={userData}
-                      onEdit={handleEditProfile}
-                      onProfilePictureChange={handleProfilePictureChange}
-                    />
-                  )}
-                </div>
+                <Button
+                  onClick={handleProfilePictureChange}
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                >
+                  Change Photo
+                </Button>
+              </div>
+
+              {/* Profile Info Section */}
+              <div className="flex-1 min-w-0">
+                {isEditing ? (
+                  <ProfileEdit
+                    userData={userData}
+                    onCancel={() => setIsEditing(false)}
+                    onSave={handleSaveProfile}
+                  />
+                ) : (
+                  <ProfileDisplay
+                    userData={userData}
+                    onEdit={handleEditProfile}
+                    onProfilePictureChange={handleProfilePictureChange}
+                  />
+                )}
               </div>
             </div>
-            <ChangeProfilePicture
-              open={isDialogOpen}
-              onOpenChange={setIsDialogOpen}
-              onFileAccepted={handleFileAccepted}
-            />
 
             <Separator />
 
             {/* Notification Settings */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Bell className="w-5 h-5" />
+            <div className="space-y-6">
+              <h3 className="text-xl font-semibold flex items-center gap-2">
+                <Bell className="w-5 h-5 text-muted-foreground" />
                 Notification Preferences
               </h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <p className="font-medium">Email Notifications</p>
-                    <p className="text-sm text-gray-500">Receive updates via email</p>
-                  </div>
-                  <Switch
-                    checked={notificationSettings.emailNotifications}
-                    onCheckedChange={() => handleNotificationChange('email')}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <p className="font-medium">Push Notifications</p>
-                    <p className="text-sm text-gray-500">Receive push notifications</p>
-                  </div>
-                  <Switch
-                    checked={notificationSettings.pushNotifications}
-                    onCheckedChange={() => handleNotificationChange('push')}
-                  />
-                </div>
+              <div className="space-y-6">
+                <NotificationToggle
+                  title="Email Notifications"
+                  description="Receive updates via email"
+                  checked={notificationSettings.emailNotifications}
+                  onCheckedChange={() => handleNotificationChange('email')}
+                />
+                <NotificationToggle
+                  title="Push Notifications"
+                  description="Receive push notifications"
+                  checked={notificationSettings.pushNotifications}
+                  onCheckedChange={() => handleNotificationChange('push')}
+                />
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      <ChangeProfilePicture
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onFileAccepted={handleFileAccepted}
+      />
     </Container>
+  );
+}
+
+// New component for notification toggles
+function NotificationToggle({
+  title,
+  description,
+  checked,
+  onCheckedChange
+}: {
+  title: string;
+  description: string;
+  checked: boolean;
+  onCheckedChange: () => void;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="space-y-1">
+        <p className="font-medium">{title}</p>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </div>
+      <Switch
+        checked={checked}
+        onCheckedChange={onCheckedChange}
+        className="data-[state=checked]:bg-primary"
+      />
+    </div>
   );
 }

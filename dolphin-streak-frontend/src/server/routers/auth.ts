@@ -1,5 +1,5 @@
 import { authedProcedure, publicProcedure, router } from '../trpc';
-import { ZLoginInput, ZRegisterInput, ZUpdateLanguagePreferencesInput, ZForgotPasswordInput, ZResetPasswordInput, ZRefreshAccessTokenRequest, ZUpdateProfileInput } from '../types/auth';
+import { ZLoginInput, ZRegisterInput, ZUpdateLanguagePreferencesInput, ZForgotPasswordInput, ZResetPasswordInput, ZRefreshAccessTokenRequest, ZUpdateProfileInput, ZUpdateProfilePictureInput } from '../types/auth';
 import { AuthService } from '../services/auth.service';
 
 export const authRouter = router({
@@ -47,5 +47,16 @@ export const authRouter = router({
     .input(ZUpdateProfileInput)
     .mutation(async ({ input }) => {
       return await AuthService.updateProfile(input, input.accessToken);
+    }),
+  updateProfilePicture: authedProcedure
+    .input(ZUpdateProfilePictureInput)
+    .mutation(async ({ input }) => {
+      const { profilePicture, accessToken } = input;
+
+      if (!profilePicture) {
+        throw new Error("No file uploaded");
+      }
+
+      return await AuthService.updateProfilePicture(profilePicture, accessToken);
     }),
 });

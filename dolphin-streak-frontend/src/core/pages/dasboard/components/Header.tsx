@@ -320,19 +320,20 @@ export function Header({ currentPath, languageDropdown, selectedLanguage, onLang
     <header className="fixed top-0 w-full bg-gradient-to-r from-[#0A84FF] to-[#5AB9EA] p-4 z-50">
       <div className="flex flex-col sm:flex-row justify-between items-center max-w-7xl mx-auto space-y-3 sm:space-y-0">
         <div className="flex items-center gap-3">
-          <Avatar className="h-12 w-12 border-2 border-white shadow-md">
-            <AvatarImage src={userData?.data?.profilePicture} alt="User" />
-            <AvatarFallback>
-              {userData?.data?.firstName && userData?.data?.lastName
-                ? `${userData.data.firstName.charAt(0)}${userData.data.lastName.charAt(0)}`
-                : userData?.data?.firstName?.slice(0, 2) || "U"}
-            </AvatarFallback >
-          </Avatar>
-          <h3 className="text-xl font-semibold text-white">
-            <Link href="/profile">
+          {/* make the link so that the component inside it like inline */}
+          <Link href="/profile" className="flex items-center gap-2">
+            <Avatar className="h-12 w-12 border-2 border-white shadow-md">
+              <AvatarImage src={userData?.data?.profilePicture} alt="User" />
+              <AvatarFallback>
+                {userData?.data?.firstName && userData?.data?.lastName
+                  ? `${userData.data.firstName.charAt(0)}${userData.data.lastName.charAt(0)}`
+                  : userData?.data?.firstName?.slice(0, 2) || "U"}
+              </AvatarFallback >
+            </Avatar>
+            <h3 className="text-xl font-semibold text-white">
               Hello, {userData?.data?.firstName} {userData?.data?.lastName}
-            </Link>
-          </h3>
+            </h3>
+          </Link>
         </div>
         <div className="flex flex-wrap justify-center items-center gap-2">
           {renderHeader()}
