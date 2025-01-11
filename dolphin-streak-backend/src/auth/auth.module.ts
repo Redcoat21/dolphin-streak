@@ -11,6 +11,7 @@ import { MailModule } from "src/mail/mail.module";
 import { EncryptionModule } from "src/security/encryption.module";
 import { SessionModule } from "./session/session.module";
 import { BearerTokenStrategy } from "./strategy/bearer-token.strategy";
+import { CloudinaryModule } from "src/upload/cloudinary.module";
 
 @Module({
   imports: [
@@ -22,6 +23,8 @@ import { BearerTokenStrategy } from "./strategy/bearer-token.strategy";
     MailModule,
     EncryptionModule,
     SessionModule,
+    UsersModule,
+    CloudinaryModule,
   ],
   controllers: [AuthController],
   providers: [

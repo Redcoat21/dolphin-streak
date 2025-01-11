@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as argon2 from "argon2";
 import { AuthResponse } from "src/lib/types/response.type";
@@ -28,7 +33,7 @@ export class AuthService {
     private mailService: MailService,
     private encryptionService: EncryptionService,
     private sessionService: SessionService,
-  ) { }
+  ) {}
 
   // This code only check if the user exists and the password is correct.
   // This code DOES NOT check if the session is valid or not
@@ -38,6 +43,8 @@ export class AuthService {
     password: string,
   ): Promise<Omit<User, "password">> {
     const user = await this.usersService.findOne({ email: email });
+    console.log(user);
+    console.log(password);
 
     if (!user) {
       throw new HttpException("User not found", HttpStatus.NOT_FOUND);
@@ -257,7 +264,7 @@ export class AuthService {
   async getUserProfile(userId: string) {
     const user = await this.usersService.findOne({ _id: userId });
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException("User not found");
     }
     const { password, ...result } = user.toObject();
     return result;

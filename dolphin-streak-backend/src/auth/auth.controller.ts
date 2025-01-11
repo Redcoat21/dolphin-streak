@@ -1,18 +1,27 @@
 import {
+  BadRequestException,
   Body,
   Controller,
-  HttpCode,
-  HttpStatus,
-  Post,
-  Req,
-  UseGuards,
+  FileTypeValidator,
   Get, // Import the Get decorator
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  MaxFileSizeValidator,
+  Param,
+  ParseFilePipe,
+  Post,
+  Put,
+  Req,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./guard/local-auth.guard";
 import { ApiResponse } from "src/lib/types/response.type";
 import { BaseCreateUserDto } from "src/lib/dto/base-create-user.dto";
-import { Provider, User } from "src/users/schemas/user.schema";
+import { Provider, Role, User } from "src/users/schemas/user.schema";
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -32,6 +41,16 @@ import { Request } from "express";
 import mongoose from "mongoose";
 import { RefreshTokenDto } from "./session/dto/refresh-token.dto";
 import { BearerTokenGuard } from "./guard/bearer-token.guard";
+import { UpdateUserDto } from "src/users/dto/update-user.dto";
+import { InjectModel } from "@nestjs/mongoose";
+import { SessionService } from "./session/session.service";
+import { HasRoles } from "src/lib/decorators/has-role.decorator";
+import { extractPassword } from "src/lib/utils/user";
+import { UsersService } from "src/users/users.service";
+import { UpdateUserByTokenDto } from "./session/dto/update-by-token.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
+import { CloudinaryService } from "src/upload/cloudinary.service";
 
 @Controller("/api/auth")
 @ApiInternalServerErrorResponse({
@@ -45,7 +64,10 @@ import { BearerTokenGuard } from "./guard/bearer-token.guard";
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-  ) { }
+    private readonly sessionService: SessionService,
+    private readonly usersService: UsersService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @UseGuards(LocalAuthGuard)
   @Post("login")
@@ -320,7 +342,7 @@ export class AuthController {
     };
   }
 
-  @Get('profile')
+  @Get("profile")
   @ApiOperation({
     summary: "Get user profile information using access token",
     description:
@@ -366,5 +388,91 @@ export class AuthController {
       messages: "User profile retrieved successfully",
       data: user,
     };
+  }
+
+  @Put("users")
+  @UseGuards(BearerTokenGuard)
+  async update(
+    @Body() updateUserByTokenDto: UpdateUserByTokenDto,
+  ): Promise<ApiResponse> {
+    // Extracted the password and role since this two should'have never been updated directly.
+    const { password, role, ...newUpdateUserDto } = updateUserByTokenDto;
+
+    const { user } = await this.sessionService.findOne({
+      "accessToken.token": updateUserByTokenDto.accessToken,
+    });
+
+    if (!user) {
+      throw new HttpException("User not founded", 404);
+    }
+
+    const updatedUser = await this.usersService.update(
+      //@ts-ignore
+      user._id,
+      newUpdateUserDto,
+    );
+
+    const userResponse = extractPassword(updatedUser);
+
+    return {
+      messages: "User updated successfully",
+      data: userResponse,
+    };
+  }
+
+  @Put("users/profile-picture")
+  @UseInterceptors(FileInterceptor("profilePicture"))
+  @UseGuards(BearerTokenGuard)
+  async uploadProfilePicture(
+    @Body("accessToken") accessToken: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          // 5 MB
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
+        ],
+        errorHttpStatusCode: 400,
+        exceptionFactory: (errors) => {
+          throw new HttpException(errors, 400);
+        },
+      }),
+    ) file: Express.Multer.File,
+  ): Promise<ApiResponse> {
+    if (!file) {
+      throw new BadRequestException("No file uploaded");
+    }
+
+    const { user } = await this.sessionService.findOne({
+      "accessToken.token": accessToken,
+    });
+
+    if (!user) {
+      throw new HttpException("User not founded", 404);
+    }
+
+    //@ts-ignore
+    const userId = user._id;
+
+    try {
+      const imageUrl = await this.cloudinaryService.uploadImage(
+        file,
+        userId,
+      );
+
+      await this.usersService.update(userId, { profilePicture: imageUrl });
+      return {
+        messages: "Profile picture uploaded successfully",
+        data: {
+          imageUrl,
+        },
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        "Failed to upload image to Cloudinary",
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
   }
 }
