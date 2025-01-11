@@ -80,7 +80,7 @@ export const ZGetCourseSessionIdRequest = z.object({
 
 export type TCourseSessionData = {
   question: TQuestion;
-  totalQuestions: number;
+  totalQuestion: number;
   questionIndex: number;
   score: number;
 };

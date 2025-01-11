@@ -118,7 +118,7 @@ export class CoursesService {
     return courseSession.save();
   }
 
-  async assessAnswer(question: Question, answer: string, accessToken: string, file: Express.Multer.File): Promise<any> {
+  async assessAnswer(question: Question, answer: string, accessToken: string, file?: Express.Multer.File): Promise<any> {
     const qtype = QuestionType[question.type]
     console.log(file);
 

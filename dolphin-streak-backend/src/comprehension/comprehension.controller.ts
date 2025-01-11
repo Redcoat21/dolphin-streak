@@ -48,7 +48,7 @@ export class ComprehensionController {
         const comprehensionChallenge = await this.comprehensionService.startComprehension(comprehensionId, userId);
         // Get the first course ID from the comprehension challenge
         // const courseId = comprehensionChallenge.courseId;
-        
+
         // Get the questions for the course
         // const questions = await this.questionsService.getQuestionsByCourse(courseId);
         const questions = await this.questionsService.getQuestionsByCourse(comprehensionId);
@@ -246,7 +246,7 @@ export class ComprehensionController {
         const accessToken = request.headers.authorization?.split(' ')[1]
 
         const { suggestion, isCorrect } = await this.coursesService.assessAnswer(question, answer, accessToken)
-
+        console.log({ suggestion, isCorrect });
         if (isCorrect) {
             const updatedSession = await this.coursesService.addAnsweredQuestion(
                 comprehensionSessionId,

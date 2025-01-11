@@ -538,7 +538,22 @@ export class CoursesController {
     }
 
     const questionIndex = session.answeredQuestions.length
+    if (questionIndex == session.questions.length) {
+      return {
+        messages: "All questions are answered",
+        data: {
+          question: null,
+          totalQuestion: session.questions.length,
+          questionIndex,
+          score: session.score
+        }
+      }
+    }
+
     const questionId = session.questions[session.answeredQuestions.length];
+    if (!questionId) {
+      throw new NotFoundException('No questions available for this session.');
+    }
     const question = await this.questionsService.findOne(questionId.toString())
 
     const newQuestion = {
