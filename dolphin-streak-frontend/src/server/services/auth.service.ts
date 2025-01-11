@@ -9,17 +9,22 @@ import {
   ZResetPasswordInput,
   TResetPasswordInput,
   TRefreshAccessTokenResponse,
+  TGetUserProfileDataResponse,
+  TUpdateProfileInput,
+  TUserProfileData,
 } from "../types/auth";
 import { z } from "zod";
 
 export class AuthService {
   static async login(email: string, password: string): Promise<TLoginResponse> {
     try {
+      console.log({ email, password });
       const response = await fetchAPI<TLoginResponse>("/api/auth/login", "POST", {
-        body: { email, password },
+        body: { email, password, rememberMe: true },
       });
       return response;
     } catch (error: unknown) {
+      console.log({ error })
       if (error instanceof Error) {
         throw new Error("Login failed: " + error.message);
       } else {
@@ -115,7 +120,34 @@ export class AuthService {
     }
   }
 
-  static async getProfile(accessToken: string) { 
-    // TODO Implement
+  static async getProfile(accessToken: string) {
+    try {
+      const response = await fetchAPI("/api/auth/profile", "GET", {
+        token: accessToken
+      })
+      return response as TGetUserProfileDataResponse;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error("Get profile failed: " + error.message);
+      } else {
+        throw new Error("Get profile failed: Unknown error");
+      }
+    }
+  }
+
+  static async updateProfile(input: TUpdateProfileInput) {
+      try {
+          const response = await fetchAPI<TGetUserProfileDataResponse>("/api/auth/profile", "PUT", {
+              body: input,
+              token: input.accessToken,
+          });
+          return response;
+      } catch (error: unknown) {
+          if (error instanceof Error) {
+              throw new Error("Update profile failed: " + error.message);
+          } else {
+              throw new Error("Update profile failed: Unknown error");
+          }
+      }
   }
 }

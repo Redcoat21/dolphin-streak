@@ -6,6 +6,8 @@ import Image from "next/image";
 import { Notification } from "@/core/components/shared/notification";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/utils/trpc";
+import Link from "next/link";
+import { useEffect } from "react";
 
 interface HeaderProps {
   currentPath?: string;
@@ -35,7 +37,7 @@ const MOCK_NOTIFICATIONS = [
 export function Header({ currentPath, languageDropdown, selectedLanguage, onLanguageChange }: HeaderProps) {
   const { logout } = useAuthStore();
   const router = useRouter();
-  const { getAccessToken } = useAuthStore();
+  const { getAccessToken, setUserData } = useAuthStore();
   const accessToken = getAccessToken();
   const { data: languagesData } = trpc.language.getLanguages.useQuery(
     { accessToken: accessToken || '' },
@@ -44,11 +46,16 @@ export function Header({ currentPath, languageDropdown, selectedLanguage, onLang
     }
   );
 
+  const { data: userData } = trpc.auth.getProfile.useQuery({ accessToken: accessToken || '' });
   // Find the selected language object
   const selectedLanguageData = languagesData?.data.find(
     (language) => language._id === selectedLanguage
   );
-
+  useEffect(() => {
+    if (userData?.data) {
+      setUserData(userData.data);
+    }
+  }, [userData]);
   const renderHeader = () => {
     switch (currentPath) {
       case "/":
@@ -314,10 +321,18 @@ export function Header({ currentPath, languageDropdown, selectedLanguage, onLang
       <div className="flex flex-col sm:flex-row justify-between items-center max-w-7xl mx-auto space-y-3 sm:space-y-0">
         <div className="flex items-center gap-3">
           <Avatar className="h-12 w-12 border-2 border-white shadow-md">
-            <AvatarImage src="/temps/User/imgSource/User.png" alt="User" />
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarImage src={userData?.data?.profilePicture} alt="User" />
+            <AvatarFallback>
+              {userData?.data?.firstName && userData?.data?.lastName
+                ? `${userData.data.firstName.charAt(0)}${userData.data.lastName.charAt(0)}`
+                : userData?.data?.firstName?.slice(0, 2) || "U"}
+            </AvatarFallback >
           </Avatar>
-          <h3 className="text-xl font-semibold text-white">Hello, User</h3>
+          <h3 className="text-xl font-semibold text-white">
+            <Link href="/profile">
+              Hello, {userData?.data?.firstName} {userData?.data?.lastName}
+            </Link>
+          </h3>
         </div>
         <div className="flex flex-wrap justify-center items-center gap-2">
           {renderHeader()}

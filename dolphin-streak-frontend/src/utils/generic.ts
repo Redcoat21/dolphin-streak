@@ -50,13 +50,18 @@ export const fetchAPI = async <T>(
     // Handle non-OK responses
     if (!response.ok) {
       const errorData = await response.json();
-      console.error("API Error Response:", errorData); // Log the full error response
+      console.error("API Error Response:", errorData);
       console.error({ errorData })
-      throw new Error(
-        Array.isArray(errorData.messages)
-          ? errorData.messages[0]
-          : errorData.message || "An error occurred"
-      );
+      
+      if (errorData && errorData.messages) {
+          throw new Error(
+            Array.isArray(errorData.messages)
+              ? errorData.messages.join(', ') // Join messages if it's an array
+              : errorData.messages || "An error occurred"
+          );
+      }
+      
+      throw new Error( errorData.message || "An error occurred" );
     }
 
     // Parse and return the response

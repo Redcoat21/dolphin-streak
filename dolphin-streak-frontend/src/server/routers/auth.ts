@@ -1,5 +1,5 @@
 import { authedProcedure, publicProcedure, router } from '../trpc';
-import { ZLoginInput, ZRegisterInput, ZUpdateLanguagePreferencesInput, ZForgotPasswordInput, ZResetPasswordInput, ZRefreshAccessTokenRequest } from '../types/auth';
+import { ZLoginInput, ZRegisterInput, ZUpdateLanguagePreferencesInput, ZForgotPasswordInput, ZResetPasswordInput, ZRefreshAccessTokenRequest, ZUpdateProfileInput } from '../types/auth';
 import { AuthService } from '../services/auth.service';
 
 export const authRouter = router({
@@ -40,7 +40,12 @@ export const authRouter = router({
   refreshAccessToken: publicProcedure.input(ZRefreshAccessTokenRequest).mutation(async ({ input }) => {
     return await AuthService.refreshAccessToken(input.refreshToken);
   }),
-  getProfile: authedProcedure.query(async ({ input }) => { 
+  getProfile: authedProcedure.query(async ({ input }) => {
     return await AuthService.getProfile(input.accessToken);
-  })
+  }),
+  updateProfile: authedProcedure
+    .input(ZUpdateProfileInput)
+    .mutation(async ({ input }) => {
+      return await AuthService.updateProfile(input);
+    }),
 });

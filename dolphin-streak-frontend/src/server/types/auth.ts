@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TDefaultResponse } from './generic';
 
 export const ZAuthedProcedureInput = z.object({
   accessToken: z.string(),
@@ -86,3 +87,32 @@ export type TRefreshAccessTokenResponse = {
     accessToken: string;
   };
 };
+
+export type TUserProfileData = {
+  _id: string;
+  firstName: string;
+  lastName?: string | null;
+  email: string;
+  provider: number;
+  profilePicture: string;
+  loginHistories: string[];
+  role: number;
+  languages: string[];
+  completedCourses: string[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export type TGetUserProfileDataResponse = TDefaultResponse<TUserProfileData>;
+
+export const ZUpdateProfileInput = z.object({
+  accessToken: z.string(),
+  firstName: z.string().min(1).optional(),
+  lastName: z.string().min(1).optional(),
+  profilePicture: z.string().optional(),
+  birthDate: z.string().optional(),
+  languages: z.array(z.string()).optional(),
+});
+
+export type TUpdateProfileInput = z.infer<typeof ZUpdateProfileInput>;

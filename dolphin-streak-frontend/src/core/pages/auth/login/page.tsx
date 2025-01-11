@@ -33,22 +33,22 @@ export function LoginPage() {
   });
 
   const { mutate: login, isPending } = trpc.auth.login.useMutation({
-onSuccess: (response) => {
-  const { accessToken, refreshToken } = response.data;
-  const { email } = form.getValues(); // Get the email from the form values
-  setAuth(accessToken, refreshToken, email); // Pass the email
-  router.push('/');
-  toast({
-    title: "Success!",
-    description: "You have successfully logged in.",
-    duration: 3000,
-  });
-},
+    onSuccess: (response) => {
+      const { accessToken, refreshToken } = response.data;
+      const { email } = form.getValues(); // Get the email from the form values
+      setAuth(accessToken, refreshToken, email); // Pass the email
+      router.push('/');
+      toast({
+        title: "Success!",
+        description: "You have successfully logged in.",
+        duration: 3000,
+      });
+    },
     onError: (error) => {
-      console.log(error);
+      console.log({ error, messages: error.message });
       toast({
         title: "Error",
-        description: error.message || "An error occurred during login.",
+        description: error.message,
         variant: "destructive",
         duration: 3000,
       });

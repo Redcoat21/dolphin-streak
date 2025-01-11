@@ -6,6 +6,7 @@ import {
   Post,
   Req,
   UseGuards,
+  Get, // Import the Get decorator
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./guard/local-auth.guard";
@@ -44,7 +45,7 @@ import { BearerTokenGuard } from "./guard/bearer-token.guard";
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-  ) {}
+  ) { }
 
   @UseGuards(LocalAuthGuard)
   @Post("login")
@@ -116,6 +117,7 @@ export class AuthController {
     },
     @Body("rememberMe") rememberMe?: boolean,
   ): Promise<ApiResponse> {
+    console.log({ rememberMe });
     const data = await this.authService.login(req, rememberMe);
     return {
       messages: "Logged in succesfully",
@@ -315,6 +317,54 @@ export class AuthController {
     return {
       messages: "Logged out successfully",
       data: null,
+    };
+  }
+
+  @Get('profile')
+  @ApiOperation({
+    summary: "Get user profile information using access token",
+    description:
+      "This endpoint retrieves the user's profile information based on the provided valid access token.",
+  })
+  @ApiOkResponse({
+    description: "Successfully retrieved user profile",
+    // You might want to define a specific DTO for the user profile to avoid exposing sensitive information
+    // and provide a more accurate response structure.
+    // Example:
+    // type: UserProfileResponseDto,
+    // isArray: false,
+    example: {
+      messages: "User profile retrieved successfully",
+      data: {
+        _id: "672f307741eee3baefa94958",
+        firstName: "John",
+        lastName: "Doe",
+        email: "john0@email.com",
+        birthDate: "1996-01-01T00:00:00.000Z",
+        loginHistories: [],
+        languages: [],
+        completedCourses: [],
+        createdAt: "2024-11-09T09:50:47.034Z",
+        updatedAt: "2024-11-09T09:50:47.034Z",
+        __v: 0,
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: "Happen when the access token is invalid or expired.",
+    example: {
+      messages: "Invalid or expired token",
+      data: null,
+    },
+  })
+  @UseGuards(BearerTokenGuard)
+  async getProfile(@Req() req: Request): Promise<ApiResponse> {
+    //@ts-ignore
+    const userId = req.user._id.toString();
+    const user = await this.authService.getUserProfile(userId);
+    return {
+      messages: "User profile retrieved successfully",
+      data: user,
     };
   }
 }

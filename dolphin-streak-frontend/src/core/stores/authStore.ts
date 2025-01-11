@@ -1,11 +1,13 @@
 import { create } from "zustand";
 import { trpc } from "@/utils/trpc";
+import { TUserProfileData } from "@/server/types/auth";
 
 interface AuthState {
     isAuthenticated: boolean;
     accessToken: string | null;
     refreshToken: string | null;
     userEmail: string | null;
+    userData: TUserProfileData | null;
     setAuth: (accessToken: string, refreshToken: string, email: string) => void;
     logout: () => void;
     checkAuth: () => void;
@@ -13,6 +15,8 @@ interface AuthState {
     getRefreshToken: () => string | null;
     getEmail: () => string | null;
     refreshAccessToken: () => Promise<string | null>;
+    getUserData: () => TUserProfileData | null;
+    setUserData: (userData: TUserProfileData) => void;
 }
 
 const isClient = typeof window !== "undefined";
@@ -22,6 +26,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     accessToken: null,
     refreshToken: null,
     userEmail: null,
+    userData: null,
     setAuth: (accessToken: string, refreshToken: string, email: string) => {
         if (isClient) {
             localStorage.setItem(
@@ -37,7 +42,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 email
             );
         }
-        set({ isAuthenticated: true, accessToken, refreshToken, userEmail: email }); // Update this line
+        set({ isAuthenticated: true, accessToken, refreshToken, userEmail: email });
     },
     logout: () => {
         if (isClient) {
@@ -45,7 +50,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             localStorage.removeItem("secure_dolphin_streak_usr_refresh_token");
             localStorage.removeItem("secure_dolphin_streak_usr_email");
         }
-        set({ isAuthenticated: false, accessToken: null, refreshToken: null, userEmail: null }); // Update this line
+        set({ isAuthenticated: false, accessToken: null, refreshToken: null, userEmail: null, userData: null, });
     },
     getAccessToken: () =>
         isClient
@@ -100,5 +105,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             get().logout();
             return null;
         }
-    }
+    },
+    getUserData: () => get().userData,
+    setUserData: (userData) => set({ userData }),
 }))
