@@ -3,30 +3,23 @@ import { useAuthStore } from "@/core/stores/authStore";
 import { Header } from "../dasboard/components/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/utils/trpc";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
-import { Bell, Globe, LogOut, Settings, User } from "lucide-react";
-import * as z from "zod";
+import { Bell } from "lucide-react";
 import { TUpdateProfileInput } from "@/server/types/auth";
+import { LogoutButton } from "./components/logout";
+import { ChangeProfilePicture } from "./components/change-profile-picture";
+import { ProfileEdit } from "./components/profile-edit";
+import { ProfileDisplay } from "./components/profile-display";
 
-const profileSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-});
 
 export function ProfilePage() {
-  const { getAccessToken, logout, getUserData, setUserData } = useAuthStore();
+  const { getAccessToken, getUserData, setUserData } = useAuthStore();
   const router = useRouter();
   const accessToken = getAccessToken();
   const userData = getUserData();
@@ -36,23 +29,13 @@ export function ProfilePage() {
     emailNotifications: true,
     pushNotifications: true,
   });
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
 
   const { mutateAsync: updateProfile } = trpc.auth.updateProfile.useMutation();
 
-  const form = useForm<TUpdateProfileInput>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      firstName: userData?.firstName || "",
-      lastName: userData?.lastName || "",
-    },
-  });
-
   const handleEditProfile = () => {
     setIsEditing(true);
-    form.reset({
-      firstName: userData?.firstName || "",
-      lastName: userData?.lastName || "",
-    });
   };
 
   const handleSaveProfile = async (values: TUpdateProfileInput) => {
@@ -82,11 +65,45 @@ export function ProfilePage() {
     }
   };
 
+  const handleProfilePictureChange = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleFileAccepted = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("accessToken", accessToken || "");
+
+      const result = await trpc.auth.updateProfilePicture.mutateAsync(formData);
+
+      if (result.success) {
+        setUserData({
+          ...userData!,
+          profilePicture: result.profilePicture,
+        });
+        toast({
+          title: "Success",
+          description: "Profile picture updated successfully",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile picture",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDialogOpen(false);
+    }
+  };
+
+
   const handleNotificationChange = (type: 'email' | 'push') => {
     setNotificationSettings(prev => ({
       ...prev,
-      [type === 'email' ? 'emailNotifications' : 'pushNotifications']: 
-      !prev[type === 'email' ? 'emailNotifications' : 'pushNotifications']
+      [type === 'email' ? 'emailNotifications' : 'pushNotifications']:
+        !prev[type === 'email' ? 'emailNotifications' : 'pushNotifications']
     }));
     toast({
       title: "Success",
@@ -98,10 +115,6 @@ export function ProfilePage() {
     router.push("/learning");
   };
 
-  const handleLogout = () => {
-    logout();
-    router.push("/login");
-  };
 
   return (
     <Container>
@@ -111,26 +124,7 @@ export function ProfilePage() {
           <CardHeader className="space-y-1">
             <div className="flex justify-between items-center">
               <CardTitle className="text-2xl font-bold">Profile Settings</CardTitle>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" className="flex items-center gap-2">
-                    <LogOut className="w-4 h-4" />
-                    Logout
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      You will need to login again to access your account.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleLogout}>Logout</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <LogoutButton />
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -145,81 +139,26 @@ export function ProfilePage() {
                 </Avatar>
                 <div className="space-y-1">
                   {isEditing ? (
-                    <form onSubmit={form.handleSubmit(handleSaveProfile)} className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="firstName">First Name</Label>
-                          <Input
-                            id="firstName"
-                            {...form.register("firstName")}
-                            className="w-full"
-                          />
-                          {form.formState.errors.firstName && (
-                            <p className="text-sm text-red-500">
-                              {form.formState.errors.firstName.message}
-                            </p>
-                          )}
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="lastName">Last Name</Label>
-                          <Input
-                            id="lastName"
-                            {...form.register("lastName")}
-                            className="w-full"
-                          />
-                          {form.formState.errors.lastName && (
-                            <p className="text-sm text-red-500">
-                              {form.formState.errors.lastName.message}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-                          Save Changes
-                        </Button>
-                        <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
-                          Cancel
-                        </Button>
-                      </div>
-                    </form>
+                    <ProfileEdit
+                      userData={userData}
+                      onCancel={() => setIsEditing(false)}
+                      onSave={handleSaveProfile}
+                    />
                   ) : (
-                    <div className="space-y-2">
-                      <h2 className="text-2xl font-semibold">
-                        {userData?.firstName} {userData?.lastName}
-                      </h2>
-                      <p className="text-gray-500">{userData?.email}</p>
-                      <Button onClick={handleEditProfile} variant="outline" className="mt-2">
-                        Edit Profile
-                      </Button>
-                    </div>
+                    <ProfileDisplay
+                      userData={userData}
+                      onEdit={handleEditProfile}
+                      onProfilePictureChange={handleProfilePictureChange}
+                    />
                   )}
                 </div>
               </div>
             </div>
-
-            <Separator />
-
-            {/* Language Section */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Globe className="w-5 h-5" />
-                Language Settings
-              </h3>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Current Learning Language</p>
-                  <p className="text-sm text-gray-500">
-                    {userData?.languages?.length ? 
-                      userData.languages.join(", ") : 
-                      "No language selected"}
-                  </p>
-                </div>
-                <Button onClick={handleLanguageChange}>
-                  Change Language
-                </Button>
-              </div>
-            </div>
+            <ChangeProfilePicture
+              open={isDialogOpen}
+              onOpenChange={setIsDialogOpen}
+              onFileAccepted={handleFileAccepted}
+            />
 
             <Separator />
 

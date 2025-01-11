@@ -107,12 +107,9 @@ export type TUserProfileData = {
 export type TGetUserProfileDataResponse = TDefaultResponse<TUserProfileData>;
 
 export const ZUpdateProfileInput = z.object({
-  accessToken: z.string(),
   firstName: z.string().min(1).optional(),
   lastName: z.string().min(1).optional(),
   profilePicture: z.string().optional(),
-  birthDate: z.string().optional(),
-  languages: z.array(z.string()).optional(),
 });
 
 export type TUpdateProfileInput = z.infer<typeof ZUpdateProfileInput>;

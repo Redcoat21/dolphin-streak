@@ -46,6 +46,6 @@ export const authRouter = router({
   updateProfile: authedProcedure
     .input(ZUpdateProfileInput)
     .mutation(async ({ input }) => {
-      return await AuthService.updateProfile(input);
+      return await AuthService.updateProfile(input, input.accessToken);
     }),
 });

@@ -135,19 +135,19 @@ export class AuthService {
     }
   }
 
-  static async updateProfile(input: TUpdateProfileInput) {
-      try {
-          const response = await fetchAPI<TGetUserProfileDataResponse>("/api/auth/profile", "PUT", {
-              body: input,
-              token: input.accessToken,
-          });
-          return response;
-      } catch (error: unknown) {
-          if (error instanceof Error) {
-              throw new Error("Update profile failed: " + error.message);
-          } else {
-              throw new Error("Update profile failed: Unknown error");
-          }
+  static async updateProfile(input: TUpdateProfileInput, accessToken: string) {
+    try {
+      const response = await fetchAPI<TGetUserProfileDataResponse>("/api/auth/profile", "PUT", {
+        body: input,
+        token: accessToken,
+      });
+      return response;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error("Update profile failed: " + error.message);
+      } else {
+        throw new Error("Update profile failed: Unknown error");
       }
+    }
   }
 }

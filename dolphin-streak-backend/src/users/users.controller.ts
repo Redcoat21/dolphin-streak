@@ -29,7 +29,9 @@ import {
   ApiBadGatewayResponse,
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiBody,
   ApiConflictResponse,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
@@ -92,7 +94,7 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly sessionService: SessionService,
-  ) {}
+  ) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -499,6 +501,19 @@ export class UsersController {
     description:
       "Is used to upload a user's profile picture. Sorry that no body example in here, i don't know how",
   })
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        profilePicture: {
+          type: "string",
+          format: "binary",
+          description: "The profile picture to upload",
+        },
+      },
+    },
+  })
   @ApiOkResponse({
     description: "Return the uploaded profile picture",
     example: {
@@ -561,6 +576,7 @@ export class UsersController {
         },
       };
     } catch (error) {
+      console.error(error);
       throw new HttpException(
         "Failed to upload image to Cloudinary",
         HttpStatus.BAD_GATEWAY,

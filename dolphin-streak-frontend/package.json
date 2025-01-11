@@ -63,6 +63,7 @@
     "react-day-picker": "8.10.1",
     "react-dom": "^19.0.0-rc-380f5d67-20241113",
     "react-draft-wysiwyg": "^1.15.0",
+    "react-dropzone": "^14.3.5",
     "react-hook-form": "^7.54.0",
     "react-i18next": "^15.1.1",
     "react-medium-image-zoom": "^5.2.11",
