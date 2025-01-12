@@ -78,9 +78,8 @@ export class FeedbacksController {
     if (search) {
       filter.content = { $regex: search, $options: 'i' };
     }
-    // "any" == -1
     if (type && type != -1) {
-      filter.type = FeedbackType[type];
+      filter.type = type == 1 ? FeedbackType.FEEDBACK : FeedbackType.REPORT;
     }
 
     const sortOptions: { createdAt?: SortOrder } = sort === SortType.NEWEST ? { createdAt: -1 as SortOrder } :
