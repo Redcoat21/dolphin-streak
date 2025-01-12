@@ -5,10 +5,9 @@ import { TUserProfileData } from "@/server/types/auth";
 interface ProfileDisplayProps {
     userData: TUserProfileData | null | undefined;
     onEdit: () => void;
-    onProfilePictureChange: () => void;
 }
 
-export function ProfileDisplay({ userData, onEdit, onProfilePictureChange }: ProfileDisplayProps) {
+export function ProfileDisplay({ userData, onEdit }: ProfileDisplayProps) {
     return (
         <div className="space-y-2">
             <h2 className="text-2xl font-semibold">
@@ -18,9 +17,6 @@ export function ProfileDisplay({ userData, onEdit, onProfilePictureChange }: Pro
             <div className="flex gap-2">
                 <Button onClick={onEdit} variant="outline" className="mt-2">
                     Edit Profile
-                </Button>
-                <Button onClick={onProfilePictureChange} variant="outline" className="mt-2">
-                    Change Profile Picture
                 </Button>
             </div>
         </div>

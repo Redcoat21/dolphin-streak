@@ -141,10 +141,6 @@ export function ProfilePage() {
       <Header currentPath="/profile" />
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Profile Header */}
-        {/* <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h1 className="text-3xl font-bold tracking-tight">Profile Settings</h1>
-          <LogoutButton />
-        </div> */}
 
         {/* Main Profile Card */}
         <Card className="shadow-lg">
