@@ -21,6 +21,7 @@ import { ViewController } from "./views/view.controller";
 import { VoiceaiModule } from './voiceai/voiceai.module';
 import { DailyModule } from "./daily/daily.module";
 import { ComprehensionModule } from "./comprehension/comprehension.module";
+import { AnnouncementModule } from './announcement/announcement.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { ComprehensionModule } from "./comprehension/comprehension.module";
     ForumsModule,
     AiModule,
     VoiceaiModule,
+    AnnouncementModule,
   ],
   controllers: [AppController, ViewController],
   providers: [AppService],
