@@ -15,8 +15,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import EssayPage from "../../../components/courses/QuestionTypes/essay";
 import { LivesIndicator } from "../../../components/courses/lives-indicator";
 import { Timer } from "../../../components/courses/timer";
-import { ComprehensionComplete } from "./comprehension-complete";
 import { TGetCourseSessionIdResponse } from "@/server/types/courses";
+import { CompletedCourse } from "@/core/components/completed-course";
 
 export function ComprehensionSessionIDPage() {
     const router = useRouter();
@@ -160,7 +160,7 @@ export function ComprehensionSessionIDPage() {
         || isPostSubmitAnswerPending;
 
     if (comprehensionSession?.data?.questionIndex == comprehensionSession?.data?.totalQuestion) {
-        return <ComprehensionComplete score={comprehensionSession?.data?.score || 0} />;
+        return <CompletedCourse score={comprehensionSession?.data?.score || 0} />;
     } else if (!comprehensionSession?.data) {
         return (
             <div className="min-h-screen bg-slate-950 flex items-center justify-center">

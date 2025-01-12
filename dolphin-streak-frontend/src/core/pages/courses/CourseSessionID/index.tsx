@@ -20,6 +20,7 @@ import EssayPage from "../../../components/courses/QuestionTypes/essay";
 import MultipleChoicePage from "../../../components/courses/QuestionTypes/multiple-choice";
 import { LivesIndicator } from "../../../components/courses/lives-indicator";
 import { Timer } from "../../../components/courses/timer";
+import { CompletedCourse } from "@/core/components/completed-course";
 
 export function CourseSessionIDPage() {
     const router = useRouter();
@@ -136,7 +137,7 @@ export function CourseSessionIDPage() {
 
 
     const progressPercentage =
-        questionData ? (questionData.questionIndex / questionData.totalQuestions) * 100 : 0;
+        questionData ? (questionData.questionIndex / questionData.totalQuestion) * 100 : 0;
 
     // Decide alert background color
     const alertBgClass = (() => {
@@ -231,6 +232,9 @@ export function CourseSessionIDPage() {
     })();
 
 
+    if (questionData?.questionIndex == questionData?.totalQuestion) {
+        return <CompletedCourse score={questionData?.score || 0} />;
+    }
     // Render the appropriate page based on question type
     if (!questionData) {
         return (

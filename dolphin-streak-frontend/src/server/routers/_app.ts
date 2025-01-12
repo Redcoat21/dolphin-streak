@@ -3,6 +3,7 @@ import { authRouter } from './auth';
 import { comprehensionRouter } from './comprehension';
 import { coursesRouter } from './courses';
 import { dailyRouter } from './daily';
+import { feedbackRouter } from './feedback';
 import { forumRouter } from './forum';
 import { languageRouter } from './language';
 import { levelsRouter } from './levels';
@@ -14,6 +15,7 @@ export const appRouter = router({
   auth: authRouter,
   comprehension: comprehensionRouter,
   forum: forumRouter,
+  feedback: feedbackRouter,
   language: languageRouter,
   course: coursesRouter,
   levels: levelsRouter,

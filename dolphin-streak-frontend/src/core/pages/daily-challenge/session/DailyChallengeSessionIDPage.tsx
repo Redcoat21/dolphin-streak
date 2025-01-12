@@ -27,6 +27,7 @@ import WritingPage from "@/core/components/courses/QuestionTypes/writing";
 
 import { LivesIndicator } from "@/core/components/courses/lives-indicator";
 import { Timer } from "@/core/components/courses/timer";
+import { CompletedCourse } from "@/core/components/completed-course";
 
 export function DailyChallengeSessionIDPage() {
     const router = useRouter();
@@ -227,6 +228,9 @@ export function DailyChallengeSessionIDPage() {
         return false;
     })();
 
+    if (questionData?.questionIndex == questionData?.totalQuestion) {
+        return <CompletedCourse score={questionData?.score || 0} />;
+    }
     // --- If still loading, show spinner ---
     if (!questionData) {
         return (

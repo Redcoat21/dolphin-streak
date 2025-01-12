@@ -11,7 +11,7 @@ export type FeedbackDocument = HydratedDocument<Feedback>;
 
 @Schema({ timestamps: true })
 export class Feedback extends Document {
-    @Prop({ type: mongoose.Types.ObjectId, ref: "User", required: true  })
+    @Prop({ type: mongoose.Types.ObjectId, ref: "User", required: true })
     user: User;
 
     @Prop({ required: true, maxLength: 255, enum: FeedbackType })

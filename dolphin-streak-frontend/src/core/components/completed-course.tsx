@@ -6,13 +6,13 @@ import { Card } from '@/components/ui/card';
 import { Trophy, Star, Home, RotateCcw } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useEffect, useRef, useCallback } from 'react';
-import { Header } from '../../dasboard/components/Header';
+import { Header } from '../pages/dasboard/components/Header';
 
-interface ComprehensionCompleteProps {
+interface CompletedCourseProps {
     score: number;
 }
 
-export function ComprehensionComplete({ score }: ComprehensionCompleteProps) {
+export function CompletedCourse({ score }: CompletedCourseProps) {
     const router = useRouter();
     const animationRef = useRef<number | null>(null);
 
