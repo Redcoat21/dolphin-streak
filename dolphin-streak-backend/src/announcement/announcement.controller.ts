@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { AnnouncementService } from './announcement.service';
 import { CreateAnnouncementDto } from './dto/create-announcement.dto';
 
-@Controller('announcement')
+@Controller('/api/announcements')
 export class AnnouncementController {
   constructor(private readonly announcementService: AnnouncementService) {}
 
