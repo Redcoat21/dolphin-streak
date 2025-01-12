@@ -51,7 +51,7 @@ export function CourseSessionIDPage() {
     const [recordedAudio, setRecordedAudio] = useState<Blob | null>(null);
 
     // Fetch session data
-    const { data: courseSessionData, refetch } = trpc.course.getCourseSessionId.useQuery({
+    const { data: courseSessionData, refetch, isPending: isSessionDataPending } = trpc.course.getCourseSessionId.useQuery({
         accessToken: accessToken || "",
         courseSessionId: courseSessionId as string
     });
@@ -232,7 +232,7 @@ export function CourseSessionIDPage() {
     })();
 
 
-    if (questionData?.questionIndex == questionData?.totalQuestion) {
+    if (questionData?.questionIndex == questionData?.totalQuestion && !isSessionDataPending) {
         return <CompletedCourse score={questionData?.score || 0} />;
     }
     // Render the appropriate page based on question type

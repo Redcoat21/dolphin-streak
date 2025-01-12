@@ -52,7 +52,7 @@ export function DailyChallengeSessionIDPage() {
     const { toast } = useToast();
 
     // --- Fetch daily-challenge session data ---
-    const { data: dailyChallengeSessionData, refetch } = trpc.daily.getDailySession.useQuery(
+    const { data: dailyChallengeSessionData, refetch, isPending: isDailyChallengeSessionDataPending } = trpc.daily.getDailySession.useQuery(
         {
             accessToken: accessToken || "",
             dailySessionId: dailyChallengeSessionId,
@@ -228,7 +228,7 @@ export function DailyChallengeSessionIDPage() {
         return false;
     })();
 
-    if (questionData?.questionIndex == questionData?.totalQuestion) {
+    if (questionData?.questionIndex == questionData?.totalQuestion && !isDailyChallengeSessionDataPending) {
         return <CompletedCourse score={questionData?.score || 0} />;
     }
     // --- If still loading, show spinner ---

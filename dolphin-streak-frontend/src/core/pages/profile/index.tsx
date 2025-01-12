@@ -196,14 +196,8 @@ export function ProfilePage() {
               </h3>
               <div className="space-y-6">
                 <NotificationToggle
-                  title="Email Notifications"
-                  description="Receive updates via email"
-                  checked={notificationSettings.emailNotifications}
-                  onCheckedChange={() => handleNotificationChange('email')}
-                />
-                <NotificationToggle
                   title="Push Notifications"
-                  description="Receive push notifications"
+                  description="Receive notifications"
                   checked={notificationSettings.pushNotifications}
                   onCheckedChange={() => handleNotificationChange('push')}
                 />

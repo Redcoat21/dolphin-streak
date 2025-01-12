@@ -37,7 +37,7 @@ export function ComprehensionSessionIDPage() {
     const [comprehensionSession, setComprehensionSession] = useState<TGetCourseSessionIdResponse | undefined>();
 
     // Fetch session data
-    const { data: comprehensionSessionData, refetch } = trpc.course.getCourseSessionId.useQuery({
+    const { data: comprehensionSessionData, refetch, isPending: isComprehensionSessionDataPending } = trpc.course.getCourseSessionId.useQuery({
         accessToken: accessToken || "",
         courseSessionId: comprehensionSessionId as string
     }, {
@@ -159,7 +159,7 @@ export function ComprehensionSessionIDPage() {
             && !textAnswer && !isAnswered)
         || isPostSubmitAnswerPending;
 
-    if (comprehensionSession?.data?.questionIndex == comprehensionSession?.data?.totalQuestion) {
+    if (comprehensionSession?.data?.questionIndex == comprehensionSession?.data?.totalQuestion && !isComprehensionSessionDataPending) {
         return <CompletedCourse score={comprehensionSession?.data?.score || 0} />;
     } else if (!comprehensionSession?.data) {
         return (
