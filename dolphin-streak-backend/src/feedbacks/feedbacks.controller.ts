@@ -46,6 +46,55 @@ export class FeedbacksController {
   constructor(private readonly feedbacksService: FeedbacksService) { }
 
   @ApiOperation({
+    summary: 'Find all feedbacks for user',
+    description: 'Find all feedbacks with the provided query, Note that only user can access this endpoint',
+  })
+  @ApiOkResponse({
+    description: "The feedbacks has been succesfully found",
+    example: {
+      messages: "1 feedback found",
+      data: [
+        {
+          _id: "674427b72cacb2d5c21f68cb",
+          user: {
+            _id: "6744262d52a2392a69fa49c3",
+            email: "joken.e23@mhs.gmail.com"
+          },
+          type: 0,
+          content: "Test",
+          createdAt: "2024-11-25T07:31:03.055Z",
+          updatedAt: "2024-11-25T07:31:03.055Z",
+          __v: 0
+        }
+      ]
+    }
+  })
+  @HasRoles(Role.ADMIN, Role.USER)
+  @Get('user')
+  async findAllForUser(@Query() findFeedbacksUserQuery: FindFeedbacksUserQuery): Promise<ApiResponse> {
+    console.log({ findFeedbacksUserQuery });
+    const { search, type, sort } = findFeedbacksUserQuery;
+    const filter: any = {};
+    if (search) {
+      filter.content = { $regex: search, $options: 'i' };
+    }
+    // "any" == -1
+    if (type && type != -1) {
+      filter.type = FeedbackType[type];
+    }
+
+    const sortOptions: { createdAt?: SortOrder } = sort === SortType.NEWEST ? { createdAt: -1 as SortOrder } :
+      sort === SortType.OLDEST ? { createdAt: 1 as SortOrder } : {};
+
+    console.log({ filter, sortOptions })
+    const results = await this.feedbacksService.findAll(filter, sortOptions);
+    return {
+      messages: formatGetAllMessages(results.length, "feedback"),
+      data: results
+    }
+  }
+
+  @ApiOperation({
     summary: 'Create a new feedback',
     description: 'Create a new feedback with the provided data, Note that only user can create feedbacks',
   })
@@ -227,53 +276,6 @@ export class FeedbacksController {
     return {
       messages: "Feedback deleted succesfully",
       data: deletedFeedback
-    }
-  }
-
-  @ApiOperation({
-    summary: 'Find all feedbacks for user',
-    description: 'Find all feedbacks with the provided query, Note that only user can access this endpoint',
-  })
-  @ApiOkResponse({
-    description: "The feedbacks has been succesfully found",
-    example: {
-      messages: "1 feedback found",
-      data: [
-        {
-          _id: "674427b72cacb2d5c21f68cb",
-          user: {
-            _id: "6744262d52a2392a69fa49c3",
-            email: "joken.e23@mhs.gmail.com"
-          },
-          type: 0,
-          content: "Test",
-          createdAt: "2024-11-25T07:31:03.055Z",
-          updatedAt: "2024-11-25T07:31:03.055Z",
-          __v: 0
-        }
-      ]
-    }
-  })
-  @HasRoles(Role.USER)
-  @Get('user')
-  async findAllForUser(@Query() findFeedbacksUserQuery: FindFeedbacksUserQuery): Promise<ApiResponse> {
-    const { search, type, sort } = findFeedbacksUserQuery;
-    const filter: any = {};
-    if (search) {
-      filter.content = { $regex: search, $options: 'i' };
-    }
-    if (type && type !== 'any') {
-      filter.type = FeedbackType[type];
-    }
-
-    const sortOptions: { createdAt?: SortOrder } = sort === SortType.NEWEST ? { createdAt: -1 as SortOrder } :
-      sort === SortType.OLDEST ? { createdAt: 1 as SortOrder } : {};
-
-
-    const results = await this.feedbacksService.findAll(filter, sortOptions);
-    return {
-      messages: formatGetAllMessages(results.length, "feedback"),
-      data: results
     }
   }
 }

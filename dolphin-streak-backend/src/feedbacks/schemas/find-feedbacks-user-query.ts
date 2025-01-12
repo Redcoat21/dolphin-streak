@@ -19,11 +19,11 @@ export class FindFeedbacksUserQuery {
     @ApiProperty({
         description: "Filter by feedback type",
         required: false,
-        enum: [FeedbackType.REPORT, FeedbackType.FEEDBACK, "any"],
+        enum: [FeedbackType.REPORT, FeedbackType.FEEDBACK, -1],
     })
     @IsOptional()
-    @IsEnum(FeedbackType)
-    type?: FeedbackType | "any";
+    // @IsEnum(FeedbackType)
+    type?: FeedbackType | -1;
 
     @ApiProperty({
         description: "Sort by creation date",
