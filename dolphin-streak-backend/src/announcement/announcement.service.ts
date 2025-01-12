@@ -11,7 +11,7 @@ export class AnnouncementService {
     @InjectModel(Announcement.name) private announcementModel: Model<AnnouncementDocument>,
   ) {}
 
-  create(createAnnouncementDto: CreateAnnouncementDto) {
+  async create(createAnnouncementDto: CreateAnnouncementDto) {
     const data = {
       ...createAnnouncementDto,
       time: new Date()
