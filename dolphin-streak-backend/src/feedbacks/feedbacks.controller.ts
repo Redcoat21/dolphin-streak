@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, UseGuards, HttpCode, HttpStatus, Req } from '@nestjs/common';
 import { FeedbacksService } from './feedbacks.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { FindFeedbacksQuery } from './dto/find-feedbacks.param';
@@ -84,10 +84,18 @@ export class FeedbacksController {
   @HasRoles(Role.USER)
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async create(@Body() createFeedbackDto: CreateFeedbackDto): Promise<ApiResponse> {
+  async create(
+    @Body() createFeedbackDto: CreateFeedbackDto,
+    @Req() request: Request
+  ): Promise<ApiResponse> {
+    const data = {
+      user: request.user._id,
+      ...createFeedbackDto
+    }
+
     return {
       messages: "Feedback has been created successfully",
-      data: await this.feedbacksService.create(createFeedbackDto)
+      data: await this.feedbacksService.create(data)
     }
   }
 
