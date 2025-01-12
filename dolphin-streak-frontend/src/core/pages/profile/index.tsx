@@ -181,7 +181,6 @@ export function ProfilePage() {
                   <ProfileDisplay
                     userData={userData}
                     onEdit={handleEditProfile}
-                    onProfilePictureChange={handleProfilePictureChange}
                   />
                 )}
               </div>
