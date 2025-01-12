@@ -88,7 +88,7 @@ export function CompletedCourse({ score }: CompletedCourseProps) {
                             <div className="flex justify-center items-center gap-2 py-4">
                                 <Star className="w-6 h-6 text-yellow-500" />
                                 <span className="text-4xl font-bold text-white">
-                                    {score}/100
+                                    {score}
                                 </span>
                             </div>
 
