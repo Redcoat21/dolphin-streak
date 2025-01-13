@@ -1,17 +1,27 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  FileTypeValidator,
+  Get, // Import the Get decorator
   HttpCode,
+  HttpException,
   HttpStatus,
+  MaxFileSizeValidator,
+  Param,
+  ParseFilePipe,
   Post,
+  Put,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./guard/local-auth.guard";
 import { ApiResponse } from "src/lib/types/response.type";
 import { BaseCreateUserDto } from "src/lib/dto/base-create-user.dto";
-import { Provider, User } from "src/users/schemas/user.schema";
+import { Provider, Role, User } from "src/users/schemas/user.schema";
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -23,6 +33,8 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiUnauthorizedResponse,
+  ApiConsumes,
+  ApiBadGatewayResponse,
 } from "@nestjs/swagger";
 import { CreateUserDto } from "src/users/dto/create-user.dto";
 import { ForgotPasswordDto } from "./dto/forgot-password.dto";
@@ -31,6 +43,17 @@ import { Request } from "express";
 import mongoose from "mongoose";
 import { RefreshTokenDto } from "./session/dto/refresh-token.dto";
 import { BearerTokenGuard } from "./guard/bearer-token.guard";
+import { UpdateUserDto } from "src/users/dto/update-user.dto";
+import { InjectModel } from "@nestjs/mongoose";
+import { SessionService } from "./session/session.service";
+import { HasRoles } from "src/lib/decorators/has-role.decorator";
+import { extractPassword } from "src/lib/utils/user";
+import { UsersService } from "src/users/users.service";
+import { UpdateUserByTokenDto } from "./session/dto/update-by-token.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
+import { CloudinaryService } from "src/upload/cloudinary.service";
+import { RoleGuard } from "src/lib/guard/role.guard";
 
 @Controller("/api/auth")
 @ApiInternalServerErrorResponse({
@@ -44,7 +67,10 @@ import { BearerTokenGuard } from "./guard/bearer-token.guard";
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-  ) {}
+    private readonly sessionService: SessionService,
+    private readonly usersService: UsersService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) { }
 
   @UseGuards(LocalAuthGuard)
   @Post("login")
@@ -116,6 +142,7 @@ export class AuthController {
     },
     @Body("rememberMe") rememberMe?: boolean,
   ): Promise<ApiResponse> {
+    console.log({ rememberMe });
     const data = await this.authService.login(req, rememberMe);
     return {
       messages: "Logged in succesfully",
@@ -316,5 +343,275 @@ export class AuthController {
       messages: "Logged out successfully",
       data: null,
     };
+  }
+
+  @Get("profile")
+  @ApiOperation({
+    summary: "Get user profile information using access token",
+    description:
+      "This endpoint retrieves the user's profile information based on the provided valid access token in the Authorization header.",
+  })
+  @ApiOkResponse({
+    description: "Successfully retrieved user profile",
+    // You might want to define a specific DTO for the user profile to avoid exposing sensitive information
+    // and provide a more accurate response structure.
+    // Example:
+    // type: UserProfileResponseDto,
+    // isArray: false,
+    example: {
+      messages: "User profile retrieved successfully",
+      data: {
+        _id: "672f307741eee3baefa94958",
+        firstName: "John",
+        lastName: "Doe",
+        email: "john0@email.com",
+        birthDate: "1996-01-01T00:00:00.000Z",
+        loginHistories: [],
+        languages: [],
+        completedCourses: [],
+        createdAt: "2024-11-09T09:50:47.034Z",
+        updatedAt: "2024-11-09T09:50:47.034Z",
+        __v: 0,
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: "Happen when the access token is invalid or expired.",
+    example: {
+      messages: "Invalid or expired token",
+      data: null,
+    },
+  })
+  @ApiBearerAuth()
+  @UseGuards(BearerTokenGuard)
+  async getProfile(@Req() req: Request): Promise<ApiResponse> {
+    //@ts-ignore
+    const userId = req.user._id.toString();
+    const user = await this.authService.getUserProfile(userId);
+    return {
+      messages: "User profile retrieved successfully",
+      data: user,
+    };
+  }
+  
+  @Put("users")
+  @UseGuards(BearerTokenGuard)
+  @ApiOperation({
+    summary: "Update user information",
+    description:
+      "This endpoint allows users to update their profile information using a valid access token in the Authorization header. The password and role cannot be updated using this endpoint.",
+  })
+  @ApiBearerAuth()
+  @ApiBody({
+    description: "User update data",
+    type: "object",
+    schema: {
+      $ref: "#/components/schemas/UpdateUserDto",
+    },
+  })
+  @ApiOkResponse({
+    description: "User updated successfully",
+    schema: {
+      type: "object",
+      properties: {
+        messages: { type: "string", example: "User updated successfully" },
+        data: {
+          type: "object",
+          properties: {
+            _id: {
+              type: "string",
+              description: "User ID"
+            },
+            firstName: {
+              type: "string",
+              description: "User's first name"
+            },
+            lastName: {
+              type: "string",
+              description: "User's last name"
+            },
+            email: {
+              type: "string",
+              description: "User's email address"
+            },
+            birthDate: {
+              type: "string",
+              format: "date-time",
+              description: "User's birth date"
+            },
+            loginHistories: {
+              type: "array",
+              items: {
+                type: "string"
+              },
+              description: "User's login history"
+            },
+            languages: {
+              type: "array",
+              items: {
+                type: "string"
+              },
+              description: "User's languages"
+            },
+            completedCourses: {
+              type: "array",
+              items: {
+                type: "string"
+              },
+              description: "User's completed courses"
+            },
+            createdAt: {
+              type: "string",
+              format: "date-time",
+              description: "User's creation timestamp"
+            },
+            updatedAt: {
+              type: "string",
+              format: "date-time",
+              description: "User's last update timestamp"
+            },
+            __v: {
+              type: "number",
+              description: "User's version"
+            }
+          },
+          required: [
+            "_id",
+            "firstName",
+            "email",
+            "createdAt",
+            "updatedAt",
+            "__v"
+          ]
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: "Happen when the access token is invalid or expired.",
+    example: {
+      messages: "Invalid or expired token",
+      data: null,
+    },
+  })
+  @ApiNotFoundResponse({
+    description: "Happen when the user with this token is not found",
+    example: {
+      messages: "User not founded",
+      data: null,
+    },
+  })
+  async update(
+    @Req() req: Request,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<ApiResponse> {
+    //@ts-ignore
+    const userId = req.user._id.toString();
+
+    const updatedUser = await this.usersService.update(
+      userId,
+      updateUserDto,
+    );
+
+    const userResponse = extractPassword(updatedUser);
+
+    return {
+      messages: "User updated successfully",
+      data: userResponse,
+    };
+  }
+
+  @Put("users/profile-picture")
+  @UseInterceptors(FileInterceptor("profilePicture"))
+  @UseGuards(BearerTokenGuard)
+  @ApiOperation({
+    summary: "Upload a user's profile picture",
+    description:
+      "Is used to upload a user's profile picture. Sorry that no body example in here, i don't know how",
+  })
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        profilePicture: {
+          type: "string",
+          format: "binary",
+          description: "The profile picture to upload",
+        },
+      },
+    },
+  })
+  @ApiOkResponse({
+    description: "Return the uploaded profile picture",
+    example: {
+      messages: "Profile picture uploaded successfully",
+      data: {
+        imageUrl: "https://placehold.jp/150x150.png",
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description:
+      "Happen when the user doesn't upload a file or the file MIME type is not allowed",
+    example: {
+      messages: "Validation failed (expected type is /(jpg|jpeg|png|webp)$/)",
+      data: null,
+    },
+  })
+  @ApiBadGatewayResponse({
+    description:
+      "Happen when the image failed to upload to Cloudinary, it can be because of the network or the image itself",
+    example: {
+      messages: "Failed to upload image to Cloudinary",
+      data: null,
+    },
+  })
+  @UseGuards(BearerTokenGuard, RoleGuard)
+  @HasRoles(Role.USER, Role.ADMIN)
+  async uploadProfilePicture(
+    @Req() req: Request,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          // 5 MB
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
+        ],
+        errorHttpStatusCode: 400,
+        exceptionFactory: (errors) => {
+          throw new HttpException(errors, 400);
+        },
+      }),
+    ) file: Express.Multer.File,
+  ): Promise<ApiResponse> {
+    console.log({ file, user: req.user });
+    if (!file) {
+      throw new BadRequestException("No file uploaded");
+    }
+
+    //@ts-ignore
+    const userId = req.user._id;
+
+    try {
+      const imageUrl = await this.cloudinaryService.uploadImage(
+        file,
+        userId,
+      );
+
+      await this.usersService.update(userId, { profilePicture: imageUrl });
+      return {
+        messages: "Profile picture uploaded successfully",
+        data: {
+          imageUrl,
+        },
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        "Failed to upload image to Cloudinary",
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
   }
 }

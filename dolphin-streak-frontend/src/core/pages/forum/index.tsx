@@ -1,84 +1,66 @@
-import { ArrowLeft, Search, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { SearchBar } from "./subcomponents/SearchBar";
-import { ForumPost } from "./subcomponents/ForumPost";
-import { Pagination } from "./subcomponents/Pagination";
-import { useRouter } from "next/router";
-import { useCallback, useState } from "react";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState, useEffect } from "react";
+import { ForumMobileView } from "./components/MobileView/page";
+import { ForumDesktopView } from "./components/DesktopView/page";
+import { trpc } from "@/utils/trpc";
+import { useAuthStore } from "@/core/stores/authStore";
+import { TForum } from "@/server/types/forums";
 
-// Main Forum Page Component
 export function ForumPage() {
+    const { getAccessToken } = useAuthStore();
+    const accessToken = getAccessToken();
+    const isMobile = useMediaQuery("(max-width: 768px)");
     const router = useRouter();
-    const { page } = router.query;
-    const currentPage = parseInt(page as string, 10) || 1;
+    const searchParams = useSearchParams();
+    const currentPage = parseInt(searchParams.get("page") || "1", 10);
+    const per_page = 10;
 
     const [searchQuery, setSearchQuery] = useState("");
+    const [forumPosts, setForumPosts] = useState<TForum[]>([]);
+    const { data: forumPostsData } = trpc.forum.getAllForums.useQuery({
+        page: currentPage,
+        per_page: 10,
+        max_page: 1,
+        search: searchQuery,
+        accessToken: accessToken || "",
+    });
+
+    useEffect(() => {
+        if (forumPostsData?.data) {
+            setForumPosts(forumPostsData.data);
+        }
+    }, [forumPostsData]);
 
     const handleSearch = useCallback((query: string) => {
-        setSearchQuery(query); // Update searchQuery state
-        // Perform search logic here (e.g., filter forumPosts)
-        console.log("Search query:", query);
+        setSearchQuery(query);
     }, []);
 
     const handleNewPost = useCallback(() => {
-        // Navigate to new post creation page
-        router.push("/forum/new"); // Example route
+        router.push("/forum/new");
     }, [router]);
 
-    const forumPosts = [
-        {
-            id: 1,
-            title: "Forum Title",
-            content:
-                "Lorem ipsum odor amet, consectetuer adipiscing elit. Lobortis convallis accumsan condimentum pellentesque odio maecenas nullam molestie varius facilisis elementum",
-            author: "Person",
-            date: "Sunday, 20-10-2024",
-            avatarSrc: "/api/placeholder/40/40",
-        },
-        // Add more posts as needed
-    ];
-
-    const handleReply = useCallback((id: number) => {
+    const handleReply = useCallback((id: string) => {
         router.push(`/forum/${id}/reply`);
     }, [router]);
 
-    return (
-        <div className="min-h-screen bg-gray-950 text-white p-4">
-            <div className="max-w-2xl mx-auto">
-                <div className="bg-blue-500 rounded-lg p-4 mb-6 flex items-center">
-                    <Button
-                        variant="ghost"
-                        className="text-white p-0 hover:bg-transparent"
-                    >
-                        <ArrowLeft className="h-5 w-5" />
-                    </Button>
-                    <span className="flex-1 text-center font-semibold">Forum</span>
-                </div>
-                <SearchBar
-                    searchValue={searchQuery}
-                    onSearch={handleSearch}
-                    onNewPost={handleNewPost}
-                />
-                <div className="space-y-4">
-                    {forumPosts.map((post) => (
-                        <ForumPost key={post.id} {...post} onReply={() => handleReply(post.id)} />
-                    ))}
-                </div>
-                <Pagination
-                    currentPage={currentPage}
-                    totalPages={99}
-                    onPageChange={(page) => {
-                        router.push(
-                            {
-                                pathname: router.pathname,
-                                query: { ...router.query, page: page },
-                            },
-                            undefined,
-                            { shallow: true }
-                        );
-                    }}
-                />
-            </div>
-        </div>
+    const handlePageChange = useCallback((page: number) => {
+        router.push(`/forum?page=${page}`);
+    }, [router]);
+
+    const sharedProps = {
+        forumPosts,
+        currentPage,
+        totalPages: Math.floor((forumPostsData?.data.length || 10) / per_page) || 1,
+        handleSearch,
+        handleNewPost,
+        handleReply,
+        handlePageChange,
+    };
+
+    return isMobile ? (
+        <ForumMobileView {...sharedProps} />
+    ) : (
+        <ForumDesktopView {...sharedProps} />
     );
 }

@@ -18,7 +18,21 @@ export class UsersService {
     * Constructs the UsersService.
     * @param userModel - The user model injected by Mongoose.
     */
-   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+   constructor(@InjectModel(User.name) private userModel: Model<User>) { }
+
+   /**
+    * Finds a user by email and returns the user's ID.
+    * @param email - The email of the user.
+    * @returns The user's ID.
+    * @throws {HttpException} If the user is not found.
+    */
+   async getUserByEmail(email: string): Promise<UserDocument> {
+      const user = await this.userModel.findOne({ email });
+      if (!user) {
+         throw new HttpException("User not found", HttpStatus.NOT_FOUND);
+      }
+      return user;
+   }
 
    /**
     * Creates a new user.
@@ -94,15 +108,15 @@ export class UsersService {
       // Update the user's subscription ID in the database
       const result = await this.userModel.findByIdAndUpdate(
          userId,
-         {subscriptionId},
-         {new: true},
+         { subscriptionId },
+         { new: true },
       );
 
       // console.log(result);
-      
 
-      if(!result){
+
+      if (!result) {
          throw new Error(`User with ID ${userId} not found`);
       }
-    }
+   }
 }

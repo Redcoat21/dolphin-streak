@@ -18,6 +18,10 @@ import { FeedbacksModule } from "./feedbacks/feedbacks.module";
 import { ForumsModule } from "./forums/forums.module";
 import { AiModule } from "./ai/ai.module";
 import { ViewController } from "./views/view.controller";
+import { VoiceaiModule } from './voiceai/voiceai.module';
+import { DailyModule } from "./daily/daily.module";
+import { ComprehensionModule } from "./comprehension/comprehension.module";
+import { AnnouncementModule } from './announcement/announcement.module';
 
 @Module({
   imports: [
@@ -40,15 +44,19 @@ import { ViewController } from "./views/view.controller";
     UsersModule,
     SubscriptionsModule,
     QuestionsModule,
+    DailyModule,
     CoursesModule,
+    ComprehensionModule,
     LanguagesModule,
     LevelsModule,
     MailModule,
     FeedbacksModule,
     ForumsModule,
     AiModule,
+    VoiceaiModule,
+    AnnouncementModule,
   ],
   controllers: [AppController, ViewController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #080E1E;
+            color: white;
+            margin: 0;
+        }
+        .header {
+            background-color: #0A84FF;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header .user-icon {
+            background-color: #5AB9EA;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .header .user-icon img {
+            width: 30px;
+            height: 30px;
+        }
+        .header h3 {
+            margin-left: 10px;
+            font-size: 1.2rem;
+        }
+        .header .forum-btn {
+            background-color: #1B2335;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .header .forum-btn:hover {
+            background-color: #5AB9EA;
+        }
+        .activity-container {
+            text-align: center;
+            margin: 20px 10px;
+        }
+        .activity-container h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+        .activities {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .activity {
+            background-color: #1B2335;
+            border-radius: 10px;
+            padding: 20px;
+            width: 200px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        .activity:hover {
+            transform: translateY(-5px);
+            background-color: #5AB9EA;
+        }
+        .activity img {
+            width: 50px;
+            margin-bottom: 10px;
+        }
+        .activity h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .activity p {
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div style="display: flex; align-items: center;">
+            <div class="user-icon">
+                <img src="./imgSource/User.png" alt="User Icon">
+            </div>
+            <h3>Hello, User</h3>
+        </div>
+        <button class="forum-btn">Forum</button>
+    </div>
+    <div class="activity-container">
+        <h2>Choose Your Activity</h2>
+        <div class="activities">
+            <div class="activity">
+                <h3>Daily Challenge</h3>
+                <img src="./imgSource/daily.png" alt="Daily Challenge">
+                <p>Put your knowledge to the test with our Daily Practice!</p>
+            </div>
+            <div class="activity">
+                <h3>Course</h3>
+                <img src="./imgSource/course.png" alt="Course">
+                <p>Expand your knowledge with our interactive lessons!</p>
+            </div>
+            <div class="activity">
+                <h3>Comprehension</h3>
+                <img src="./imgSource/comprehension.png" alt="Comprehension">
+                <p>Show off your skills with a comprehension test!</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

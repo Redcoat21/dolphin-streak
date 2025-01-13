@@ -1,5 +1,8 @@
-import { DailyChallengePage } from "@/core/pages/daily-challenge/page";
+import { withAuth } from "@/core/components/hoc/withAuth";
+import { Challenge } from "@/core/pages/daily-challenge/page";
 
-export default function DailyChallenge() {
-  return <DailyChallengePage />;
+function Challenges() {
+  return <Challenge />;
 }
+
+export default withAuth(Challenges);

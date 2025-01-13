@@ -1,0 +1,41 @@
+services:
+  backend:
+    build:
+      context: ./dolphin-streak-backend
+      dockerfile: Dockerfile
+    container_name: dolphin-streak-backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./dolphin-streak-backend:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/dolphin-streak
+    depends_on:
+      - mongo
+
+  frontend:
+    build:
+      context: ./dolphin-streak-frontend
+      dockerfile: Dockerfile
+    container_name: dolphin-streak-frontend
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./dolphin-streak-frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:3000
+    depends_on:
+      - backend
+
+  mongo:
+    image: mongo:6.0
+    container_name: dolphin-streak-mongo
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+
+volumes:
+  mongo-data:

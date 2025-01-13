@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0B1121;
+            color: white;
+        }
+        .header {
+            background-color: #0A84FF;
+            padding: 15px 20px;
+            text-align: center;
+            position: relative;
+        }
+        .header::before {
+            content: '<';
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .header h3 {
+            font-size: 1.2rem;
+            color: white;
+        }
+        .forum-item {
+            background-color: #1B2335;
+            margin: 20px;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .forum-item .forum-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .forum-item .forum-content {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .forum-item .forum-reply {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #141B2E;
+            border-radius: 10px;
+        }
+        .forum-item-footer {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #A0A0A0;
+        }
+        .text-editor {
+            margin: 20px;
+            background-color: #1B2335;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .text-editor textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: transparent;
+            color: white;
+            border: none;
+            resize: none;
+            height: 100px;
+        }
+        .text-editor textarea:focus {
+            outline: none;
+        }
+        .text-editor .tools {
+            display: flex;
+            gap: 10px;
+            padding: 10px 0;
+        }
+        .text-editor .tools button {
+            background-color: #0A84FF;
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .reply-button {
+            display: block;
+            width: calc(100% - 40px);
+            margin: 20px auto;
+            background-color: #0A84FF;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h3>Forum</h3>
+    </div>
+
+    <div class="forum-item">
+        <div class="forum-title">Forum Title</div>
+        <div class="forum-content">
+            Lorem ipsum dolor sit amet consectetur adipiscing elit. Sit ullam voluptatibus consequatur, accusantium beatae enim repellat.
+        </div>
+        <div class="forum-reply">
+            <div><b>Reply To :</b> Forum Title</div>
+            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit.</p>
+        </div>
+        <div class="forum-reply">
+            <div><b>Reply To :</b> Forum Title</div>
+            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit.</p>
+        </div>
+        <div class="forum-item-footer">Sunday, 20-10-2024</div>
+    </div>
+
+    <div class="text-editor">
+        <div class="tools">
+            <button>B</button>
+            <button>I</button>
+            <button>U</button>
+            <button>Link</button>
+            <button>Image</button>
+        </div>
+        <textarea placeholder="I am your rich text editor."></textarea>
+    </div>
+
+    <button class="reply-button">Reply To Thread</button>
+</body>
+</html>

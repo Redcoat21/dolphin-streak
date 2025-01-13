@@ -1,0 +1,108 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: Arial, sans-serif;
+    background-color: #080E1E;
+    color: white;
+}
+.header {
+    background-color: #0A84FF;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Posisi di tengah */
+}
+.header img {
+    position: absolute;
+    left: 20px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+.header h3 {
+    font-size: 1.2rem;
+    text-align: center;
+}
+.search-container {
+    padding: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.search-container input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #1B2335;
+    color: white;
+    width: 75%;
+}
+.search-container button {
+    background-color: #5AB9EA;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: white;
+}
+.forum-list {
+    padding: 0 20px;
+}
+.forum-item {
+    background-color: #1B2335;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+.forum-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.forum-item-header img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+.forum-item-header h4 {
+    margin-left: 10px;
+    font-size: 1.2rem;
+}
+.forum-item-header span {
+    font-size: 0.9rem;
+    color: #5AB9EA;
+}
+.forum-item-content {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+.forum-item-footer {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #A0A0A0;
+}
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px 0;
+}
+.pagination button {
+    background-color: #1B2335;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+}
+.pagination button.active {
+    background-color: #5AB9EA;
+}

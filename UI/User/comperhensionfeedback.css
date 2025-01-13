@@ -1,0 +1,108 @@
+* {
+    margin: 0;
+    padding: 0;
+    /* box-sizing: border-box; */
+}
+
+body {
+    font-family: 'Fredoka', sans-serif;
+    background-color: #080e1e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* min-height: 100vh; */
+    color: white;
+}
+
+.container {
+    width: 100%;
+    /* max-width: 400px; */
+    background-color: #0c1221;
+    /* border-radius: 10px; */
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.header {
+    background-color: #0a84ff;
+    padding: 15px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    position: relative;
+}
+
+.header .back-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.content {
+    padding: 20px;
+    text-align: center;
+}
+
+.content h2 {
+    font-size: 1.4rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.content .score {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.feedback {
+    text-align: left;
+    margin-top: 20px;
+}
+
+.feedback h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.feedback p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #cfcfcf;
+}
+
+.footer {
+    text-align: left;
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+
+.footer .regards {
+    margin-top: 10px;
+    font-weight: 700;
+}
+
+.button-container {
+    padding: 20px;
+    text-align: center;
+}
+
+.button-container button {
+    width: 100%;
+    padding: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+    background-color: #0a84ff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button-container button:hover {
+    background-color: #006fdd;
+}

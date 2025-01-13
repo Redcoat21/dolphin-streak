@@ -11,8 +11,35 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Container } from "@/core/components/container";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { TForgotPasswordInput, ZForgotPasswordInput } from "@/server/types/auth";
+import { trpc } from "@/utils/trpc";
+import { useState } from "react";
 
 export function ForgotPasswordPage() {
+  const [message, setMessage] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<TForgotPasswordInput>({
+    resolver: zodResolver(ZForgotPasswordInput),
+  });
+
+  const { mutate: forgotPassword, isPending } = trpc.auth.forgotPassword.useMutation({
+    onSuccess: () => {
+      setMessage("A reset link has been sent to your email address.");
+    },
+    onError: (error) => {
+      setMessage(error.message || "Failed to send reset link.");
+    },
+  });
+
+  const onSubmit = async (data: TForgotPasswordInput) => {
+    forgotPassword(data);
+  };
+
   return (
     <Container>
       <Button
@@ -32,16 +59,25 @@ export function ForgotPasswordPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="name@example.com" />
-            </div>
+            <form onSubmit={handleSubmit(onSubmit)} className="grid gap-2">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="name@example.com"
+                  {...register("email")}
+                />
+                {errors.email && (
+                  <p className="text-sm text-red-500">{errors.email?.message}</p>
+                )}
+              </div>
+              {message && <p className="text-center">{message}</p>}
+              <Button className="w-full" variant="custom-blue" type="submit" disabled={isPending}>
+                {isPending ? "Loading..." : "Send Reset Link"}
+              </Button>
+            </form>
           </CardContent>
-          <CardFooter>
-            <Button className="w-full" variant="custom-accented">
-              Send Reset Link
-            </Button>
-          </CardFooter>
         </Card>
       </div>
     </Container>

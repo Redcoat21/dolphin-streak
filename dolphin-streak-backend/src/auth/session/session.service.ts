@@ -28,7 +28,7 @@ export class SessionService {
     private readonly logger = new Logger(SessionService.name);
     constructor(
         @InjectModel(Session.name) private sessionModel: Model<Session>,
-    ) {}
+    ) { }
 
     create(createSessionDto: CreateSessionDto) {
         return this.sessionModel.create(createSessionDto);
@@ -38,14 +38,19 @@ export class SessionService {
         // If token type is access token then the livetime is 30 minutes.
         // For refresh token, depending on rememberMe, if its checked its 30 days, if its not its 24 hours.
         const liveTime = tokenType === TokenType.ACCESS
-            ? 30 * 60 * 1000
+            ? 60 * 60 * 1000
             : rememberMe
-            ? 30 * 24 * 60 * 60 * 1000
-            : 24 * 60 * 60 * 1000;
+                ? 30 * 24 * 60 * 60 * 1000
+                : 24 * 60 * 60 * 1000;
+        // const liveTime = tokenType === TokenType.ACCESS
+        //     ? 30 * 60 * 1000
+        //     : rememberMe
+        //     ? 30 * 24 * 60 * 60 * 1000
+        //     : 24 * 60 * 60 * 1000;
 
         return {
             token: crypto.randomBytes(64).toString("hex"),
-            liveTime: DateTime.now().plus(liveTime).toJSDate(),
+            liveTime: DateTime.now().plus(liveTime * 60).toJSDate(),
         };
     }
 

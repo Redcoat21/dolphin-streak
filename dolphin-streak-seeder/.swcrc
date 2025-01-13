@@ -1,0 +1,16 @@
+{
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "tsx": true,
+      "decorators": true
+    },
+    "transform": {
+      "decoratorMetadata": true
+    },
+    "target": "es2016"
+  },
+  "module": {
+    "type": "commonjs"
+  }
+}
