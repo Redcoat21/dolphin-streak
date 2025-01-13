@@ -94,7 +94,7 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly sessionService: SessionService,
-  ) { }
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -206,7 +206,7 @@ export class UsersController {
       filterConditions.push({ provider: queryParam.provider });
     }
 
-    // If both firstName and lastName exist then do a $and query.
+    // If both firstName and lastName exist then do an $and query.
     const filter =
       filterConditions.length > 1
         ? { $and: filterConditions }
@@ -492,15 +492,15 @@ export class UsersController {
     description:
       "Is used to upload a user's profile picture. Sorry that no body example in here, i don't know how",
   })
-  @ApiConsumes("multipart/form-data")
+  @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
-      type: "object",
+      type: 'object',
       properties: {
         profilePicture: {
-          type: "string",
-          format: "binary",
-          description: "The profile picture to upload",
+          type: 'string',
+          format: 'binary',
+          description: 'The profile picture to upload',
         },
       },
     },
