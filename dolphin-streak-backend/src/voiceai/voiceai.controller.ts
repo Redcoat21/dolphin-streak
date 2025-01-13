@@ -87,12 +87,15 @@ export class VoiceaiController {
       throw new BadRequestException('Audio file is required.');
     }
     console.log("di voice ai");
+    const { buffer, mimetype } = file;
 
-    const data = await this.voiceaiService.recognizeSpeech(file.buffer, format);
+    const data = await this.voiceaiService.recognizeSpeechByGemini(buffer, mimetype, format)
+    console.log(data);
+    // const data = await this.voiceaiService.recognizeSpeech(file.buffer, format);
 
     return {
       messages: "Audio file successfully transripted",
-      data
+      data: data.data
     }
   }
 }
