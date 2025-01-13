@@ -69,6 +69,16 @@ export class ViewController {
     });
   }
 
+  @Get('/courses/add')
+  getAddCourse(@Res() res: Response): void {
+      this.handleAdminAccess(res, 'courses/add-course');
+  }
+
+  @Get('/courses/edit/:id')
+  getEditCourse(@Param('id') id: string, @Res() res: Response): void {
+      this.handleAdminAccess(res, 'courses/edit-course', { id });
+  }
+
   @Get('/questions')
   getQuestions(@Res() res: Response): void {
     this.handleAdminAccess(res, 'questions/index', {

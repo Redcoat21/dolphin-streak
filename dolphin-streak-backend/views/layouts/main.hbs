@@ -155,6 +155,15 @@
       console.log({ url, options })
       try {
         const response = await fetch(url, options);
+        const responseJson = await response.json()
+         console.log({
+          response, status: response.status, 
+          statusText: response.statusText, 
+          ok: response.ok, 
+          type: response.type, 
+          url: response.url,
+          json: responseJson
+        })
         if (response.status === 401) {
           // Token expired or unauthorized, remove tokens and redirect to login
           localStorage.removeItem('secure_dolphin_streak_usr_access_token');
@@ -165,7 +174,6 @@
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const responseJson = await response.json()
         console.log({ url, options, response: responseJson })
         return responseJson;
       } catch (error) {

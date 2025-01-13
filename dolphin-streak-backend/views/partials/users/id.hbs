@@ -58,6 +58,37 @@
         console.error('Error fetching user data:', error);
         showToaster('danger', { message: 'An error occurred while fetching user data.' });
       }
+
+      const editUserForm = document.getElementById('edit-user-form');
+      editUserForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+        const email = document.getElementById('email').value;
+        const birthDate = document.getElementById('birthDate').value;
+
+        const userData = {
+          firstName,
+          lastName,
+          email,
+          birthDate,
+        };
+
+        try {
+          const response = await fetchAPI(`/api/users/${userId}`, 'PATCH', userData);
+          if (response.messages === 'User updated successfully') {
+            showToaster('success', { message: 'User updated successfully.' });
+            // Redirect to user list page
+            window.location.href = '/users';
+          } else {
+            showToaster('danger', { message: 'Failed to update user.' });
+          }
+        } catch (error) {
+          console.error('Error updating user:', error);
+          showToaster('danger', { message: 'An error occurred while updating the user.' });
+        }
+      });
     });
   </script>
 {{/layout}}

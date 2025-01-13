@@ -1,26 +1,36 @@
 {{#> layout title="Edit Course"}}
-  <div class="content-wrapper">
-    <div class="form-wrapper">
-      <div class="form-header">
-        <h1>Edit Course</h1>
-      </div>
-      <form id="editCourseForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Course Image</label>
-            <img id="courseImage" src="image/blank.jpg" alt="Course Image" style="height: 300px; width: 400px;">
-            <input type="file" id="courseImageInput" style="margin-top: 26px; height: 300px;">
-          </div>
-          <div class="form-group">
-            <label>Course Name</label>
-            <input type="text" id="courseName" placeholder="Course Name" required>
-          </div>
+  <div class="flex">
+    {{> sidebar}}
+    <div class="flex-1 p-6 bg-gray-100 overflow-auto">
+      <div class="form-wrapper bg-white rounded-lg p-8 shadow-lg">
+        <div class="form-header text-center mb-6">
+          <h1 class="text-2xl font-bold text-[#0e88bc]">Edit Course</h1>
         </div>
-        <button type="submit" class="submit-btn">Update Course</button>
-      </form>
-      <a href="/courses">
-        <button type="button" class="back-btn">Back</button>
-      </a>
+        <form id="editCourseForm" class="space-y-4">
+          <div class="form-row flex flex-col md:flex-row gap-4">
+            <div class="form-group w-full md:w-1/2">
+              <label for="courseImageInput" class="block text-gray-700 font-bold mb-2">Course Image</label>
+              <img id="courseImage" src="/image/blank.jpg" alt="Course Image" class="w-full h-48 object-cover rounded-md mb-4">
+              <input type="file" id="courseImageInput" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            </div>
+            <div class="form-group w-full md:w-1/2">
+              <label for="courseName" class="block text-gray-700 font-bold mb-2">Course Name</label>
+              <input type="text" id="courseName" placeholder="Course Name" required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+          <div class="form-row">
+            <button type="submit" class="submit-btn w-full py-3 bg-[#0e88bc] hover:bg-blue-500 rounded text-white">Update Course</button>
+          </div>
+        </form>
+        <div class="mt-4">
+          <a href="/courses">
+            <button type="button" class="back-btn w-full py-3 bg-transparent hover:bg-[#0e88bc] hover:text-white rounded text-[#0e88bc] flex items-center justify-center gap-2">
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
   <script>
@@ -49,18 +59,18 @@
     async function updateCourse(id, data) {
       try {
         const response = await fetch(`/api/courses/${id}`, {
-          method: 'PUT',
+          method: 'PATCH',
           headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('secure_dolphin_streak_usr_access_token')}`
           },
-          body: JSON.stringify(data)
+          body: data
         });
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const result = await response.json();
         showToaster('success', { message: result.messages });
+        window.location.href = '/courses';
       } catch (error) {
         console.error('Error updating course:', error);
         showToaster('danger', { message: 'Error updating course' });
@@ -82,7 +92,7 @@
       let formData = new FormData();
       formData.append('name', name);
       if (image) {
-        formData.append('image', image);
+        formData.append('thumbnail', image);
       }
       await updateCourse(courseId, formData);
     });

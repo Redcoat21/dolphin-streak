@@ -47,8 +47,7 @@
                 <div class="mt-6">
                     <label class="block text-gray-600 mb-2">Birth Date</label>
                     <input type="date" name="birthDate" placeholder="dd/mm/yyyy"
-                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-[#0088CC]"
-                        required>
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-[#0088CC]">
                 </div>
 
                 <div class="mt-8 space-y-4">
@@ -79,9 +78,11 @@
                 console.log('User created:', response);
                 showToaster('success', { message: 'User created successfully.', timeout: 5000 });
                 // Redirect or show success message
+                window.location.href = '/';
             } catch (error) {
                 showToaster('danger', { message: error, timeout: 5000 });
                 console.error('Error creating user:', JSON.stringify(error));
+                console.log({error})
                 // Show error message
             }
         });

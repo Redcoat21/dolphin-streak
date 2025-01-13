@@ -135,6 +135,7 @@ export class UsersController {
     },
   })
   async create(@Body() createUserDto: CreateUserDto): Promise<ApiResponse> {
+    console.log({ createUserDto });
     const createdUser = await this.usersService.create({
       ...createUserDto,
       provider: Provider.LOCAL,
