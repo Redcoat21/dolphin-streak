@@ -216,8 +216,10 @@ export class CoursesService {
 
         console.log(response.data);
 
-        const transcript = response.data?.data?.transcript;
-        const confidence = response.data?.data?.confidence;
+        const transcript = response.data.data.transcript;
+        const confidence = response.data.data.confidence;
+
+        console.log(transcript);
 
         if (confidence < 0.6) {
           return {
@@ -226,7 +228,9 @@ export class CoursesService {
           };
         }
 
-        if (transcript.replace(/[^a-zA-Z]/g, '') == questionQuestion) {
+        const nonTranscript = transcript.replace(/[^a-zA-Z]/g, '')
+
+        if (nonTranscript == questionQuestion) {
           return { suggestion: null, isCorrect: true }
         }
 
