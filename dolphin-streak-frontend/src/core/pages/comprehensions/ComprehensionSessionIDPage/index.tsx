@@ -160,7 +160,7 @@ export function ComprehensionSessionIDPage() {
         || isPostSubmitAnswerPending;
 
     if (comprehensionSession?.data?.questionIndex == comprehensionSession?.data?.totalQuestion && !isComprehensionSessionDataPending) {
-        return <CompletedCourse score={comprehensionSession?.data?.score || 0} />;
+        return <CompletedCourse score={comprehensionSession?.data?.score || 0} courseType="comprehensions" />;
     } else if (!comprehensionSession?.data) {
         return (
             <div className="min-h-screen bg-slate-950 flex items-center justify-center">

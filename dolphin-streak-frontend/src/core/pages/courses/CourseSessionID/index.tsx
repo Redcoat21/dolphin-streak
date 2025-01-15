@@ -21,6 +21,7 @@ import MultipleChoicePage from "../../../components/courses/QuestionTypes/multip
 import { LivesIndicator } from "../../../components/courses/lives-indicator";
 import { Timer } from "../../../components/courses/timer";
 import { CompletedCourse } from "@/core/components/completed-course";
+import { isChinese } from "@/core/components/courses/QuestionTypes/types";
 
 export function CourseSessionIDPage() {
     const router = useRouter();
@@ -49,6 +50,8 @@ export function CourseSessionIDPage() {
     const { toast } = useToast();
     const [suggestion, setSuggestion] = useState<string | null>(null);
     const [recordedAudio, setRecordedAudio] = useState<Blob | null>(null);
+    const [isSpeaking, setIsSpeaking] = useState(false);
+
 
     // Fetch session data
     const { data: courseSessionData, refetch, isPending: isSessionDataPending } = trpc.course.getCourseSessionId.useQuery({
@@ -101,6 +104,9 @@ export function CourseSessionIDPage() {
     };
 
     const questionData = courseSessionData?.data;
+    if (questionData?.questionIndex == questionData?.totalQuestion && !isSessionDataPending) {
+        return <CompletedCourse score={questionData?.score || 0} courseType="course" />;
+    }
 
     // Try to submit or reset answer
     const handleSubmitAnswer = async (answer: string | null) => {
@@ -232,9 +238,6 @@ export function CourseSessionIDPage() {
     })();
 
 
-    if (questionData?.questionIndex == questionData?.totalQuestion && !isSessionDataPending) {
-        return <CompletedCourse score={questionData?.score || 0} />;
-    }
     // Render the appropriate page based on question type
     if (!questionData) {
         return (
@@ -246,6 +249,23 @@ export function CourseSessionIDPage() {
 
     const handleQuestionSubmit = (answer: string | null) => {
         handleSubmitAnswer(answer);
+    };
+
+    const handleSpeak = () => {
+        if (questionData?.question?.question?.text) {
+            const utterance = new SpeechSynthesisUtterance(questionData.question.question.text.replaceAll("_",""));
+            // Check if the question text contains Chinese characters
+            const hasChineseCharacters = isChinese(questionData.question.question.text);
+            
+            // Set the language to Mandarin Chinese if Chinese characters are present, otherwise default to browser language
+            utterance.lang = hasChineseCharacters ? 'zh-CN' : window.navigator.language;
+
+            setIsSpeaking(true);
+            speechSynthesis.speak(utterance);
+            utterance.onend = () => {
+                setIsSpeaking(false);
+            };
+        }
     };
 
     return (
@@ -294,7 +314,9 @@ export function CourseSessionIDPage() {
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="hover:bg-slate-800 mt-1"
+                                    className={`hover:bg-slate-800 mt-1 ${isSpeaking ? 'animate-pulse' : ''}`}
+                                    onClick={handleSpeak}
+                                    disabled={isSpeaking}
                                 >
                                     <Volume2 className="w-6 h-6 text-blue-400" />
                                 </Button>

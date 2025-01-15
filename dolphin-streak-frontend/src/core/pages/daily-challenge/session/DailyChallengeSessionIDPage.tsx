@@ -229,7 +229,7 @@ export function DailyChallengeSessionIDPage() {
     })();
 
     if (questionData?.questionIndex == questionData?.totalQuestion && !isDailyChallengeSessionDataPending) {
-        return <CompletedCourse score={questionData?.score || 0} />;
+        return <CompletedCourse score={questionData?.score || 0} courseType="daily-challenge" />;
     }
     // --- If still loading, show spinner ---
     if (!questionData) {

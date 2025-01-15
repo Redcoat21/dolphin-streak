@@ -421,7 +421,7 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
             questions.push(
                 // Writing Questions
                 {
-                    question: { type: 'text', text: '写一个关于你最喜欢的季节的短文' },
+                    question: { type: 'text', text: '我' },
                     type: QuestionType.WRITING,
                     answerOptions: null,
                     correctAnswer: null,
@@ -429,8 +429,8 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     courses: [mainCourse._id],
                     level: writingLevel._id,
                 },
-                {
-                    question: { type: 'text', text: '描述你的家人' },
+                 {
+                    question: { type: 'text', text: '你' },
                     type: QuestionType.WRITING,
                     answerOptions: null,
                     correctAnswer: null,
@@ -438,8 +438,8 @@ async function seedQuestions(courseIds: string[], languageIds: string[]): Promis
                     courses: [mainCourse._id],
                     level: writingLevel._id,
                 },
-                {
-                    question: { type: 'text', text: '写一篇关于你的梦想的文章' },
+                 {
+                    question: { type: 'text', text: '他' },
                     type: QuestionType.WRITING,
                     answerOptions: null,
                     correctAnswer: null,

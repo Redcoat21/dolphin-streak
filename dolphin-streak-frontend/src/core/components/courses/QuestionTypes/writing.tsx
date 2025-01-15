@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { IQuestionTypeComponent } from "./types";
-import { TQuestion } from "@/server/types/questions";
+import { RefreshCw, Volume2, Heart } from "lucide-react";
 import HanziWriter from 'hanzi-writer';
-import { TCourseSessionData } from "@/server/types/courses";
+import { TCourseSessionData, TQuestion, QuestionType } from "@/server/types/courses";
 
-interface WritingPageProps extends IQuestionTypeComponent {
+interface WritingPageProps {
     questionData: TCourseSessionData;
     setTextAnswer: (answer: string) => void;
     textAnswer: string;
@@ -14,67 +14,41 @@ interface WritingPageProps extends IQuestionTypeComponent {
 }
 
 export default function WritingPage({ questionData, setTextAnswer, textAnswer, lives, timeLeft }: WritingPageProps) {
-    const writerRef = useRef<HTMLDivElement>(null);
-    const [writer, setWriter] = useState<any>(null);
-
+    const targetRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (writerRef.current && questionData.question.question.text) {
-            const newWriter = HanziWriter.create(writerRef.current, questionData.question.question.text, {
-                width: 400,
-                height: 400,
-                padding: 5,
-                showOutline: true,
-                strokeColor: '#FFFFFF',
-                radicalColor: '#FFFFFF',
-                showCharacter: false,
-                
+        if (targetRef.current && questionData.question.question.text) {
+            targetRef.current.innerHTML = ""
+            const writer = HanziWriter.create(targetRef.current, questionData.question.question.text, {
+                width: 200,
+                height: 200,
+                padding: 5
             });
-            setWriter(newWriter);
-        }
-    }, [questionData.question.question.text]);
 
-    const handleStartDrawing = () => {
-        if (writer) {
-            writer.startQuiz({
-                onComplete: (summaryData: any) => {
-                    setTextAnswer(summaryData.characterTraced);
-                }
+            writer.quiz({
+                onComplete: (summaryData) => {
+                    console.log('Quiz completed:', summaryData);
+                    setTextAnswer(questionData.question.question.text)
+                    // setIsQuizzing(false);
+                    // Update score or provide feedback here
+                },
+                onMistake: (strokeData) => {
+                    console.log('Mistake:', strokeData);
+                    // Handle mistakes, e.g., reduce lives
+                },
+                onCorrectStroke: (strokeData) => {
+                    console.log('Correct stroke:', strokeData);
+                    // Provide positive feedback
+                },
             });
         }
-    };
-
-
-    const clearCanvas = () => {
-        if (writer) {
-            writer.cancelQuiz();
-            setTextAnswer('');
-        }
-    };
+    }, [questionData.question.question.text, textAnswer]);
 
     return (
-        <div className="space-y-4">
-            <div className="relative">
-                <div
-                    ref={writerRef}
-                    className="border-2 border-slate-700 rounded-lg bg-slate-900"
-                />
-                <Button
-                    onClick={clearCanvas}
-                    className="absolute top-2 right-2 bg-slate-800 hover:bg-slate-700"
-                >
-                    Clear
-                </Button>
-                <Button
-                    onClick={handleStartDrawing}
-                    className="absolute top-2 left-2 bg-slate-800 hover:bg-slate-700"
-                >
-                    Start
-                </Button>
-            </div>
-            <div className="text-center text-slate-400 text-sm">
-                Write the character in the box above
-            </div>
-        </div>
+        <><div
+            ref={targetRef}
+            className="w-full max-w-xs h-80 bg-white rounded-lg shadow-md p-4 flex items-center justify-center m-auto"
+        />
+        </>
     );
 }

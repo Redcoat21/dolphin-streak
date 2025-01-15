@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { IQuestionTypeComponent } from "./types";
+import { IQuestionTypeComponent, isChinese } from "./types";
 import { TQuestion } from "@/server/types/questions";
 import { TCourseSessionData } from "@/server/types/courses";
+import { HanziKeyboard } from "@/core/components/courses/hanzi-keyboard";
 
 interface FillInPageProps extends IQuestionTypeComponent {
     questionData: TCourseSessionData;
@@ -28,12 +29,26 @@ export default function FillInPage({ questionData, setFillInAnswers, fillInAnswe
                 {parts.map((part, i) => {
                     if (part === "__") {
                         const currentInputIndex = inputIndex++;
+                        if (isChinese(text)) {
+                            return (
+                                <HanziKeyboard
+                                    key={`input-${currentInputIndex}`}
+                                    onCharacterSelect={(character) => {
+                                        setFillInAnswers((prev: { [key: string]: string }) => ({
+                                            ...prev,
+                                            [currentInputIndex]: character,
+                                        }));
+                                    }}
+                                    value={fillInAnswers[currentInputIndex] || ""}
+                                />
+                            );
+                        }
                         return (
                             <Input
                                 key={`input-${currentInputIndex}`}
                                 value={fillInAnswers[currentInputIndex] || ""}
                                 onChange={(e) => {
-                                    setFillInAnswers((prev) => ({
+                                    setFillInAnswers((prev: { [key: string]: string }) => ({
                                         ...prev,
                                         [currentInputIndex]: e.target.value,
                                     }));

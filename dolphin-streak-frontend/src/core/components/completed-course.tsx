@@ -10,9 +10,10 @@ import { Header } from '../pages/dasboard/components/Header';
 
 interface CompletedCourseProps {
     score: number;
+    courseType: "comprehensions" | "course" | 'daily-challenge'
 }
 
-export function CompletedCourse({ score }: CompletedCourseProps) {
+export function CompletedCourse({ score, courseType }: CompletedCourseProps) {
     const router = useRouter();
     const animationRef = useRef<number | null>(null);
 
@@ -100,14 +101,14 @@ export function CompletedCourse({ score }: CompletedCourseProps) {
                                 <Button
                                     variant="outline"
                                     className="bg-slate-800 border-slate-700 hover:bg-slate-700"
-                                    onClick={() => router.push('/dashboard')}
+                                    onClick={() => router.push('/')}
                                 >
                                     <Home className="w-4 h-4 mr-2" />
                                     Home
                                 </Button>
                                 <Button
                                     className="bg-blue-600 hover:bg-blue-700"
-                                    onClick={() => router.push('/comprehensions')}
+                                    onClick={() => router.push(`/${courseType}`)}
                                 >
                                     <RotateCcw className="w-4 h-4 mr-2" />
                                     Try Another

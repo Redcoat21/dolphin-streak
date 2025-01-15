@@ -3,3 +3,6 @@ export interface IQuestionTypeComponent {
     // lives: number;
     // timeLeft: number;
 }
+export const isChinese = (text: string) => {
+    return /[\u4e00-\u9fff]/.test(text);
+};

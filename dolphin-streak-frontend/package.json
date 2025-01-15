@@ -61,6 +61,7 @@
     "next": "^15.0.3",
     "next-i18next": "^15.3.1",
     "next-themes": "^0.4.3",
+    "pinyin-engine": "^1.2.2",
     "react": "^19.0.0-rc-380f5d67-20241113",
     "react-audio-voice-recorder": "^2.2.0",
     "react-day-picker": "8.10.1",
