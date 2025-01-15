@@ -25,7 +25,7 @@ export class Course {
     @Prop({ required: true, maxlength: 255, enum: CourseType })
     type: CourseType;
 
-    @Prop({ required: false, maxlength: 255 })
+    @Prop({ required: false, maxlength: 255, default: "https://placehold.co/600x400" })
     thumbnail: string;
 }
 
