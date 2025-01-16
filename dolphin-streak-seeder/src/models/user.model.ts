@@ -27,6 +27,7 @@ export interface UserDocument extends Document {
     languages: mongoose.Types.ObjectId[]; // Array of ObjectIds referencing Language
     completedCourses: mongoose.Types.ObjectId[]; // Array of ObjectIds referencing Course
     subscriptionId?: string;
+    lives: number;
 }
 
 // Define the User Schema using `mongoose.Schema`
@@ -50,6 +51,7 @@ role: { type: String as any, enum: Object.values(Role), default: Role.USER.toStr
         languages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Language', default: [] }], // Add default if specified
         completedCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course', default: [] }], // Add default if specified
         subscriptionId: { type: String, maxlength: 100 },
+        lives: {type: Number},
     },
     { timestamps: true } // Enable timestamps (createdAt, updatedAt)
 );

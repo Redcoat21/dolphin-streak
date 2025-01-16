@@ -84,4 +84,13 @@ export class BaseCreateUserDto {
     @Type(() => Date)
     @MaxDate(() => DateTime.now().minus({ year: 5 }).toJSDate())
     birthDate?: Date;
+
+    @ApiProperty({
+        description: "The user's lives count",
+        example: 3,
+        default: 3,
+        nullable: false,
+        required: false,
+    })
+    lives: number = 3;
 }
