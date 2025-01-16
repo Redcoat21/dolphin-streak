@@ -1,8 +1,16 @@
+"use client"
+
 import { Mic, StopCircle, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { useCallback, useRef, useState } from "react";
+import { useState } from "react";
+import dynamic from 'next/dynamic';
+
+const ReactMic = dynamic(() => import('react-mic').then(mod => mod.ReactMic), {
+    ssr: false,
+});
+
 
 interface VoiceRecorderProps {
     onRecordingComplete: (audioBlob: Blob) => void;
@@ -16,48 +24,22 @@ const buttonVariants = {
 export function VoiceRecorder({ onRecordingComplete }: VoiceRecorderProps) {
     const [isRecording, setIsRecording] = useState(false);
     const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-    const mediaRecorder = useRef<MediaRecorder | null>(null);
-    const audioChunks = useRef<Blob[]>([]);
     const { toast } = useToast();
 
-    const startRecording = useCallback(async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder.current = new MediaRecorder(stream);
+    const startRecording = () => {
+        setIsRecording(true);
+    };
 
-            mediaRecorder.current.ondataavailable = (event) => {
-                if (event.data.size > 0) {
-                    audioChunks.current.push(event.data);
-                }
-            };
+    const stopRecording = () => {
+        setIsRecording(false);
+    };
 
-            mediaRecorder.current.onstop = () => {
-                const audioBlob = new Blob(audioChunks.current, { type: "audio/webm" });
-                setAudioBlob(audioBlob);
-                onRecordingComplete(audioBlob); // Callback with the audio blob
-                audioChunks.current = [];
-                const tracks = stream.getTracks()
-                for (let i = 0; i < tracks.length; i++) {
-                    tracks[i].stop();
-                }
-                toast({ title: "Recording saved!" });
-            };
+    const onStop = (recordedBlob: { blob: Blob }) => {
+        setAudioBlob(recordedBlob.blob);
+        onRecordingComplete(recordedBlob.blob);
+        toast({ title: "Recording saved!" });
+    };
 
-            mediaRecorder.current.start();
-            setIsRecording(true);
-
-        } catch (error) {
-            toast({ title: "Error", description: "Error when recording" });
-        }
-
-    }, [onRecordingComplete, toast]);
-
-    const stopRecording = useCallback(() => {
-        if (mediaRecorder.current && mediaRecorder.current.state === 'recording') {
-            mediaRecorder.current.stop();
-            setIsRecording(false);
-        }
-    }, []);
 
     const playAudio = () => {
         if (audioBlob) {
@@ -71,6 +53,14 @@ export function VoiceRecorder({ onRecordingComplete }: VoiceRecorderProps) {
 
     return (
         <div className="space-y-4">
+            <ReactMic
+                record={isRecording}
+                className="sound-wave"
+                onStop={onStop}
+                strokeColor="#000000"
+                backgroundColor="#FF4081"
+                mimeType="audio/webm"
+            />
             <motion.button
                 variants={buttonVariants}
                 whileHover="hover"

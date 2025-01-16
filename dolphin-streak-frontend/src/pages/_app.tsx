@@ -13,12 +13,14 @@ const I18nextAdapter = appWithTranslation<
 >(({ children }) => <>{children}</>);
 
 const I18nProvider = (props: AppProps) => {
-  const _i18n = trpc.i18n.useQuery(undefined, {
-    trpc: { context: { skipBatch: true } },
-  });
+  // const _i18n = trpc.i18n.useQuery(undefined, {
+  //   trpc: { context: { skipBatch: true } },
+  // });
 
-  const locale = _i18n.data?.locale;
-  const i18n = _i18n.data?.i18n;
+  const locale = props.pageProps.locale;
+  const i18n = props.pageProps.i18n;
+  // const locale = _i18n.data?.locale;
+  // const i18n = _i18n.data?.i18n;
 
   const passedProps = {
     ...props,
@@ -34,14 +36,23 @@ const I18nProvider = (props: AppProps) => {
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
-    <I18nProvider {...pageProps}>
+    <>
       <AuthProvider>
         <Component {...pageProps} />
         <Toaster />
       </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
-    </I18nProvider>
+    </>
   );
+  // return (
+  //   <I18nProvider {...pageProps}>
+  //     <AuthProvider>
+  //       <Component {...pageProps} />
+  //       <Toaster />
+  //     </AuthProvider>
+  //     <ReactQueryDevtools initialIsOpen={false} />
+  //   </I18nProvider>
+  // );
 };
 
 export default trpc.withTRPC(MyApp);

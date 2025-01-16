@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Volume2, Heart } from "lucide-react";
 import HanziWriter from 'hanzi-writer';
-import { TCourseSessionData, TQuestion, QuestionType } from "@/server/types/courses";
+import { TCourseSessionData, } from "@/server/types/courses";
 
 interface WritingPageProps {
     questionData: TCourseSessionData;

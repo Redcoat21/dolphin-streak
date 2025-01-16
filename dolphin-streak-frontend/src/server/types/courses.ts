@@ -71,7 +71,7 @@ export function isCourseType(value: number): value is CourseType {
 
 export type TStartCourseSessionResponse = TDefaultResponse<{
   "sessionId": string,
-  "expiresAt": "2025-01-04T17:44:43.638Z",
+  "expiresAt": string, //"2025-01-04T17:44:43.638Z"
   "totalQuestions": number
 }>;
 export const ZGetCourseSessionIdRequest = z.object({

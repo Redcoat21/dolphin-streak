@@ -27,7 +27,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { LoadingFeedback } from "./components/loading-feedback";
 import { FeedbackCard } from "./components/feedback-card";
 
-
 interface FeedbackData {
     _id: string;
     content: string;
@@ -37,7 +36,6 @@ interface FeedbackData {
         email: string;
     };
 }
-
 
 export function FeedbackPage() {
     const { getAccessToken } = useAuthStore();
@@ -82,9 +80,16 @@ export function FeedbackPage() {
         }
     }, [activeTab]);
 
+    const handleTabChange = (value: string) => {
+        if (["all", "reports", "feedback"].includes(value)) {
+            setActiveTab(value as "all" | "reports" | "feedback");
+        } else {
+            console.error(`Invalid tab value: ${value}`);
+        }
+    };
 
     return (
-        <Container className="bg-[#0B1120] min-h-screen">
+        <Container>
             <Header currentPath="/feedback" />
 
             <div className="mx-auto max-w-7xl px-4 py-6 pt-24">
@@ -97,7 +102,7 @@ export function FeedbackPage() {
                     </p>
                 </div>
 
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+                <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6">
                     <TabsList className="bg-gray-800/50 border-gray-700">
                         <TabsTrigger value="all" className="text-gray-400 data-[state=active]:text-white">
                             All

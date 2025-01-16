@@ -51,11 +51,13 @@ export function Header({ currentPath, languageDropdown, selectedLanguage, onLang
   const selectedLanguageData = languagesData?.data.find(
     (language) => language._id === selectedLanguage
   );
+  
   useEffect(() => {
     if (userData?.data) {
       setUserData(userData.data);
     }
   }, [userData]);
+
   const renderHeader = () => {
     switch (currentPath) {
       case "/":

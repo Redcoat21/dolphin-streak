@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { IQuestionTypeComponent, isChinese } from "./types";
@@ -8,7 +8,7 @@ import { HanziKeyboard } from "@/core/components/courses/hanzi-keyboard";
 
 interface FillInPageProps extends IQuestionTypeComponent {
     questionData: TCourseSessionData;
-    setFillInAnswers: (answers: { [key: string]: string }) => void;
+    setFillInAnswers: React.Dispatch<React.SetStateAction<{ [key: string]: string }>>;
     fillInAnswers: { [key: string]: string };
     lives: number;
     timeLeft: number;
