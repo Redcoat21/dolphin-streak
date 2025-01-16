@@ -4,13 +4,7 @@ import { Mic, StopCircle, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { useState } from "react";
-import dynamic from 'next/dynamic';
-
-const ReactMic = dynamic(() => import('react-mic').then(mod => mod.ReactMic), {
-    ssr: false,
-});
-
+import { useState, useRef, useCallback } from "react";
 
 interface VoiceRecorderProps {
     onRecordingComplete: (audioBlob: Blob) => void;
@@ -25,20 +19,49 @@ export function VoiceRecorder({ onRecordingComplete }: VoiceRecorderProps) {
     const [isRecording, setIsRecording] = useState(false);
     const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
     const { toast } = useToast();
+    const mediaRecorder = useRef<MediaRecorder | null>(null);
+    const audioChunks = useRef<Blob[]>([]);
 
-    const startRecording = () => {
-        setIsRecording(true);
-    };
+    const startRecording = useCallback(async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const recorder = new MediaRecorder(stream);
+            mediaRecorder.current = recorder;
+            audioChunks.current = [];
 
-    const stopRecording = () => {
-        setIsRecording(false);
-    };
+            recorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    audioChunks.current.push(event.data);
+                }
+            };
 
-    const onStop = (recordedBlob: { blob: Blob }) => {
-        setAudioBlob(recordedBlob.blob);
-        onRecordingComplete(recordedBlob.blob);
-        toast({ title: "Recording saved!" });
-    };
+            recorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks.current, { type: "audio/webm" });
+                setAudioBlob(audioBlob);
+                onRecordingComplete(audioBlob);
+                toast({ title: "Recording saved!" });
+                stream.getTracks().forEach(track => track.stop());
+            };
+
+            recorder.start();
+            setIsRecording(true);
+        } catch (error) {
+            console.error("Error starting recording:", error);
+            toast({
+                title: "Error",
+                description: "Failed to start recording. Please check your microphone permissions.",
+            });
+            setIsRecording(false);
+        }
+    }, [onRecordingComplete, toast]);
+
+
+    const stopRecording = useCallback(() => {
+        if (mediaRecorder.current && mediaRecorder.current.state === "recording") {
+            mediaRecorder.current.stop();
+            setIsRecording(false);
+        }
+    }, []);
 
 
     const playAudio = () => {

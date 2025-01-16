@@ -17,11 +17,11 @@ import {
 import { z } from "zod";
 
 export class AuthService {
-  static async login(email: string, password: string): Promise<TLoginResponse> {
+  static async login(email: string, password: string, rememberMe: boolean | undefined): Promise<TLoginResponse> {
     try {
       console.log({ email, password });
       const response = await fetchAPI<TLoginResponse>("/api/auth/login", "POST", {
-        body: { email, password, rememberMe: true },
+        body: { email, password, rememberMe },
       });
       return response;
     } catch (error: unknown) {

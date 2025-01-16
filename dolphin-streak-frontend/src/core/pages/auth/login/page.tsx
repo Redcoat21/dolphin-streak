@@ -95,18 +95,6 @@ export function LoginPage() {
                   onSubmit={handleSubmit}
                 />
               )}
-               <div className="flex items-center space-x-2 mt-4">
-                  <Checkbox
-                    id="rememberMe"
-                    {...form.register('rememberMe')}
-                  />
-                  <label
-                    htmlFor="rememberMe"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-200"
-                  >
-                    Remember me
-                  </label>
-                </div>
             </CardContent>
 
             <CardFooter className="flex justify-center pb-6">

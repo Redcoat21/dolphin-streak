@@ -7,7 +7,7 @@ export const authRouter = router({
     .input(ZLoginInput)
     .mutation(async ({ input }) => {
       console.log({ input });
-      const result = await AuthService.login(input.email, input.password);
+      const result = await AuthService.login(input.email, input.password, input.rememberMe);
       return {
         success: true,
         data: result.data

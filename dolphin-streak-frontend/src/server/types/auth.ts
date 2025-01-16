@@ -45,6 +45,7 @@ export type TUserData = {
   createdAt: string;
   updatedAt: string;
   __v: number;
+  lives: number 
 };
 
 export type TRegisterResponse = {
@@ -89,23 +90,23 @@ export type TRefreshAccessTokenResponse = {
   };
 };
 
-export type TUserProfileData = {
-  _id: string;
-  firstName: string;
-  lastName?: string | null;
-  email: string;
-  provider: number;
-  profilePicture: string;
-  loginHistories: string[];
-  role: number;
-  languages: string[];
-  completedCourses: string[];
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
+// export type TUserProfileData = {
+//   _id: string;
+//   firstName: string;
+//   lastName?: string | null;
+//   email: string;
+//   provider: number;
+//   profilePicture: string;
+//   loginHistories: string[];
+//   role: number;
+//   languages: string[];
+//   completedCourses: string[];
+//   createdAt: string;
+//   updatedAt: string;
+//   __v: number;
+// }
 
-export type TGetUserProfileDataResponse = TDefaultResponse<TUserProfileData>;
+export type TGetUserProfileDataResponse = TDefaultResponse<TUserData>;
 
 export const ZUpdateProfileInput = z.object({
   firstName: z.string().min(1).optional(),

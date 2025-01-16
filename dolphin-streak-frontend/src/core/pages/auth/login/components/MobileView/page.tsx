@@ -83,6 +83,10 @@ export function LoginMobileView({ form, isPending, onSubmit }: ILoginMobileViewP
             <div className="flex items-center space-x-2 mt-4">
                 <Checkbox
                     id="rememberMe"
+                    className='text-white'
+                    style={{
+                        
+                    }}
                     {...form.register('rememberMe')}
                 />
                 <label
