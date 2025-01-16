@@ -47,12 +47,17 @@
                 const response = await fetchAPI('/api/languages', 'POST', rest);
                 const languageId = response.data._id;
 
-                console.log(data.image);
-
-                const responseImage = await fetchAPI(`/api/languages/${languageId}/image`, 'PATCH', data.image)
+                if(data.image) {
+                    await fetch(`/api/languages/${languageId}/image`, {
+                        method: 'PATCH',
+                        body: formData,
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('secure_dolphin_streak_usr_access_token')}`
+                        }
+                    });
+                }
 
                 console.log('Language created:', response);
-                console.log('Image uploaded:', responseImage);
                 showToaster('success', { message: 'Language created successfully.', timeout: 5000 });
                 // Redirect or show success message
             } catch (error) {
