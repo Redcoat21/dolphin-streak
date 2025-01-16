@@ -56,36 +56,33 @@
       }
     }
 
-    async function updateCourse(id, data) {
+    async function updateCourse(id, formData) {
       try {
-        const response = await fetch(`/api/courses/${id}`, {
-          method: 'PATCH',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('secure_dolphin_streak_usr_access_token')}`
-          },
-          body: data
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const result = await response.json();
+          const data = Object.fromEntries(formData.entries());
+          const { thumbnail, ...restOfData } = data;
 
-        console.log(data.thumbnail);
-        // Kalo ada gambarnya, update gambarnya.
+        const response = await fetchAPI(`/api/courses/${id}`, 'PATCH', restOfData);
+
+        // Kalo ada gambarnya upload gambarnya.
         if(data.thumbnail) {
-            console.log(data.thumbnail);
-            const thumbnailResponse = await fetch(`/api/courses/${id}/thumbnail`, {
+            await fetch(`/api/courses/${id}/thumbnail`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('secure_dolphin_streak_usr_access_token')}`
                 },
-                body: data.image
-            })
-            console.log(thumbnailResponse);
+                body: formData
+            });
+
         }
 
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
         showToaster('success', { message: result.messages });
-        window.location.href = '/courses';
+        // window.location.href = '/courses';
       } catch (error) {
         console.error('Error updating course:', error);
         showToaster('danger', { message: 'Error updating course' });
@@ -96,11 +93,7 @@
       event.preventDefault();
       const name = document.getElementById('courseName').value;
       const image = document.getElementById('courseImageInput').files[0];
-      let formData = new FormData();
-      formData.append('name', name);
-      if (image) {
-        formData.append('thumbnail', image);
-      }
+      let formData = new FormData(form);
       await updateCourse(courseId, formData);
     });
 

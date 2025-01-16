@@ -309,6 +309,8 @@ export class CoursesController {
     @Param() findByIdParam: FindByIdParam,
     @Body() updateCourseDto: UpdateCourseDto,
   ) {
+    console.log('asu');
+    console.log(updateCourseDto);
     const updatedCourse = checkIfExist(
       await this.coursesService.update(findByIdParam.id, updateCourseDto),
       'Course not found',
