@@ -381,6 +381,7 @@ export class UsersController {
   }
 
   @Post('/user/lostLive')
+  @HttpCode(HttpStatus.OK)
   @HasRoles(Role.USER)
   async lostLive(
     @Req() request: Request

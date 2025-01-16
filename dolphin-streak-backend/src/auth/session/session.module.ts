@@ -1,7 +1,8 @@
 import { MongooseModule } from "@nestjs/mongoose";
 import { SessionSchema } from "./schemas/session.schema";
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { SessionService } from "./session.service";
+import { UsersModule } from "src/users/users.module";
 
 @Module({
     imports: [
@@ -9,6 +10,7 @@ import { SessionService } from "./session.service";
             name: "Session",
             schema: SessionSchema,
         }]),
+        forwardRef(() => UsersModule),
     ],
     providers: [SessionService],
     exports: [SessionService],

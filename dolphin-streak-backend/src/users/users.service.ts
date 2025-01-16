@@ -136,4 +136,15 @@ export class UsersService {
       await user.save();
       return true;
    }
+
+   async restoreLives() {
+      const users = await this.userModel.find();
+
+      for (const user of users) {
+         user.lives = 3;
+         await user.save();
+     }
+
+     return users.length;
+   }
 }

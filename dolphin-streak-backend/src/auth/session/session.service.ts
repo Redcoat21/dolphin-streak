@@ -12,6 +12,7 @@ import { CreateSessionDto } from "./dto/create-session.dto";
 import crypto from "crypto";
 import { DateTime } from "luxon";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import { UsersService } from "src/users/users.service";
 
 export enum TokenType {
     ACCESS,
@@ -27,6 +28,7 @@ export type TokenData = {
 export class SessionService {
     private readonly logger = new Logger(SessionService.name);
     constructor(
+        private readonly usersService: UsersService,
         @InjectModel(Session.name) private sessionModel: Model<Session>,
     ) { }
 
@@ -94,5 +96,12 @@ export class SessionService {
         });
 
         this.logger.log(`Removed ${count.deletedCount} expired sessions`);
+    }
+
+    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+    private async restoreLives(){
+        const restore = await this.usersService.restoreLives();
+
+        this.logger.log(`${restore} user's lives have been restored`)
     }
 }
