@@ -38,14 +38,14 @@
                     </div>
                 </div>
 <!--                Thumbnail nanti dulu -->
-<!--                <div class="form-row">-->
-<!--                    <div class="form-group">-->
-<!--                        <label for="thumbnail" class="block text-gray-700 font-bold mb-2">Thumbnail</label>-->
-<!--                        <input type="file" id="thumbnail" name="thumbnail"-->
-<!--                            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"-->
-<!--                            required>-->
-<!--                    </div>-->
-<!--                </div>-->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="thumbnail" class="block text-gray-700 font-bold mb-2">Thumbnail</label>
+                        <input type="file" id="thumbnail" name="thumbnail"
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                            required>
+                    </div>
+                </div>
                 <div class="form-row">
                     <button type="submit"
                         class="submit-btn w-full py-3 bg-[#0e88bc] hover:bg-blue-500 rounded text-white">Add
@@ -70,10 +70,19 @@
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
 
-
-console.log(data);
             try {
-                const response = await fetchAPI('/api/courses', 'POST', data);
+                const { thumbnail, ...restOfData } = data;
+                const response = await fetchAPI('/api/courses', 'POST', restOfData);
+                const id = response.data._id;
+
+                await fetch(`/api/courses/${id}/thumbnail`, {
+                    method: 'PATCH',
+                    body: formData,
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('secure_dolphin_streak_usr_access_token')}`
+                    }
+                });
+
                 showToaster('success', { message: 'Course created successfully.', timeout: 5000 });
                 // Redirect or show success message
                 window.location.href = '/';
