@@ -74,6 +74,9 @@ export class User {
 
     @Prop({ required: false, maxlength: 100 })
     subscriptionId?: string;
+
+    @Prop({required: true})
+    lives: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
