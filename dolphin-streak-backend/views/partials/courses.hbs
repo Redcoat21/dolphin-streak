@@ -32,8 +32,6 @@
                             </th>
                             <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Study
                                 Languages</th>
-                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                                Available Levels</th>
                             <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Actions
                             </th>
                         </tr>
@@ -50,7 +48,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
         try {
             const response = await fetchAPI('/api/courses', 'GET');
-            if (response.messages === '3 courses found') {
+            if (response.messages.toString().includes("courses found")) {
                 const courses = response.data;
                 const courseListElement = document.getElementById('course-list');
                 courses.forEach(course => {
@@ -61,7 +59,6 @@
                         </td>
                         <td class="p-3 text-sm text-gray-700">${course.name}</td>
                         <td class="p-3 text-sm text-gray-700">${course.language.name}</td>
-                        <td class="p-3 text-sm text-gray-700">${course.levels.map(level => level.name).join(', ')}</td>
                         <td class="p-3">
                             <div class="flex space-x-2">
                                 <a href="/courses/edit/${course._id}" class="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 transition-colors">
@@ -76,6 +73,7 @@
                     courseListElement.insertAdjacentHTML('beforeend', row);
                 });
             } else {
+                console.error(response.messages);
                 showToaster('danger', { message: 'Failed to fetch course data.' });
             }
         } catch (error) {

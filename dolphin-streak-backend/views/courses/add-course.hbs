@@ -7,68 +7,45 @@
             <div class="form-header text-center mb-6">
                 <h1 class="text-2xl font-bold text-[#0e88bc]">Create New Course</h1>
             </div>
-            <form action="/courses/add" method="POST" class="space-y-4">
+            <form id="create-course-form" method="POST" class="space-y-4">
                 <div class="form-row flex flex-col md:flex-row gap-4">
                     <div class="form-group w-full md:w-1/2">
                         <label for="title" class="block text-gray-700 font-bold mb-2">Title</label>
-                        <input type="text" id="title" name="title" placeholder="Enter course title"
+                        <input type="text" id="title" name="name" placeholder="Enter course title"
                             class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                             required>
                     </div>
                 </div>
                 <div class="form-row flex flex-col md:flex-row gap-4">
-                    <div class="form-group w-full md:w-1/2">
-                        <label for="level" class="block text-gray-700 font-bold mb-2">Level</label>
-                        <select id="level" name="level"
-                            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-                            required>
-                            <option value="Beginner">Beginner</option>
-                            <option value="Intermediate">Intermediate</option>
-                            <option value="Advanced">Advanced</option>
-                            <option value="Expert">Expert</option>
-                        </select>
-                    </div>
                     <div class="form-group w-full md:w-1/2">
                         <label for="language" class="block text-gray-700 font-bold mb-2">Language</label>
                         <select id="language" name="language"
                             class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                             required>
-                            <option value="English">English</option>
-                            <option value="Chinese">Chinese</option>
-                            <option value="Indonesian">Indonesian</option>
+                                    {{#each languages }}
+                                       <option value="{{id}}">{{name}}</option>
+                                    {{/each}}
                         </select>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="block text-gray-700 font-bold mb-2">Available Languages</label>
-                        <div class="flex flex-col gap-2">
-                            <div class="checkbox-container flex items-center">
-                                <input type="checkbox" name="availableLanguages" value="Chinese" id="chinese"
-                                    class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                <label for="chinese" class="text-gray-700">Chinese</label>
-                            </div>
-                            <div class="checkbox-container flex items-center">
-                                <input type="checkbox" name="availableLanguages" value="English" id="english"
-                                    class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                <label for="english" class="text-gray-700">English</label>
-                            </div>
-                            <div class="checkbox-container flex items-center">
-                                <input type="checkbox" name="availableLanguages" value="Indonesian" id="indonesian"
-                                    class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                <label for="indonesian" class="text-gray-700">Indonesian</label>
-                            </div>
-                        </div>
+                <div class="form-row flex flex-col md:flex-row gap-4">
+                    <div class="form-group w-full md:w-1/2">
+                        <label for="language" class="block text-gray-700 font-bold mb-2">Language</label>
+                            {{#each types }}
+                                <label for="">{{key}}</label>
+                                <input type="radio" value="{{value}}" id="" name="type">
+                            {{/each}}
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="thumbnail" class="block text-gray-700 font-bold mb-2">Thumbnail</label>
-                        <input type="file" id="thumbnail" name="thumbnail"
-                            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-                            required>
-                    </div>
-                </div>
+<!--                Thumbnail nanti dulu -->
+<!--                <div class="form-row">-->
+<!--                    <div class="form-group">-->
+<!--                        <label for="thumbnail" class="block text-gray-700 font-bold mb-2">Thumbnail</label>-->
+<!--                        <input type="file" id="thumbnail" name="thumbnail"-->
+<!--                            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"-->
+<!--                            required>-->
+<!--                    </div>-->
+<!--                </div>-->
                 <div class="form-row">
                     <button type="submit"
                         class="submit-btn w-full py-3 bg-[#0e88bc] hover:bg-blue-500 rounded text-white">Add
@@ -86,4 +63,26 @@
         </div>
     </div>
 </div>
+    <script>
+        document.getElementById('create-course-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+
+console.log(data);
+            try {
+                const response = await fetchAPI('/api/courses', 'POST', data);
+                showToaster('success', { message: 'Course created successfully.', timeout: 5000 });
+                // Redirect or show success message
+                window.location.href = '/';
+            } catch (error) {
+                showToaster('danger', { message: error, timeout: 5000 });
+                console.error('Error creating course:', JSON.stringify(error));
+                console.log({error})
+                // Show error message
+            }
+        });
+    </script>
 {{/layout}}

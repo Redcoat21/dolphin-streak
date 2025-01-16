@@ -10,12 +10,12 @@
           <div class="form-row flex flex-col md:flex-row gap-4">
             <div class="form-group w-full md:w-1/2">
               <label for="courseImageInput" class="block text-gray-700 font-bold mb-2">Course Image</label>
-              <img id="courseImage" src="/image/blank.jpg" alt="Course Image" class="w-full h-48 object-cover rounded-md mb-4">
-              <input type="file" id="courseImageInput" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              <img id="courseImage" src={{thumbnail}} alt="Course Image" class="w-full h-48 object-cover rounded-md mb-4">
+              <input type="file" id="courseImageInput" name="thumbnail" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
             </div>
             <div class="form-group w-full md:w-1/2">
               <label for="courseName" class="block text-gray-700 font-bold mb-2">Course Name</label>
-              <input type="text" id="courseName" placeholder="Course Name" required
+              <input type="text" id="courseName" name="name" placeholder="Course Name" value="{{name}}" required
                 class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
             </div>
           </div>
@@ -69,19 +69,26 @@
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const result = await response.json();
+
+        console.log(data.thumbnail);
+        // Kalo ada gambarnya, update gambarnya.
+        if(data.thumbnail) {
+            console.log(data.thumbnail);
+            const thumbnailResponse = await fetch(`/api/courses/${id}/thumbnail`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('secure_dolphin_streak_usr_access_token')}`
+                },
+                body: data.image
+            })
+            console.log(thumbnailResponse);
+        }
+
         showToaster('success', { message: result.messages });
         window.location.href = '/courses';
       } catch (error) {
         console.error('Error updating course:', error);
         showToaster('danger', { message: 'Error updating course' });
-      }
-    }
-
-    async function init() {
-      const courseData = await fetchCourseData(courseId);
-      if (courseData && courseData.data) {
-        document.getElementById('courseName').value = courseData.data.name;
-        document.getElementById('courseImage').src = courseData.data.image;
       }
     }
 
@@ -97,6 +104,5 @@
       await updateCourse(courseId, formData);
     });
 
-    init();
   </script>
 {{/layout}}

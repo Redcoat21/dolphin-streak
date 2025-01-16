@@ -7,6 +7,7 @@ import {
 } from 'class-validator';
 import { CourseType } from '../schemas/course.schema';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {Transform} from "class-transformer";
 
 export class CreateCourseDto {
   @ApiProperty({
@@ -35,6 +36,10 @@ export class CreateCourseDto {
     description: 'The type of this course',
     example: 0,
     enum: CourseType,
+  })
+  @Transform(({ value }) => {
+    // Check if the value is a string and try to parse it as an integer
+    return isNaN(Number(value)) ? value : parseInt(value, 10);
   })
   @IsEnum(CourseType)
   type: CourseType;

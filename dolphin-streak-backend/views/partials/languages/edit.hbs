@@ -55,7 +55,7 @@
 
             async function updateLanguage(id, data) {
                 try {
-                    const response = await fetchAPI(`/api/languages/${id}`, 'PUT', data);
+                    const response = await fetchAPI(`/api/languages/${id}`, 'PATCH', data);
                     if (response.messages) {
                         showToaster('success', { message: response.messages });
                     } else {
