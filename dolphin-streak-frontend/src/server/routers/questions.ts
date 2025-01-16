@@ -1,7 +1,7 @@
-// dolphin-streak-frontend/src/server/routers/questions.ts
 import { authedProcedure, router } from '../trpc';
+import { TSubmitAnswerResponse } from '../types/courses';
 import { ZGetQuestionByIdRequest, ZSubmitAnswerRequest, ZNextQuestionInput, ZStartSessionRequest } from '../types/questions';
-import type { TQuestionResponse, TSubmitAnswerResponse, TNextQuestionResponse, TStartSessionResponse } from '../types/questions';
+import type { TQuestionResponse, TNextQuestionResponse, TStartSessionResponse } from '../types/questions';
 import { fetchAPI } from '@/utils/generic';
 import { TRPCError } from '@trpc/server';
 
@@ -20,9 +20,9 @@ export const questionsRouter = router({
 
       console.log({ responseGetQuestionBYID: response });
 
-      if (!response.success) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: response.message || 'Failed to fetch question' });
-      }
+      // if (!response.data?.question) {
+      //   throw new TRPCError({ code: 'NOT_FOUND', message: response.message || 'Failed to fetch question' });
+      // }
 
       return response;
     }),
@@ -41,9 +41,9 @@ export const questionsRouter = router({
         }
       ) as TNextQuestionResponse;
 
-      if (!response.success) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: response.message || 'Failed to fetch next question' });
-      }
+      // if (!response.success) {
+      //   throw new TRPCError({ code: 'NOT_FOUND', message: response.message || 'Failed to fetch next question' });
+      // }
 
       return response;
     }),
@@ -62,9 +62,9 @@ export const questionsRouter = router({
         }
       ) as TSubmitAnswerResponse;
 
-      if (!response.success) {
-        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: response.message || 'Failed to submit answer' });
-      }
+      // if (!response.success) {
+      //   throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: response.message || 'Failed to submit answer' });
+      // }
 
       return response;
     }),

@@ -14,6 +14,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -364,6 +365,21 @@ export class UsersController {
       data: userResponse,
     };
   }
+
+  // get the current user lives
+  @Get('/user/lives')
+  @HasRoles(Role.USER)
+  async getLives(
+    @Req() request: Request
+  ): Promise<any> {
+    const userId = request.user._id.toString();
+    const user = await this.usersService.findOne({
+      _id: userId
+    })
+
+    return user.lives;
+  }
+
 
   //TODO: Will need review here, if given null or empty will it still update?
   @Patch(':id')

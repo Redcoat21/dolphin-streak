@@ -14,8 +14,6 @@ interface VoicePageProps extends IQuestionTypeComponent {
 }
 
 export default function VoicePage({ questionData, setRecordedAudio, recordedAudio, lives, timeLeft }: VoicePageProps) {
-
-
     return (
         <div className="space-y-4">
             <p className="text-slate-200 mb-4">{questionData.question.question.text}</p>

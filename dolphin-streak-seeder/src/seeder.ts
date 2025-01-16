@@ -138,7 +138,8 @@ async function seedUsers(): Promise<void> {
             "createdAt": "2024-11-01T02:17:46.343Z",
             "updatedAt": "2024-11-21T16:51:06.066Z",
             "id": "67243a4a7507ac0c0d0b56c2",
-            password: "password"
+            password: "password",
+            lives: 3,
         },
         {
             "profilePicture": "https://res.cloudinary.com/dmzt7dywt/image/upload/v1732208251/ghozali-default_zgyths.jpg",
@@ -150,7 +151,8 @@ async function seedUsers(): Promise<void> {
             "provider": Provider.LOCAL,
             "role": Role.ADMIN,
             "id": "672f0d291a890f507777cb0e",
-            password: "admin1234"
+            password: "admin1234",
+            lives: 3,
         },
         {
             "firstName": "John",
@@ -166,7 +168,8 @@ async function seedUsers(): Promise<void> {
             "createdAt": "2024-11-21T17:00:14.343Z",
             "updatedAt": "2024-11-21T17:00:14.343Z",
             "id": "673f671efc580ae0dc650285",
-            password: "admin1234"
+            password: "admin1234",
+            lives: 3,
         },
         {
             "firstName": "John",
@@ -182,7 +185,8 @@ async function seedUsers(): Promise<void> {
             "createdAt": "2024-11-24T18:11:02.975Z",
             "updatedAt": "2024-11-24T18:11:02.975Z",
             "id": "67436c361488d1d48b3ee7a7",
-            password: "admin1234"
+            password: "admin1234",
+            lives: 3,
         },
         {
             "firstName": "John",
@@ -198,7 +202,8 @@ async function seedUsers(): Promise<void> {
             "createdAt": "2024-11-24T18:19:54.519Z",
             "updatedAt": "2024-11-24T18:19:54.519Z",
             "id": "67436e4a66125b2eecdeddec",
-            password: "admin1234"
+            password: "admin1234",
+            lives: 3,
         },
         {
             "firstName": "John",
@@ -214,7 +219,8 @@ async function seedUsers(): Promise<void> {
             "createdAt": "2024-11-24T18:26:56.938Z",
             "updatedAt": "2024-11-24T18:26:56.938Z",
             "id": "67436ff03081ffddd696a86d",
-            password: "admin1234"
+            password: "admin1234",
+            lives: 3,
         },
         {
             "firstName": "Jonathan",
@@ -228,7 +234,8 @@ async function seedUsers(): Promise<void> {
             "createdAt": "2024-11-25T07:24:29.785Z",
             "updatedAt": "2024-11-25T07:24:29.785Z",
             "id": "6744262d52a2392a69fa49c3",
-            password: "joken"
+            password: "joken",
+            lives: 3,
         },
         {
             "firstName": "new",
@@ -244,7 +251,8 @@ async function seedUsers(): Promise<void> {
             "createdAt": "2024-11-27T09:39:12.203Z",
             "updatedAt": "2024-11-27T09:39:12.203Z",
             "id": "6746e8c08302e1473125dab7",
-            password: 'password'
+            password: 'password',
+            lives: 3,
         },
         {
             "firstName": "me",
@@ -261,7 +269,8 @@ async function seedUsers(): Promise<void> {
             "updatedAt": "2024-12-03T07:38:35.114Z",
             "subscriptionId": "f34cff56-05ea-4f44-9704-f0dee357f08f",
             "id": "67487a042df054704dde8714",
-            password: 'password'
+            password: 'password',
+            lives: 3,
         },
         {
             "firstName": "me",
@@ -276,7 +285,8 @@ async function seedUsers(): Promise<void> {
             "createdAt": "2024-11-28T14:11:36.637Z",
             "updatedAt": "2024-11-28T14:11:36.637Z",
             "id": "67487a182df054704dde8716",
-            password: 'password'
+            password: 'password',
+            lives: 3,
         },
         {
             "firstName": "user1",
@@ -291,7 +301,8 @@ async function seedUsers(): Promise<void> {
             "createdAt": "2024-12-09T09:45:20.308Z",
             "updatedAt": "2024-12-09T09:45:20.308Z",
             "id": "6756bc300f5dd9735079d846",
-            password: 'password'
+            password: 'password',
+            lives: 3,
         },
         {
             "firstName": "asd",
@@ -320,7 +331,8 @@ async function seedUsers(): Promise<void> {
             "role": Role.ADMIN,
             "updatedAt": "2024-12-31T09:52:07.631Z",
             "id": "6771eaf5358f1717ed5fd6f4",
-            password: 'admin1234'
+            password: 'admin1234',
+            lives: 3,
         },
         {
             "email": "john@example.com",
@@ -335,7 +347,8 @@ async function seedUsers(): Promise<void> {
             "role": Role.USER,
             "updatedAt": "2024-12-31T09:52:07.683Z",
             "id": "6771eaf5358f1717ed5fd6f5",
-            password: 'password'
+            password: 'password',
+            lives: 3,
         }
     ];
 
@@ -351,6 +364,7 @@ async function seedUsers(): Promise<void> {
             completedCourses: user.completedCourses,
             loginHistories: user.loginHistories,
             password: user.password,
+            lives: user.lives,
         });
     }
     console.log('Users seeded successfully.');

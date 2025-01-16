@@ -72,4 +72,12 @@ export class BaseCreateUserDto {
     @IsUrl()
     profilePicture?: string;
 
+    @ApiProperty({
+        description: "The user's lives count",
+        example: 3,
+        default: 3,
+        nullable: false,
+        required: false,
+    })
+    lives: number = 3;
 }

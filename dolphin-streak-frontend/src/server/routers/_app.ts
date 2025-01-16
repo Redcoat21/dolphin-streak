@@ -11,7 +11,6 @@ import { questionsRouter } from './questions';
 // import { todoRouter } from './todo';
 
 export const appRouter = router({
-  // todo: todoRouter,
   auth: authRouter,
   comprehension: comprehensionRouter,
   forum: forumRouter,
@@ -21,10 +20,6 @@ export const appRouter = router({
   levels: levelsRouter,
   question: questionsRouter,
   daily: dailyRouter
-  // i18n: baseProcedure.query(({ ctx }) => ({
-  //   i18n: ctx.i18n,
-  //   locale: ctx.locale,
-  // })),
 });
 
 export type AppRouter = typeof appRouter;
