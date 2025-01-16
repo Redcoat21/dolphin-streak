@@ -119,4 +119,21 @@ export class UsersService {
          throw new Error(`User with ID ${userId} not found`);
       }
    }
+
+   async getSubscription(userId: string) {
+      const result = await this.userModel.findById(userId);
+
+      return result.subscriptionId;
+   }
+
+   async decLive(userId: string) {
+      const user = await this.userModel.findById(userId);
+      if(user.lives <= 0){
+         return false
+      }
+      
+      user.lives -= 1;
+      await user.save();
+      return true;
+   }
 }
