@@ -8,13 +8,14 @@ export const ZAuthedProcedureInput = z.object({
 export const ZLoginInput = z.object({
   email: z.string().email(),
   password: z.string().min(8),
+  rememberMe: z.boolean().optional(),
 });
 
 export type TLoginInput = z.infer<typeof ZLoginInput>;
 
 export const ZRegisterInput = z.object({
   firstName: z.string().min(1),
-  lastName: z.string().min(1),
+  lastName: z.string().optional(),
   email: z.string().email(),
   password: z.string().min(8),
   confirmPassword: z.string().min(8),

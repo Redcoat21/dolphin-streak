@@ -36,9 +36,9 @@ export class AuthService {
 
   static async register(
     firstName: string,
-    lastName: string,
     email: string,
-    password: string
+    password: string,
+    lastName?: string,
   ) {
     try {
       const response = await fetchAPI("/api/auth/register", "POST", {

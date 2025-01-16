@@ -1,7 +1,5 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
-import { GoogleLogo } from '@/core/components/icons/google-logo';
 import { Eye, EyeOff } from 'lucide-react';
 import { ZRegisterInput } from "@/server/types/auth";
 import { UseFormReturn } from "react-hook-form";
@@ -124,26 +122,6 @@ export function RegisterDekstopView({ form, isPending, onSubmit }: IRegisterDeks
                     {isPending ? "Creating Account..." : "Create Account"}
                 </Button>
             </form>
-
-            <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                    <Separator className="w-full border-gray-700" />
-                </div>
-                <div className="relative flex justify-center text-xs">
-                    <span className="bg-[#121212] px-2 text-gray-500 uppercase">
-                        Or continue with
-                    </span>
-                </div>
-            </div>
-
-            <Button
-                type="button"
-                variant="outline"
-                className="w-full h-12 bg-[#1E1E1E] border-0 text-white hover:bg-[#2a2a2a] rounded-xl"
-            >
-                <GoogleLogo className="mr-2 h-5 w-5" />
-                Sign up with Google
-            </Button>
         </div>
     );
 }

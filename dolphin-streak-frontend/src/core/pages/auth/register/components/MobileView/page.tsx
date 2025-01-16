@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { GoogleLogo } from '@/core/components/icons/google-logo';
 import { Eye, EyeOff } from 'lucide-react';
 import { ZRegisterInput } from "@/server/types/auth";
 import { UseFormReturn } from "react-hook-form";
@@ -135,15 +134,6 @@ export function RegisterMobileView({ form, isPending, onSubmit }: IRegisterMobil
                     </span>
                 </div>
             </div>
-
-            <Button
-                type="button"
-                variant="outline"
-                className="w-full h-12 bg-[#1E1E1E] border-0 text-white hover:bg-[#2a2a2a] rounded-xl"
-            >
-                <GoogleLogo className="mr-2 h-5 w-5" />
-                Sign up with Google
-            </Button>
         </div>
     );
 }

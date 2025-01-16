@@ -7,6 +7,7 @@ import { ZLoginInput } from "@/server/types/auth";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { useState } from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface ILoginMobileViewProps {
     form: UseFormReturn<z.infer<typeof ZLoginInput>>;
@@ -79,6 +80,18 @@ export function LoginMobileView({ form, isPending, onSubmit }: ILoginMobileViewP
                     {isPending ? "Signing in..." : "Sign In"}
                 </Button>
             </form>
+            <div className="flex items-center space-x-2 mt-4">
+                <Checkbox
+                    id="rememberMe"
+                    {...form.register('rememberMe')}
+                />
+                <label
+                    htmlFor="rememberMe"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-200"
+                >
+                    Remember me
+                </label>
+            </div>
 
             <div className="relative">
                 <div className="absolute inset-0 flex items-center">

@@ -7,6 +7,7 @@ import { ZLoginInput } from "@/server/types/auth";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { useState } from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface ILoginDesktopViewProps {
     form: UseFormReturn<z.infer<typeof ZLoginInput>>;
@@ -18,18 +19,8 @@ export function LoginDesktopView({ form, isPending, onSubmit }: ILoginDesktopVie
     const [showPassword, setShowPassword] = useState(false);
 
     return (
-        <div className="min-w-[424px] mx-auto space-y-8">
-            <div className="flex items-center justify-center mb-6">
-                <div className="relative h-24 w-24">
-                    <img
-                        src="/images/learn-at-home.png"
-                        alt="Learn at home"
-                        className="object-cover"
-                    />
-                </div>
-            </div>
-
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <div className="space-y-2">
                     <Input
                         placeholder="Email Address"
@@ -79,10 +70,22 @@ export function LoginDesktopView({ form, isPending, onSubmit }: ILoginDesktopVie
                     {isPending ? "Signing in..." : "Sign In"}
                 </Button>
             </form>
+            <div className="flex items-center space-x-2 mt-4">
+                <Checkbox
+                    id="rememberMe"
+                    {...form.register('rememberMe')}
+                />
+                <label
+                    htmlFor="rememberMe"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-200"
+                >
+                    Remember me
+                </label>
+            </div>
 
-            <div className="relative">
+            <div className="relative mt-6">
                 <div className="absolute inset-0 flex items-center">
-                    <Separator className="w-full border-gray-700" />
+                    <span className="w-full border-t border-gray-700"></span>
                 </div>
                 <div className="relative flex justify-center text-xs">
                     <span className="bg-[#121212] px-2 text-gray-500 uppercase">

@@ -20,7 +20,8 @@ export const authRouter = router({
         throw new Error("Passwords do not match");
       }
 
-      return await AuthService.register(input.firstName, input.lastName, input.email, input.password);
+
+      return await AuthService.register(input.firstName, input.email, input.password, input?.lastName,);
     }),
   updateLanguagePreferences: publicProcedure
     .input(ZUpdateLanguagePreferencesInput)

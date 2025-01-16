@@ -53,14 +53,6 @@ export function VoiceRecorder({ onRecordingComplete }: VoiceRecorderProps) {
 
     return (
         <div className="space-y-4">
-            <ReactMic
-                record={isRecording}
-                className="sound-wave"
-                onStop={onStop}
-                strokeColor="#000000"
-                backgroundColor="#FF4081"
-                mimeType="audio/webm"
-            />
             <motion.button
                 variants={buttonVariants}
                 whileHover="hover"
