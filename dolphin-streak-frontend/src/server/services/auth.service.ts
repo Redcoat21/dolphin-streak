@@ -11,7 +11,6 @@ import {
   TRefreshAccessTokenResponse,
   TGetUserProfileDataResponse,
   TUpdateProfileInput,
-  TUserProfileData,
   TUpdateProfilePictureResponse,
 } from "../types/auth";
 import { z } from "zod";

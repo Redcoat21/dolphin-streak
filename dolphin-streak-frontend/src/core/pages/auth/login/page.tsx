@@ -17,7 +17,6 @@ import { useMediaQuery } from '@/hooks/use-media-query';
 import { useAuthStore } from '@/core/stores/authStore';
 import { LoginDesktopView } from './components/DekstopView/page';
 import { LoginMobileView } from './components/MobileView/page';
-import { Checkbox } from '@/components/ui/checkbox';
 
 export function LoginPage() {
   const router = useRouter();
@@ -63,14 +62,17 @@ export function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white pb-5">
-      {isMobile && (
+      {/* {isMobile && (
         <div className="flex h-14 items-center px-4 bg-[#007AFF]">
           <span className="flex-1 text-center font-medium">Sign In</span>
         </div>
-      )}
+      )} */}
+      <div className="flex h-14 items-center px-4 bg-[#007AFF]">
+        <span className="flex-1 text-center font-medium">Sign In</span>
+      </div>
 
       <Container>
-        <div className="mx-auto max-w-[600px] pt-8">
+        <div className="mx-auto max-w-[800px] pt-8"> {/* Increased max-w for wider layout */}
           <Card className="bg-[#121212] border-0 shadow-none">
             <CardHeader className="space-y-1 pb-6">
               <h1 className="text-2xl font-semibold text-white text-center">

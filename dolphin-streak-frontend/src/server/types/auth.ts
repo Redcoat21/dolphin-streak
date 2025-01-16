@@ -45,7 +45,8 @@ export type TUserData = {
   createdAt: string;
   updatedAt: string;
   __v: number;
-  lives: number 
+  lives: number
+  profilePicture?: string;
 };
 
 export type TRegisterResponse = {

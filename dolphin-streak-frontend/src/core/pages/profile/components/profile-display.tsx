@@ -1,9 +1,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { TUserProfileData } from "@/server/types/auth";
+import { TUserData } from "@/server/types/auth";
 
 interface ProfileDisplayProps {
-    userData: TUserProfileData | null | undefined;
+    userData: TUserData | null | undefined;
     onEdit: () => void;
 }
 

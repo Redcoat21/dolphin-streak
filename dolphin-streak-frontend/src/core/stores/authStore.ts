@@ -1,13 +1,13 @@
 import { create } from "zustand";
 import { trpc } from "@/utils/trpc";
-import { TUserProfileData } from "@/server/types/auth";
+import { TUserData } from "@/server/types/auth";
 
 interface AuthState {
     isAuthenticated: boolean;
     accessToken: string | null;
     refreshToken: string | null;
     userEmail: string | null;
-    userData: TUserProfileData | null;
+    userData: TUserData | null;
     setAuth: (accessToken: string, refreshToken: string, email: string) => void;
     logout: () => void;
     checkAuth: () => void;
@@ -15,8 +15,8 @@ interface AuthState {
     getRefreshToken: () => string | null;
     getEmail: () => string | null;
     refreshAccessToken: () => Promise<string | null>;
-    getUserData: () => TUserProfileData | null;
-    setUserData: (userData: TUserProfileData) => void;
+    getUserData: () => TUserData | null;
+    setUserData: (userData: TUserData) => void;
 }
 
 const isClient = typeof window !== "undefined";

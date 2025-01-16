@@ -4,10 +4,10 @@ import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { TUpdateProfileInput, TUserProfileData } from "@/server/types/auth";
+import { TUpdateProfileInput, TUserData } from "@/server/types/auth";
 
 interface ProfileEditProps {
-    userData: TUserProfileData | null | undefined;
+    userData: TUserData | null | undefined;
     onCancel: () => void;
     onSave: (values: TUpdateProfileInput) => Promise<void>;
 }

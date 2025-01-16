@@ -4,7 +4,7 @@ import { Card, CardContent, } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/utils/trpc";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
@@ -16,12 +16,14 @@ import { ChangeProfilePicture } from "./components/change-profile-picture";
 import { ProfileEdit } from "./components/profile-edit";
 import { ProfileDisplay } from "./components/profile-display";
 import { Header } from "../dasboard/components/Header";
+import { SubscriptionForm } from "@/core/components/subscription/SubscriptionForm";
 
 export function ProfilePage() {
   const { getAccessToken, getUserData, setUserData } = useAuthStore();
   const router = useRouter();
   const accessToken = getAccessToken();
   const userData = getUserData();
+  console.log({ userData })
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [notificationSettings, setNotificationSettings] = useState({
@@ -136,6 +138,12 @@ export function ProfilePage() {
     });
   };
 
+  useEffect(() => {
+    if (userData) {
+      setUserProfilePicture(userData.profilePicture);
+    }
+  }, [userData]);
+
   return (
     <Container>
       <Header currentPath="/profile" />
@@ -183,6 +191,10 @@ export function ProfilePage() {
                     onEdit={handleEditProfile}
                   />
                 )}
+                {/* <div className="mt-8">
+                  <h2 className="text-xl font-semibold mb-4">Subscription</h2>
+                  <SubscriptionForm />
+                </div> */}
               </div>
             </div>
 

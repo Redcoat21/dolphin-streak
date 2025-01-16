@@ -20,15 +20,6 @@ export function LoginMobileView({ form, isPending, onSubmit }: ILoginMobileViewP
 
     return (
         <div className="space-y-8">
-            <div className="flex items-center justify-center mb-6">
-                <div className="relative h-24 w-24">
-                    <img
-                        src="/images/learn-at-home.png"
-                        alt="Learn at home"
-                        className="object-cover"
-                    />
-                </div>
-            </div>
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="space-y-2">
@@ -65,8 +56,24 @@ export function LoginMobileView({ form, isPending, onSubmit }: ILoginMobileViewP
                         </p>
                     )}
                 </div>
-
-                <div className="flex justify-end">
+                <div className="flex items-center justify-between mt-4">
+                    <div className="flex items-center space-x-2">
+                        <Checkbox
+                            id="rememberMe"
+                            className="text-white"
+                            style={{
+                                color: 'white',
+                                borderColor: 'white',
+                            }}
+                            {...form.register('rememberMe')}
+                        />
+                        <label
+                            htmlFor="rememberMe"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-200"
+                        >
+                            Remember me
+                        </label>
+                    </div>
                     <a href="/auth/forgot-password" className="text-[#007AFF] text-sm hover:underline">
                         Forgot Password?
                     </a>
@@ -80,22 +87,6 @@ export function LoginMobileView({ form, isPending, onSubmit }: ILoginMobileViewP
                     {isPending ? "Signing in..." : "Sign In"}
                 </Button>
             </form>
-            <div className="flex items-center space-x-2 mt-4">
-                <Checkbox
-                    id="rememberMe"
-                    className='text-white'
-                    style={{
-                        
-                    }}
-                    {...form.register('rememberMe')}
-                />
-                <label
-                    htmlFor="rememberMe"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-200"
-                >
-                    Remember me
-                </label>
-            </div>
 
             <div className="relative">
                 <div className="absolute inset-0 flex items-center">

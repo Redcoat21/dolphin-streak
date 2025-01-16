@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { trpc } from "@/utils/trpc";
 import Link from "next/link";
 import { useEffect } from "react";
+import { Heart } from "lucide-react"; // Import Heart icon for lives display
 
 interface HeaderProps {
   currentPath?: string;
@@ -47,54 +48,9 @@ export function Header({ currentPath, languageDropdown, selectedLanguage, onLang
   );
 
   const { data: userData } = trpc.auth.getProfile.useQuery({ accessToken: accessToken || '' });
-  // Find the selected language object
-  const selectedLanguageData = languagesData?.data.find(
-    (language) => language._id === selectedLanguage
-  );
 
   useEffect(() => {
     if (userData?.data) {
-
-      // this is the userData
-      //   {
-      //     "messages": "User profile retrieved successfully",
-      //     "data": {
-      //         "_id": "67893fb3664c9bfb05706c61",
-      //         "firstName": "John",
-      //         "lastName": "Doe",
-      //         "email": "john50@email.com",
-      //         "provider": 0,
-      //         "profilePicture": "https://res.cloudinary.com/dmzt7dywt/image/upload/v1732208251/ghozali-default_zgyths.jpg",
-      //         "loginHistories": [],
-      //         "role": 1,
-      //         "languages": [],
-      //         "completedCourses": [],
-      //         "subscriptionId": null,
-      //         "lives": 3,
-      //         "createdAt": "2025-01-16T17:19:47.265Z",
-      //         "updatedAt": "2025-01-16T17:19:47.265Z",
-      //         "__v": 0
-      //     }
-      // }
-      // this is the userData.data
-      // {
-      //         "_id": "67893fb3664c9bfb05706c61",
-      //         "firstName": "John",
-      //         "lastName": "Doe",
-      //         "email": "john50@email.com",
-      //         "provider": 0,
-      //         "profilePicture": "https://res.cloudinary.com/dmzt7dywt/image/upload/v1732208251/ghozali-default_zgyths.jpg",
-      //         "loginHistories": [],
-      //         "role": 1,
-      //         "languages": [],
-      //         "completedCourses": [],
-      //         "subscriptionId": null,
-      //         "lives": 3,
-      //         "createdAt": "2025-01-16T17:19:47.265Z",
-      //         "updatedAt": "2025-01-16T17:19:47.265Z",
-      //         "__v": 0
-      //     }
-      
       setUserData(userData.data);
     }
   }, [userData]);
@@ -360,25 +316,32 @@ export function Header({ currentPath, languageDropdown, selectedLanguage, onLang
   };
 
   return (
-    <header className="fixed top-0 w-full bg-gradient-to-r from-[#0A84FF] to-[#5AB9EA] p-4 z-50">
+    <header className="fixed top-0 w-full bg-gradient-to-r from-[#0A84FF] to-[#5AB9EA] p-4 z-50 shadow-lg">
       <div className="flex flex-col sm:flex-row justify-between items-center max-w-7xl mx-auto space-y-3 sm:space-y-0">
-        <div className="flex items-center gap-3">
-          {/* make the link so that the component inside it like inline */}
-          <Link href="/profile" className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
+          <Link href="/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <Avatar className="h-12 w-12 border-2 border-white shadow-md">
               <AvatarImage src={userData?.data?.profilePicture} alt="User" />
               <AvatarFallback>
                 {userData?.data?.firstName && userData?.data?.lastName
                   ? `${userData.data.firstName.charAt(0)}${userData.data.lastName.charAt(0)}`
                   : userData?.data?.firstName?.slice(0, 2) || "U"}
-              </AvatarFallback >
+              </AvatarFallback>
             </Avatar>
-            <h3 className="text-xl font-semibold text-white">
-              Hello, {userData?.data?.firstName} {userData?.data?.lastName}
-            </h3>
+            <div className="flex flex-col">
+              <h3 className="text-xl font-semibold text-white">
+                Hello, {userData?.data?.firstName} {userData?.data?.lastName}
+              </h3>
+              <div className="flex items-center gap-1 text-white">
+                <Heart className="h-4 w-4 text-red-500" />
+                <span className="text-sm font-medium">
+                  {userData?.data?.lives} Lives
+                </span>
+              </div>
+            </div>
           </Link>
         </div>
-        <div className="flex flex-wrap justify-center items-center gap-2">
+        <div className="flex flex-wrap justify-center items-center gap-3">
           {renderHeader()}
         </div>
       </div>
