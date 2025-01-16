@@ -14,12 +14,12 @@
                     </div>
                     <div class="form-group">
                         <label class="block text-gray-700 font-bold mb-2">Upload New Image</label>
-                        <input type="file" id="languageImageInput" class="w-full p-3 border border-gray-300 rounded-lg">
+                        <input type="file" id="languageImageInput" name="image" class="w-full p-3 border border-gray-300 rounded-lg">
                     </div>
                 </div>
                 <div class="mb-6">
                     <label class="block text-gray-700 font-bold mb-2">Language Name</label>
-                    <input type="text" id="languageName" placeholder="Language Name"
+                    <input type="text" id="languageName" name="name" placeholder="Language Name"
                         class="w-full p-3 border border-gray-300 rounded-lg" required>
                 </div>
                 <div class="flex justify-between items-center">
@@ -55,7 +55,20 @@
 
             async function updateLanguage(id, data) {
                 try {
-                    const response = await fetchAPI(`/api/languages/${id}`, 'PATCH', data);
+                    const dataForm = Object.fromEntries(data.entries());
+                    const { image, ...restOfData } = dataForm;
+                    const response = await fetchAPI(`/api/languages/${id}`, 'PATCH', restOfData);
+
+                    if(dataForm.image) {
+                        await fetch(`/api/languages/${id}/image`, {
+                            method: 'PATCH',
+                            body: data,
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('secure_dolphin_streak_usr_access_token')}`
+                            }
+                        });
+                    }
+
                     if (response.messages) {
                         showToaster('success', { message: response.messages });
                     } else {
@@ -75,11 +88,7 @@
                 event.preventDefault();
                 const name = document.getElementById('languageName').value;
                 const image = document.getElementById('languageImageInput').files[0];
-                let formData = new FormData();
-                formData.append('name', name);
-                if (image) {
-                    formData.append('image', image);
-                }
+                let formData = new FormData(form);
                 await updateLanguage(languageId, formData);
             });
 
