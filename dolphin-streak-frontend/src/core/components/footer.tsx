@@ -1,4 +1,4 @@
-import { useLocale } from '~/utils/use-locale';
+// import { useLocale } from '~/utils/use-locale';
 import Link from 'next/link';
 
 export function InfoFooter(props: { filter: string; locales: string[] }) {

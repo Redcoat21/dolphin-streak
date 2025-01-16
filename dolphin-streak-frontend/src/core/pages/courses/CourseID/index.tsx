@@ -248,7 +248,7 @@ export function CoursePageID() {
                     <Button
                       variant="outline"
                       size="lg"
-                      className="w-full border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white transition-all duration-200"
+                      className="w-full border-slate-700 text-slate-800 hover:bg-slate-800 hover:text-white transition-all duration-200"
                       onClick={handleBackToCourses}
                     >
                       Cancel
