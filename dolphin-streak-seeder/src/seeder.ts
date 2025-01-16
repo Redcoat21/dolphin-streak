@@ -365,6 +365,7 @@ async function seedUsers(): Promise<void> {
             loginHistories: user.loginHistories,
             password: user.password,
             lives: user.lives,
+            subscriptionId: user.subscriptionId ? user.subscriptionId : null,
         });
     }
     console.log('Users seeded successfully.');

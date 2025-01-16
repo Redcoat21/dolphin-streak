@@ -380,6 +380,30 @@ export class UsersController {
     return user.lives;
   }
 
+  @Post('/user/lostLive')
+  @HttpCode(HttpStatus.OK)
+  @HasRoles(Role.USER)
+  async lostLive(
+    @Req() request: Request
+  ): Promise<any> {
+    const userId = request.user._id.toString();
+    const status = await this.usersService.decLive(userId)
+
+    return status;
+  }
+
+  // get the current user premium
+  @Get('/user/premium')
+  @HasRoles(Role.USER)
+  async getPremium(
+    @Req() request: Request
+  ): Promise<any> {
+    const userId = request.user._id.toString();
+    const subscription = await this.usersService.getSubscription(userId);
+
+    return subscription ? true : false;
+  }
+
 
   //TODO: Will need review here, if given null or empty will it still update?
   @Patch(':id')
