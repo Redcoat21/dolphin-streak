@@ -8,6 +8,8 @@ import { QuestionsModule } from 'src/questions/questions.module';
 import { ConfigModule } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
 import { CloudinaryModule } from 'src/upload/cloudinary.module';
+import { UsersModule } from 'src/users/users.module';
+import { SubscriptionsModule } from 'src/subscriptions/subscriptions.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { CloudinaryModule } from 'src/upload/cloudinary.module';
     ConfigModule,
     MulterModule.register(),
     CloudinaryModule,
+    UsersModule,
+    SubscriptionsModule,
   ],
   controllers: [CoursesController],
   providers: [CoursesService],

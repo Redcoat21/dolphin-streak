@@ -53,6 +53,8 @@ import { QuestionType } from 'src/questions/schemas/question.schema';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiResponse } from 'src/lib/types/response.type';
 import { CloudinaryService } from 'src/upload/cloudinary.service';
+import { UsersService } from 'src/users/users.service';
+import { SubscriptionsService } from 'src/subscriptions/subscriptions.service';
 
 @Controller('/api/courses')
 @UseGuards(BearerTokenGuard, RoleGuard)
@@ -87,6 +89,8 @@ export class CoursesController {
     private readonly coursesService: CoursesService,
     private readonly questionsService: QuestionsService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly usersService: UsersService,
+    private readonly subscriptionsService: SubscriptionsService,
   ) {}
 
   @Post()
@@ -406,6 +410,15 @@ export class CoursesController {
     console.log(totalQuestions);
 
     const expiresAt = DateTime.now().plus({ minutes: 30 }).toJSDate();
+
+    // bagian pengecekan
+
+    const payed = await this.usersService.decLive(userId);
+    const activeSubscription = await this.subscriptionsService.isActiveUser(userId);
+    
+    if(!payed && !activeSubscription){
+      throw new ForbiddenException('Session failed to be created! Your lives are 0 and you do not have an active subscription.');
+    }
 
     const session = await this.coursesService.addSession({
       user: userId,

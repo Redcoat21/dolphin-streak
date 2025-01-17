@@ -80,7 +80,7 @@ export class SubscriptionsController {
   ){
     const user = req.user;
     if(!user.subscriptionId){
-      const {subscriptionId} = await this.subscriptionsService.createSubscription(cardDetails, user);
+      const {subscriptionId} = await this.subscriptionsService.createSubscription(cardDetails);
       console.log(subscriptionId);
       
       if(subscriptionId === null){
