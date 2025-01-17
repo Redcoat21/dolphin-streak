@@ -2,8 +2,39 @@ import { Button } from '@/components/ui/button';
 import { Container } from '@/core/components/container';
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, ShieldCheck } from "lucide-react";
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
+import { useAuthStore } from '@/core/stores/authStore';
+import { useRouter } from 'next/navigation';
 
 export function PricingPage() {
+    const { getAccessToken } = useAuthStore();
+    const router = useRouter();
+
+    const handleFreeButtonClick = () => {
+        if (getAccessToken()) {
+            router.push('/dashboard');
+        } else {
+            router.push('/auth/register');
+        }
+    };
+
+    const handlePremiumButtonClick = () => {
+        if (getAccessToken()) {
+            router.push('/profile');
+        } else {
+            router.push('/auth/register');
+        }
+    };
+
+
     return (
         <div className="min-h-screen bg-[#0A0A0A] text-white pb-5">
             <Container>
@@ -21,7 +52,7 @@ export function PricingPage() {
                                     <li className="flex items-center gap-2 text-gray-300"><CheckCircle className="w-4 h-4 text-green-500" /> Access to Forum</li>
                                     <li className="flex items-center gap-2 text-gray-300"><CheckCircle className="w-4 h-4 text-green-500" /> Limited Lives</li>
                                 </ul>
-                                <Button variant="outline" className="w-full border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white transition-colors duration-200">Get Started</Button>
+                                <Button variant="outline" className="w-full border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white transition-colors duration-200" onClick={handleFreeButtonClick}>Get Started</Button>
                             </CardContent>
                         </Card>
 
@@ -36,7 +67,7 @@ export function PricingPage() {
                                     <li className="flex items-center gap-2 text-gray-300"><ShieldCheck className="w-4 h-4 text-green-500" /> Unlimited Lives</li>
                                     <li className="flex items-center gap-2 text-gray-300"><CheckCircle className="w-4 h-4 text-green-500" /> Access to Forum</li>
                                 </ul>
-                                <Button className="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 transition-colors duration-200">Subscribe Now</Button>
+                                <Button className="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 transition-colors duration-200" onClick={handlePremiumButtonClick}>Subscribe Now</Button>
                             </CardContent>
                         </Card>
                     </div>
@@ -47,27 +78,27 @@ export function PricingPage() {
                     </div>
 
                     <div className="mt-8">
-                        <table className="w-full border-collapse">
-                            <thead>
-                                <tr>
-                                    <th className="py-4 px-6 text-left">Feature</th>
-                                    <th className="py-4 px-6 text-center">Free</th>
-                                    <th className="py-4 px-6 text-center">Premium</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td className="py-4 px-6">Lives</td>
-                                    <td className="py-4 px-6 text-center"> </td>
-                                    <td className="py-4 px-6 text-center"><ShieldCheck className="w-4 h-4 text-green-500" /></td>
-                                </tr>
-                                <tr>
-                                    <td className="py-4 px-6">Access to Forum</td>
-                                    <td className="py-4 px-6 text-center"><CheckCircle className="w-4 h-4 text-green-500" /></td>
-                                    <td className="py-4 px-6 text-center"><CheckCircle className="w-4 h-4 text-green-500" /></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <Table className="border border-gray-700">
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="py-4 px-6 text-left text-slate-200">Feature</TableHead>
+                                    <TableHead className="py-4 px-6 text-center text-slate-200">Free</TableHead>
+                                    <TableHead className="py-4 px-6 text-center text-slate-200">Premium</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <TableRow>
+                                    <TableCell className="py-4 px-6">Lives</TableCell>
+                                    <TableCell className="py-4 px-6 text-center"> </TableCell>
+                                    <TableCell className="py-4 px-6 text-center"><ShieldCheck className="w-4 h-4 text-green-500" /></TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell className="py-4 px-6">Access to Forum</TableCell>
+                                    <TableCell className="py-4 px-6 text-center"><CheckCircle className="w-4 h-4 text-green-500" /></TableCell>
+                                    <TableCell className="py-4 px-6 text-center"><CheckCircle className="w-4 h-4 text-green-500" /></TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
                     </div>
                 </div>
             </Container>
