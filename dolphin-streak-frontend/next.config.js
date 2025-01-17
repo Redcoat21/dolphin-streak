@@ -2,7 +2,7 @@
 const config = {
   reactStrictMode: true,
   images: {
-    domains: ['test.com', 'test.com.png', 'static.vecteezy.com', 'tse4.mm.bing.net', 'www.worldatlas.com', 'example.com', 'joken2.webp','res.cloudinary.com'], // Add the correct hostname here
+    domains: ['test.com', 'test.com.png', 'static.vecteezy.com', 'tse4.mm.bing.net', 'www.worldatlas.com', 'example.com', 'joken2.webp','res.cloudinary.com', "placehold.co"], // Add the correct hostname here
   },
 
   // async redirects() {
