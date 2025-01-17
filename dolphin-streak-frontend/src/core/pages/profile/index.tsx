@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Bell } from "lucide-react";
+import { Bell, ShieldCheck, CheckCircle } from "lucide-react";
 import { TUpdateProfileInput } from "@/server/types/auth";
 import { LogoutButton } from "./components/logout";
 import { ChangeProfilePicture } from "./components/change-profile-picture";
@@ -17,6 +17,7 @@ import { ProfileEdit } from "./components/profile-edit";
 import { ProfileDisplay } from "./components/profile-display";
 import { Header } from "../dasboard/components/Header";
 import { SubscriptionForm } from "@/core/components/subscription/SubscriptionForm";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export function ProfilePage() {
   const { getAccessToken, getUserData, setUserData } = useAuthStore();
@@ -147,23 +148,21 @@ export function ProfilePage() {
   return (
     <Container>
       <Header currentPath="/profile" />
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Profile Header */}
-
+      <div className="max-w-7xl mx-auto mt-8 px-4 sm:px-6 lg:px-8">
         {/* Main Profile Card */}
         <Card className="shadow-lg">
-          <CardContent className="p-6 space-y-8">
+          <CardContent className="p-6 sm:p-10 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-10">
             {/* Profile Section */}
-            <div className="flex flex-col md:flex-row gap-8 items-start">
+            <div className="col-span-1 flex flex-col items-center md:items-start space-y-6">
               {/* Avatar Section */}
               <div className="flex flex-col items-center space-y-4">
-                <Avatar className="h-32 w-32 border-4 border-primary/10 shadow-md hover:shadow-lg transition-shadow">
+                <Avatar className="h-24 w-24 sm:h-32 sm:w-32 border-4 border-primary/10 shadow-md hover:shadow-lg transition-shadow">
                   <AvatarImage
                     src={userProfilePicture}
                     alt={userData?.firstName}
                     className="object-cover"
                   />
-                  <AvatarFallback className="text-2xl">
+                  <AvatarFallback className="text-xl sm:text-2xl">
                     {userData?.firstName?.charAt(0)}{userData?.lastName?.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
@@ -176,9 +175,10 @@ export function ProfilePage() {
                   Change Photo
                 </Button>
               </div>
+            </div>
 
               {/* Profile Info Section */}
-              <div className="flex-1 min-w-0">
+              <div className="col-span-2 flex-1 min-w-0">
                 {isEditing ? (
                   <ProfileEdit
                     userData={userData}
@@ -191,17 +191,24 @@ export function ProfilePage() {
                     onEdit={handleEditProfile}
                   />
                 )}
-                {/* <div className="mt-8">
-                  <h2 className="text-xl font-semibold mb-4">Subscription</h2>
-                  <SubscriptionForm />
-                </div> */}
               </div>
-            </div>
 
-            <Separator />
+
+            <Separator className="md:col-span-3" />
+             {/* Subscription Section */}
+             <div className="col-span-3 space-y-6">
+                <h3 className="text-xl font-semibold flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-muted-foreground" />
+                    Subscription
+                </h3>
+                <div className="mt-4">
+                    <SubscriptionForm />
+                </div>
+            </div>
+            <Separator className="md:col-span-3" />
 
             {/* Notification Settings */}
-            <div className="space-y-6">
+            <div className="col-span-3 space-y-6">
               <h3 className="text-xl font-semibold flex items-center gap-2">
                 <Bell className="w-5 h-5 text-muted-foreground" />
                 Notification Preferences
@@ -215,15 +222,14 @@ export function ProfilePage() {
                 />
               </div>
             </div>
-          </CardContent>
+          </CardContent >
         </Card>
-      </div>
-
       <ChangeProfilePicture
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onFileAccepted={handleFileAccepted}
       />
+      </div>
     </Container>
   );
 }

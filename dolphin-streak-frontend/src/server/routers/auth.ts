@@ -1,5 +1,5 @@
 import { authedProcedure, publicProcedure, router } from '../trpc';
-import { ZLoginInput, ZRegisterInput, ZUpdateLanguagePreferencesInput, ZForgotPasswordInput, ZResetPasswordInput, ZRefreshAccessTokenRequest, ZUpdateProfileInput, ZUpdateProfilePictureInput } from '../types/auth';
+import { ZLoginInput, ZRegisterInput, ZUpdateLanguagePreferencesInput, ZForgotPasswordInput, ZResetPasswordInput, ZRefreshAccessTokenRequest, ZUpdateProfileInput, ZUpdateProfilePictureInput, ZPostSubscribeRequest } from '../types/auth';
 import { AuthService } from '../services/auth.service';
 
 export const authRouter = router({
@@ -60,4 +60,8 @@ export const authRouter = router({
 
       return await AuthService.updateProfilePicture(profilePicture, accessToken);
     }),
+
+  subscribe: authedProcedure.input(ZPostSubscribeRequest).mutation(async ({ input }) => { 
+    return await AuthService.subscribe(input, input.accessToken);
+  })
 });

@@ -291,11 +291,38 @@ export function Header({ currentPath, languageDropdown, selectedLanguage, onLang
             </Button>
           </>
         );
+        case "/feedback":
+        return (
+          <>
+            <Notification notifications={MOCK_NOTIFICATIONS} />
+            <Button
+              variant="custom-blue"
+              className="bg-[#1B2335] hover:bg-[#5AB9EA] text-white rounded-md px-4 py-2"
+              onClick={() => router.push("/")}
+            >
+              Home
+            </Button>
+            <Button
+              variant="custom-blue"
+              className="bg-[#1B2335] hover:bg-[#5AB9EA] text-white rounded-md px-4 py-2"
+              onClick={logout}
+            >
+              Logout
+            </Button>
+          </>
+        );
 
       default:
         return (
           <>
             <Notification notifications={MOCK_NOTIFICATIONS} />
+             <Button
+              variant="custom-blue"
+              className="bg-[#1B2335] hover:bg-[#5AB9EA] text-white rounded-md px-4 py-2"
+              onClick={() => router.push("/feedback")}
+            >
+              Feedback
+            </Button>
             <Button
               variant="custom-blue"
               className="bg-[#1B2335] hover:bg-[#5AB9EA] text-white rounded-md px-4 py-2"

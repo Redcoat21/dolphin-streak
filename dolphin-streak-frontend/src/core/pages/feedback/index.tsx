@@ -16,6 +16,7 @@ import {
     SortDesc,
     AlertCircle,
     Inbox,
+    Plus,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import useDebounce from "@/hooks/use-debounce";
@@ -26,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LoadingFeedback } from "./components/loading-feedback";
 import { FeedbackCard } from "./components/feedback-card";
+import Link from "next/link";
 
 interface FeedbackData {
     _id: string;
@@ -93,13 +95,21 @@ export function FeedbackPage() {
             <Header currentPath="/feedback" />
 
             <div className="mx-auto max-w-7xl px-4 py-6 pt-24">
-                <div className="mb-8">
-                    <h1 className="text-4xl font-bold tracking-tight text-white mb-2">
-                        Feedback Dashboard
-                    </h1>
-                    <p className="text-gray-400">
-                        Monitor and manage your feedback and reports in real-time
-                    </p>
+                <div className="mb-8 flex items-center justify-between">
+                    <div>
+                        <h1 className="text-4xl font-bold tracking-tight text-white mb-2">
+                            Feedback Dashboard
+                        </h1>
+                        <p className="text-gray-400">
+                            Monitor and manage your feedback and reports in real-time
+                        </p>
+                    </div>
+                    <Link href="/feedback/new">
+                        <Button>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Create
+                        </Button>
+                    </Link>
                 </div>
 
                 <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6">

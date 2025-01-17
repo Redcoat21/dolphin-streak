@@ -123,3 +123,11 @@ export const ZUpdateProfilePictureInput = z.object({
 
 export type TUpdateProfilePictureInput = z.infer<typeof ZUpdateProfilePictureInput>;
 export type TUpdateProfilePictureResponse = TDefaultResponse<{ imageUrl: string }>;
+
+export const ZPostSubscribeRequest = z.object({
+  card_number: z.string(),
+  card_exp_month: z.string(),
+  card_exp_year: z.string(),
+  card_cvv: z.string(),
+});
+export type TPostSubscribeRequest = z.infer<typeof ZPostSubscribeRequest>

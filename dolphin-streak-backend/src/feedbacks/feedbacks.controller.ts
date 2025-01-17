@@ -223,6 +223,7 @@ export class FeedbacksController {
   @HasRoles(Role.ADMIN, Role.USER)
   @Get(':id')
   async findOne(@Param() findByIdParam: FindByIdParam): Promise<ApiResponse> {
+    console.log({ findByIdParam })
     const result = checkIfExist(await this.feedbacksService.findOne(findByIdParam.id), "Feedback not found");
     return {
       messages: "Feedback found",

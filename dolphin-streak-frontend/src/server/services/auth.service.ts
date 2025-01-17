@@ -12,6 +12,7 @@ import {
   TGetUserProfileDataResponse,
   TUpdateProfileInput,
   TUpdateProfilePictureResponse,
+  TPostSubscribeRequest,
 } from "../types/auth";
 import { z } from "zod";
 
@@ -168,6 +169,22 @@ export class AuthService {
       } else {
         throw new Error("Update profile picture failed: Unknown error");
       }
+    }
+  }
+
+  static async subscribe(input: TPostSubscribeRequest, accessToken: string) {
+    try {
+      const response = await fetchAPI("/api/subscriptions", "POST", {
+        body: input,
+        token: accessToken
+      });
+      return response;
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            throw new Error("Subscription failed: " + error.message);
+        } else {
+            throw new Error("Subscription failed: Unknown error");
+        }
     }
   }
 }

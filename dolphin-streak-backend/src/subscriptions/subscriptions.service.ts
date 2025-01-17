@@ -16,6 +16,7 @@ export class SubscriptionsService {
   ) {}
 
   async createSubscription(cardDetails:CreateSubscriptionDto): Promise<{ subscriptionId: string }> {
+    console.log(this.configService.get<string>('MIDTRANS_SERVER_KEY'));
     const serverKey = this.configService.get<string>('MIDTRANS_SERVER_KEY');
       if (!serverKey) {
         throw new Error('MIDTRANS_SERVER_KEY is not configured in .env');
