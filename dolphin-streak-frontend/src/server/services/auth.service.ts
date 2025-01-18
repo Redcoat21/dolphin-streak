@@ -13,6 +13,7 @@ import {
   TUpdateProfileInput,
   TUpdateProfilePictureResponse,
   TPostSubscribeRequest,
+  TChangePasswordInput,
 } from "../types/auth";
 import { z } from "zod";
 
@@ -180,11 +181,31 @@ export class AuthService {
       });
       return response;
     } catch (error: unknown) {
-        if (error instanceof Error) {
-            throw new Error("Subscription failed: " + error.message);
-        } else {
-            throw new Error("Subscription failed: Unknown error");
-        }
+      if (error instanceof Error) {
+        throw new Error("Subscription failed: " + error.message);
+      } else {
+        throw new Error("Subscription failed: Unknown error");
+      }
+    }
+  }
+
+  static async changePassword(input: TChangePasswordInput) {
+    try {
+      const changePasswordPayload = {
+        "encryptedPayload": input.encryptPayload,
+        "iv": input.iv,
+        "newPassword": input.password,
+      }
+      const response = await fetchAPI("/api/auth/reset-password", "POST", {
+        body: changePasswordPayload,
+      });
+      return response;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error("Change password failed: " + error.message);
+      } else {
+        throw new Error("Change password failed: Unknown error");
+      }
     }
   }
 }

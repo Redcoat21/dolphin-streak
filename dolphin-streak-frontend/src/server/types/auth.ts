@@ -1,13 +1,16 @@
 import { z } from 'zod';
 import { TDefaultResponse } from './generic';
 
+const passwordRegex = /^(?=.*[a-z]{2,})(?=.*[A-Z]{2,})(?=.*[0-9]{2,})(?=.*[!@#\$%\^&\*()_+{}\[\]:;<>,.?~\\-]{2,}).{8,}$/;
+
+
 export const ZAuthedProcedureInput = z.object({
   accessToken: z.string(),
 });
 
 export const ZLoginInput = z.object({
   email: z.string().email(),
-  password: z.string().min(8),
+  password: z.string().regex(passwordRegex, "Password must contain at least 8 characters, 2 lowercase letters, 2 uppercase letters, 2 numbers, and 2 symbols"),
   rememberMe: z.boolean().optional(),
 });
 
@@ -17,8 +20,8 @@ export const ZRegisterInput = z.object({
   firstName: z.string().min(1),
   lastName: z.string().optional(),
   email: z.string().email(),
-  password: z.string().min(8),
-  confirmPassword: z.string().min(8),
+  password: z.string().regex(passwordRegex, "Password must contain at least 8 characters, 2 lowercase letters, 2 uppercase letters, 2 numbers, and 2 symbols"),
+  confirmPassword: z.string().regex(passwordRegex, "Password must contain at least 8 characters, 2 lowercase letters, 2 uppercase letters, 2 numbers, and 2 symbols"),
   profilePicture: z.string().optional(),
   birthDate: z.string().optional(),
 });
@@ -73,7 +76,7 @@ export type TForgotPasswordInput = z.infer<typeof ZForgotPasswordInput>;
 export const ZResetPasswordInput = z.object({
   encryptedPayload: z.string(),
   iv: z.string(),
-  newPassword: z.string().min(8),
+  newPassword: z.string().regex(passwordRegex, "Password must contain at least 8 characters, 2 lowercase letters, 2 uppercase letters, 2 numbers, and 2 symbols"),
 });
 
 export type TResetPasswordInput = z.infer<typeof ZResetPasswordInput>;
@@ -131,3 +134,12 @@ export const ZPostSubscribeRequest = z.object({
   card_cvv: z.string(),
 });
 export type TPostSubscribeRequest = z.infer<typeof ZPostSubscribeRequest>
+
+export const ZChangePasswordInput = z.object({
+  password: z.string().regex(passwordRegex, "Password must contain at least 8 characters, 2 lowercase letters, 2 uppercase letters, 2 numbers, and 2 symbols"),
+  encryptPayload: z.string(),
+  iv: z.string(),
+  confirmNewPassword: z.string(),
+});
+
+export type TChangePasswordInput = z.infer<typeof ZChangePasswordInput>;
