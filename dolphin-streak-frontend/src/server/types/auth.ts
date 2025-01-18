@@ -10,7 +10,7 @@ export const ZAuthedProcedureInput = z.object({
 
 export const ZLoginInput = z.object({
   email: z.string().email(),
-  password: z.string().regex(passwordRegex, "Password must contain at least 8 characters, 2 lowercase letters, 2 uppercase letters, 2 numbers, and 2 symbols"),
+  password: z.string().min(1),
   rememberMe: z.boolean().optional(),
 });
 

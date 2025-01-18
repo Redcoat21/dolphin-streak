@@ -113,9 +113,7 @@ export default function FeedbackIdPage() {
                         <Separator />
                         <CardContent className="pt-6">
                             <ScrollArea className="h-[200px] rounded-md border p-4">
-                                <p className="text-gray-700 whitespace-pre-wrap">
-                                    {feedback?.content}
-                                </p>
+                                <p className="text-gray-700 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: feedback?.content || '' }} />
                             </ScrollArea>
                         </CardContent>
                     </Card>

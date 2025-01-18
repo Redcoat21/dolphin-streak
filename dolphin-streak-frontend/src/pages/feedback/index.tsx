@@ -1,7 +1,10 @@
+import { withAuth } from "@/core/components/hoc/withAuth";
 import { FeedbackPage } from "@/core/pages/feedback";
 
-export default function Feedback() {
+function Feedback() {
     return (
         <FeedbackPage />
     )
 }
+
+export default withAuth(Feedback);
