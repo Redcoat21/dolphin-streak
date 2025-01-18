@@ -80,7 +80,7 @@ export function ForgotPasswordPage() {
                     <CardContent className="grid gap-4">
                         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-2">
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email</Label>
+                                <Label htmlFor="email" className="text-slate-200">Email</Label>
                                 <Input
                                     id="email"
                                     type="email"
