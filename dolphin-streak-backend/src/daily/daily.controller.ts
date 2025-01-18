@@ -10,6 +10,7 @@ import { HasRoles } from 'src/lib/decorators/has-role.decorator';
 import { Role } from 'src/users/schemas/user.schema';
 import { QuestionsService } from 'src/questions/questions.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { QuestionType } from 'src/questions/schemas/question.schema';
 
 @Controller('/api/daily')
 export class DailyController {
@@ -265,14 +266,19 @@ export class DailyController {
             throw new ForbiddenException();
         }
 
-        if (!answer) {
-            throw new BadRequestException('answer must be a string')
-        }
-
         const questionId = session.questions[session.answeredQuestions.length];
         const question = await this.questionsService.findOne(questionId.toString());
-
+    
         // console.log(question);
+        const qtype = QuestionType[question.type];
+
+        if (!answer && qtype != 'VOICE') {
+            throw new BadRequestException('answer must be a string');
+          }
+      
+          if (!file && qtype == 'VOICE') {
+            throw new BadRequestException('file must be passed');
+          }
 
         const accessToken = request.headers.authorization?.split(' ')[1]
 
