@@ -60,11 +60,9 @@ export function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white pb-5">
-      {isMobile && (
-        <div className="flex h-14 items-center px-4 bg-[#007AFF]">
-          <span className="flex-1 text-center font-medium">Signup</span>
-        </div>
-      )}
+      <div className="flex h-14 items-center px-4 bg-[#007AFF]">
+        <span className="flex-1 text-center font-medium">Signup</span>
+      </div>
 
       <Container>
         <div className="mx-auto max-w-[600px]">
