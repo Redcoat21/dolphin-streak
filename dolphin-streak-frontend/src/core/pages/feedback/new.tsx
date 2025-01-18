@@ -129,15 +129,15 @@ export default function NewFeedbackPage() {
                                 Feedback Type
                             </label>
                             <Select
-                                value={feedbackType}
-                                onValueChange={(value) => setFeedbackType(value as FeedbackType)}
+                                value={feedbackType.toString()}
+                                onValueChange={(value) => setFeedbackType(parseInt(value) as FeedbackType)}
                             >
                                 <SelectTrigger className="w-full bg-[#2D3748] border-none text-white">
                                     <SelectValue placeholder="Select feedback type" />
                                 </SelectTrigger>
                                 <SelectContent >
-                                    <SelectItem value={FeedbackType.FEEDBACK}>Feedback</SelectItem>
-                                    <SelectItem value={FeedbackType.REPORT}>Report</SelectItem>
+                                    <SelectItem value={FeedbackType.FEEDBACK.toString()}>Feedback</SelectItem>
+                                    <SelectItem value={FeedbackType.REPORT.toString()}>Report</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
