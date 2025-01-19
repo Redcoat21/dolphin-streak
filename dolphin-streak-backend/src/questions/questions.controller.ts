@@ -116,6 +116,56 @@ export class QuestionsController {
       data: await this.questionsService.create(createQuestionDto),
     };
   }
+  @Get(":id")
+  @ApiOperation({
+    summary: "Find a question by its ID",
+    description: "Find a question by its ID.",
+  })
+  @ApiOkResponse({
+    description: "The question has been successfully retrieved.",
+    example: {
+      messages: "Question found",
+      data: {
+        _id: "67361a7345664a2c0ba35041",
+        type: 0,
+        answerOptions: [
+          "Germany",
+          "Deutschland",
+          "Dokuritsu",
+          "Russia With Love",
+        ],
+        correctAnswer: [
+          "1",
+        ],
+        useAi: false,
+        courses: [],
+        __v: 0,
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: "Bad request, e.g. invalid course ID",
+    example: {
+      messagess: "Question not found",
+      data: null,
+    },
+  })
+  @ApiNotFoundResponse({
+    description: "Question not found",
+    example: {
+      messagess: "Question not found",
+      data: null,
+    },
+  })
+  async findOne(@Param("id") id: string) {
+    return {
+      messages: "Question found",
+      data: checkIfExist(
+        await this.questionsService.findOne(id),
+        "Question not found",
+      ),
+    };
+  }
 
   @Get()
   @ApiOperation({
@@ -208,57 +258,6 @@ export class QuestionsController {
     return {
       messages: formatGetAllMessages(foundedQuestions.length, "question"),
       data: foundedQuestions,
-    };
-  }
-
-  @Get(":id")
-  @ApiOperation({
-    summary: "Find a question by its ID",
-    description: "Find a question by its ID.",
-  })
-  @ApiOkResponse({
-    description: "The question has been successfully retrieved.",
-    example: {
-      messages: "Question found",
-      data: {
-        _id: "67361a7345664a2c0ba35041",
-        type: 0,
-        answerOptions: [
-          "Germany",
-          "Deutschland",
-          "Dokuritsu",
-          "Russia With Love",
-        ],
-        correctAnswer: [
-          "1",
-        ],
-        useAi: false,
-        courses: [],
-        __v: 0,
-      },
-    },
-  })
-  @ApiBadRequestResponse({
-    description: "Bad request, e.g. invalid course ID",
-    example: {
-      messagess: "Question not found",
-      data: null,
-    },
-  })
-  @ApiNotFoundResponse({
-    description: "Question not found",
-    example: {
-      messagess: "Question not found",
-      data: null,
-    },
-  })
-  async findOne(@Param("id") id: string) {
-    return {
-      messages: "Question found",
-      data: checkIfExist(
-        await this.questionsService.findOne(id),
-        "Question not found",
-      ),
     };
   }
 

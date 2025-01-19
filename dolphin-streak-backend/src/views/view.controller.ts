@@ -97,7 +97,7 @@ export class ViewController {
   }
 
   @Get('/courses/edit/:id')
-  async getEditCourse(@Param('id') id: string, @Res() res: Response): void {
+  async getEditCourse(@Param('id') id: string, @Res() res: Response) {
     const course = await this.coursesService.findOne(id);
     this.handleAdminAccess(res, 'courses/edit-course', {
       name: course.name,
@@ -105,12 +105,21 @@ export class ViewController {
       id: id,
     });
   }
-
   @Get('/questions')
   getQuestions(@Res() res: Response): void {
     this.handleAdminAccess(res, 'questions/index', {
       backendUrl: this.backendUrl,
     });
+  }
+
+  @Get('/questions/add')
+  getAddQuestion(@Res() res: Response): void {
+    this.handleAdminAccess(res, 'questions/add');
+  }
+
+  @Get('/questions/edit/:id')
+  getEditQuestion(@Param('id') id: string, @Res() res: Response): void {
+    this.handleAdminAccess(res, 'questions/edit', { id });
   }
 
   private handleAdminAccess(
