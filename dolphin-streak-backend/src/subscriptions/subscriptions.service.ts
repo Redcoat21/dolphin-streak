@@ -15,7 +15,8 @@ export class SubscriptionsService {
     private readonly midtransService: MidtransService
   ) {}
 
-  async createSubscription(cardDetails:CreateSubscriptionDto, user: User): Promise<{ subscriptionId: string }> {
+  async createSubscription(cardDetails:CreateSubscriptionDto): Promise<{ subscriptionId: string }> {
+    console.log(this.configService.get<string>('MIDTRANS_SERVER_KEY'));
     const serverKey = this.configService.get<string>('MIDTRANS_SERVER_KEY');
       if (!serverKey) {
         throw new Error('MIDTRANS_SERVER_KEY is not configured in .env');
@@ -84,6 +85,24 @@ export class SubscriptionsService {
     const result = await this.midtransService.getSubscription(id);
     console.log(result)
     return result
+  }
+
+  async isActive(id: string): Promise<any> {
+    const subs = await this.midtransService.getSubscription(id);
+    if(subs.status == 'active'){
+      return true;
+    }
+      return false;
+  }
+
+  async isActiveUser(user: User) {
+    const subs = user.subscriptionId;
+
+    if(subs == null){
+      return false;
+    }
+
+    return this.isActive(subs);
   }
 
   async enableSubs(id: string): Promise<any> {

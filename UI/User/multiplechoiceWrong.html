@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiple Choice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0B1121;
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+            padding: 20px 0;
+        }
+        .header {
+            background-color: #0A84FF;
+            color: white;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .question {
+            font-size: 1.1rem;
+            margin: 20px 0;
+        }
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+        .option {
+            background-color: #1B2335;
+            color: white;
+            font-size: 1.2rem;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .wrong {
+            background-color: #740000;
+            color: white;
+            font-size: 1.2rem;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .option:hover {
+            background-color: #0A84FF;
+        }
+        .continue-button {
+            background-color: #0A84FF;
+            color: white;
+            font-size: 1.2rem;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            width: calc(100% - 40px);
+            max-width: 300px;
+            margin: 0 auto 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">Course 10 - Chapter 6/10</div>
+    <div class="question">How do you say "thank you" in Mandarin?</div>
+    <div class="options-container">
+        <div class="wrong">你好</div>
+        <div class="option">谢谢</div>
+        <div class="option">再见</div>
+        <div class="option">对不起</div>
+    </div>
+    <button class="continue-button">Continue</button>
+</body>
+</html>

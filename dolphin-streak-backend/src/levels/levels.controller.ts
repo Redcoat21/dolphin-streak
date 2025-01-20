@@ -11,14 +11,14 @@ import {
   Post,
   Query,
   UseGuards,
-} from "@nestjs/common";
-import { LevelsService } from "./levels.service";
-import { CreateLevelDto } from "./dto/create-level.dto";
-import { UpdateLevelDto } from "./dto/update-level.dto";
-import { FindAllLevelsQuery } from "./dto/find-all-query.dto";
-import { FindByIdParam } from "src/lib/dto/find-by-id-param.dto";
-import { RoleGuard } from "src/lib/guard/role.guard";
-import { checkIfExist, formatGetAllMessages } from "src/lib/utils/response";
+} from '@nestjs/common';
+import { LevelsService } from './levels.service';
+import { CreateLevelDto } from './dto/create-level.dto';
+import { UpdateLevelDto } from './dto/update-level.dto';
+import { FindAllLevelsQuery } from './dto/find-all-query.dto';
+import { FindByIdParam } from 'src/lib/dto/find-by-id-param.dto';
+import { RoleGuard } from 'src/lib/guard/role.guard';
+import { checkIfExist, formatGetAllMessages } from 'src/lib/utils/response';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -29,19 +29,22 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiUnauthorizedResponse,
-} from "@nestjs/swagger";
-import { HasRoles } from "src/lib/decorators/has-role.decorator";
-import { Role } from "src/users/schemas/user.schema";
-import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
+} from '@nestjs/swagger';
+import { HasRoles } from 'src/lib/decorators/has-role.decorator';
+import { Role } from 'src/users/schemas/user.schema';
+import { BearerTokenGuard } from 'src/auth/guard/bearer-token.guard';
+import { DateTime } from 'luxon';
+import { Request } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
 
-@Controller("/api/levels")
+@Controller('/api/levels')
 @UseGuards(BearerTokenGuard, RoleGuard)
 @HasRoles(Role.ADMIN)
 @ApiUnauthorizedResponse({
   description:
     "Happen because the user is not authorized (doesn't have a valid access token)",
   example: {
-    message: "Unauthorized",
+    message: 'Unauthorized',
     data: null,
   },
 })
@@ -49,15 +52,15 @@ import { BearerTokenGuard } from "src/auth/guard/bearer-token.guard";
   description:
     "Happen because the user doesn't have the right role to access this endpoint",
   example: {
-    message: "Forbidden resource",
+    message: 'Forbidden resource',
     data: null,
   },
 })
 @ApiInternalServerErrorResponse({
   description:
-    "Happen when something went wrong, that is not handled by this API, e.g. database error",
+    'Happen when something went wrong, that is not handled by this API, e.g. database error',
   example: {
-    message: "Internal Server Error",
+    message: 'Internal Server Error',
     data: null,
   },
 })
@@ -68,56 +71,53 @@ export class LevelsController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
-    summary: "Create a new level",
-    description: "Create a new level with the data provided in the body",
+    summary: 'Create a new level',
+    description: 'Create a new level with the data provided in the body',
   })
   @ApiCreatedResponse({
-    description: "The level has been successfully created.",
+    description: 'The level has been successfully created.',
     example: {
-      message: "Level created successfully",
+      message: 'Level created successfully',
       data: {
-        name: "Level 3",
-        language: "6732299a3b7d4ef48a34278c",
-        _id: "673229a43b7d4ef48a34278e",
+        name: 'Level 3',
+        language: '6732299a3b7d4ef48a34278c',
+        _id: '673229a43b7d4ef48a34278e',
         __v: 0,
       },
     },
   })
   @ApiBadRequestResponse({
-    description: "Happen when the request body is not valid",
+    description: 'Happen when the request body is not valid',
     example: {
-      messages: [
-        "name must be a string",
-        "language must be a mongodb id",
-      ],
+      messages: ['name must be a string', 'language must be a mongodb id'],
       data: null,
     },
   })
   async create(@Body() createLevelDto: CreateLevelDto) {
     return {
-      messages: "Level created successfully",
+      messages: 'Level created successfully',
       data: await this.levelsService.create(createLevelDto),
     };
   }
 
   @ApiOperation({
-    summary: "Get all levels",
-    description: "Get all levels with the option to filter by language",
+    summary: 'Get all levels',
+    description: 'Get all levels with the option to filter by language',
   })
   @ApiOkResponse({
-    description: "Levels found",
+    description: 'Levels found',
     example: {
-      messages: "2 levels found",
+      messages: '2 levels found',
       data: [
         {
-          _id: "671afc7bc0a7ef4e76079383",
-          name: "Level 1",
+          _id: '671afc7bc0a7ef4e76079383',
+          name: 'Level 1',
           language: null,
           __v: 0,
         },
         {
-          _id: "673229813b7d4ef48a342788",
-          name: "Level 2",
+          _id: '673229813b7d4ef48a342788',
+          name: 'Level 2',
           language: null,
           __v: 0,
         },
@@ -125,142 +125,333 @@ export class LevelsController {
     },
   })
   @Get()
+  @HasRoles(Role.ADMIN, Role.USER)
   async findAll(@Query() query: FindAllLevelsQuery) {
-    const foundedLevels = await this.levelsService.findAll(
-      query.language ? { language: query.language } : undefined,
-    )
-      .populate(
-        "language",
-      );
+    const foundedLevels = await this.levelsService
+      .findAll(query.language ? { language: query.language } : undefined)
+      .populate('language');
 
     return {
-      messages: formatGetAllMessages(foundedLevels.length, "level"),
+      messages: formatGetAllMessages(foundedLevels.length, 'level'),
       data: foundedLevels,
     };
   }
 
-  @Get(":id")
+  @Get(':id')
   @ApiOperation({
-    summary: "Get a level by id",
-    description: "Get a level by the id provided in the parameter",
+    summary: 'Get a level by id',
+    description:
+      'Get a level by the id provided in the parameter along with its questions',
   })
   @ApiBadRequestResponse({
-    description: "Happen when the id parameter is not a valid mongodb id",
+    description: 'Happen when the id parameter is not a valid mongodb id',
     example: {
-      messages: [
-        "id must be a mongodb id",
-      ],
+      messages: ['id must be a mongodb id'],
       data: null,
     },
   })
   @ApiOkResponse({
-    description: "Level founded",
+    description: 'Level and related questions retrieved successfully',
     example: {
-      messages: "Level founded",
+      messages: 'Level and questions retrieved successfully',
       data: {
-        _id: "671afc7bc0a7ef4e76079383",
-        name: "Level 1",
+        level: {
+          _id: '671afc7bc0a7ef4e76079383',
+          name: 'Level 1',
+          // other level fields...
+        },
+        questions: [
+          {
+            _id: '67361a7345664a2c0ba35041',
+            type: 0,
+            // other question fields...
+          },
+          // more questions...
+        ],
       },
     },
   })
   @ApiNotFoundResponse({
-    description: "Happen when the level is not found",
+    description: 'Happen when the level is not found',
     example: {
-      messages: "Level not found",
+      messages: 'Level not found',
       data: null,
     },
   })
+  @HasRoles(Role.USER, Role.ADMIN)
   async findOne(@Param() findByIdParam: FindByIdParam) {
     const foundedLevel = checkIfExist(
-      await this.levelsService.findOne(findByIdParam.id),
-      "Level not found",
+      await this.levelsService.findOneLevelsAndGetQuestions(findByIdParam.id),
+      'Level not found',
     );
 
-    return { messages: "Level founded", data: foundedLevel };
+    return { messages: 'Level founded', data: foundedLevel };
   }
 
   @ApiOperation({
-    summary: "Update a level",
-    description: "Update a level with the data provided in the body",
+    summary: 'Update a level',
+    description: 'Update a level with the data provided in the body',
   })
   @ApiOkResponse({
-    description: "Level updated successfully",
+    description: 'Level updated successfully',
     example: {
-      messages: "Level updated successfully",
+      messages: 'Level updated successfully',
       data: {
-        _id: "671afc7bc0a7ef4e76079383",
-        name: "Level 1",
+        _id: '671afc7bc0a7ef4e76079383',
+        name: 'Level 1',
       },
     },
   })
   @ApiBadRequestResponse({
-    description: "Happen when the id parameter is not a valid mongodb id",
+    description: 'Happen when the id parameter is not a valid mongodb id',
     example: {
-      messages: [
-        "id must be a mongodb id",
-      ],
+      messages: ['id must be a mongodb id'],
     },
   })
   @ApiNotFoundResponse({
-    description: "Happen when the level is not found",
+    description: 'Happen when the level is not found',
     example: {
-      messages: "Level not found",
+      messages: 'Level not found',
       data: null,
     },
   })
-  @Patch(":id")
+  @Patch(':id')
   async update(
     @Param() findByIdParam: FindByIdParam,
     @Body() updateLevelDto: UpdateLevelDto,
   ) {
     const updatedLevel = checkIfExist(
-      await this.levelsService.update(
-        findByIdParam.id,
-        updateLevelDto,
-      ),
-      "Level not found",
+      await this.levelsService.update(findByIdParam.id, updateLevelDto),
+      'Level not found',
     );
 
-    return { messages: "Level updated successfully", data: updatedLevel };
+    return { messages: 'Level updated successfully', data: updatedLevel };
   }
 
   @ApiOperation({
-    summary: "Delete a level",
-    description: "Delete a level by the id provided in the parameter",
+    summary: 'Delete a level',
+    description: 'Delete a level by the id provided in the parameter',
   })
   @ApiOkResponse({
-    description: "Level deleted successfully",
+    description: 'Level deleted successfully',
     example: {
-      messages: "Level deleted successfully",
+      messages: 'Level deleted successfully',
       data: {
-        _id: "671afc7bc0a7ef4e76079383",
-        name: "Level 1",
+        _id: '671afc7bc0a7ef4e76079383',
+        name: 'Level 1',
       },
     },
   })
   @ApiBadRequestResponse({
-    description: "Happen when the id parameter is not a valid mongodb id",
+    description: 'Happen when the id parameter is not a valid mongodb id',
     example: {
-      messages: [
-        "id must be a mongodb id",
-      ],
+      messages: ['id must be a mongodb id'],
       data: null,
     },
   })
   @ApiNotFoundResponse({
-    description: "Happen when the level is not found",
+    description: 'Happen when the level is not found',
     example: {
-      messages: "Level not found",
+      messages: 'Level not found',
       data: null,
     },
   })
-  @Delete(":id")
+  @Delete(':id')
   async remove(@Param() findByIdParam: FindByIdParam) {
     const deletedLevel = checkIfExist(
       await this.levelsService.remove(findByIdParam.id),
-      "Level not found",
+      'Level not found',
     );
 
-    return { messages: "Level deleted successfully", data: deletedLevel };
+    return { messages: 'Level deleted successfully', data: deletedLevel };
   }
+
+  // @Post(':id/start-session')
+  // @HttpCode(HttpStatus.OK)
+  // @UseGuards(BearerTokenGuard, RoleGuard)
+  // @HasRoles(Role.USER, Role.ADMIN)
+  // @ApiOperation({ summary: 'Start a question session for a specific level' })
+  // @ApiOkResponse({
+  //   description: 'Session started successfully',
+  //   schema: {
+  //     example: {
+  //       messages: 'Session started',
+  //       data: {
+  //         sessionId: 'session-1691138855',
+  //         expiresAt: '2024-11-25T15:47:01.890Z',
+  //         totalQuestions: 10, // Added totalQuestions to the response
+  //       },
+  //     },
+  //   },
+  // })
+  // @ApiUnauthorizedResponse({
+  //   description: 'Unauthorized',
+  //   schema: { example: { messages: 'Unauthorized', data: null } },
+  // })
+  // @ApiBearerAuth()
+  // async startQuestionSession(
+  //   @Param('id') levelId: string,
+  //   @Request() request: ExpressRequest,
+  // ) {
+  //   const userId = request.user._id.toString();
+  //   const questions = await this.levelsService.findQuestionsForLevel(levelId);
+  //   const totalQuestions = questions.length; // Calculate total questions
+
+  //   const sessionId = `session-${Date.now()}`;
+  //   const expiresAt = DateTime.now().plus({ minutes: 30 }).toJSDate();
+
+  //   this.levelsService.addSession({
+  //     sessionId,
+  //     userId,
+  //     levelId,
+  //     questions,
+  //     expiresAt,
+  //   });
+
+  //   return {
+  //     messages: 'Session started',
+  //     data: {
+  //       sessionId,
+  //       expiresAt,
+  //       totalQuestions, // Include totalQuestions in the response
+  //     },
+  //   };
+  // }
+
+  // @Get(':id/question/:questionIndex')
+  // @HttpCode(HttpStatus.OK)
+  // @UseGuards(BearerTokenGuard, RoleGuard)
+  // @HasRoles(Role.USER, Role.ADMIN)
+  // @ApiOperation({ summary: 'Get a question by index and session ID' })
+  // @ApiOkResponse({
+  //   description: 'Question retrieved successfully',
+  //   schema: {
+  //     example: {
+  //       messages: 'Question retrieved',
+  //       data: {
+  //         question: {
+  //           _id: 'question-123',
+  //           text: 'What is the capital of France?',
+  //           type: 'MULTIPLE_CHOICE',
+  //           answerOptions: ['Paris', 'London', 'Berlin', 'Madrid'],
+  //           correctAnswer: 'Paris',
+  //         },
+  //       },
+  //     },
+  //   },
+  // })
+  // @ApiNotFoundResponse({
+  //   description: 'Question not found',
+  //   schema: { example: { messages: 'Question not found', data: null } },
+  // })
+  // @ApiUnauthorizedResponse({
+  //   description: 'Unauthorized',
+  //   schema: { example: { messages: 'Unauthorized', data: null } },
+  // })
+  // @ApiBearerAuth()
+  // async getQuestionById(
+  //   @Param('id') levelId: string,
+  //   @Param('questionIndex') questionIndex: number,
+  //   @Query('sessionId') sessionId: string,
+  //   @Request() request: ExpressRequest,
+  // ) {
+  //   const userId = request.user._id.toString();
+  //   const session = this.levelsService.getSession(sessionId);
+  //   if (!session || session.userId !== userId || session.levelId !== levelId) {
+  //     throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+  //   }
+
+  //   const question = session.questions[questionIndex];
+  //   if (!question) {
+  //     throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
+  //   }
+
+  //   return {
+  //     messages: 'Question retrieved',
+  //     data: { question },
+  //   };
+  // }
+
+  // @Post('next-question')
+  // @HttpCode(HttpStatus.OK)
+  // @UseGuards(BearerTokenGuard, RoleGuard)
+  // @HasRoles(Role.USER, Role.ADMIN)
+  // @ApiOperation({ summary: 'Get the next question in a session' })
+  // @ApiOkResponse({
+  //   description: 'Next question retrieved successfully',
+  //   schema: {
+  //     example: {
+  //       messages: 'Next question retrieved',
+  //       data: {
+  //         nextQuestionIndex: 1,
+  //         nextQuestion: {
+  //           _id: 'question-123',
+  //           text: 'What is the capital of France?',
+  //           type: 'MULTIPLE_CHOICE',
+  //           answerOptions: ['Paris', 'London', 'Berlin', 'Madrid'],
+  //           correctAnswer: 'Paris',
+  //         },
+  //       },
+  //     },
+  //   },
+  // })
+  // @ApiNotFoundResponse({
+  //   description: 'No more questions or session not found',
+  //   schema: { example: { messages: 'No more questions', data: null } },
+  // })
+  // @ApiUnauthorizedResponse({
+  //   description: 'Unauthorized',
+  //   schema: { example: { messages: 'Unauthorized', data: null } },
+  // })
+  // @ApiBearerAuth()
+  // async getNextQuestion(
+  //   @Query('sessionId') sessionId: string,
+  //   @Body('currentQuestionIndex') currentQuestionIndex: number,
+  // ) {
+  //   const { nextQuestionIndex, nextQuestion } =
+  //     this.levelsService.getNextQuestion(sessionId, currentQuestionIndex);
+  //   return {
+  //     messages: 'Next question retrieved',
+  //     data: { nextQuestionIndex, nextQuestion },
+  //   };
+  // }
+
+  // @Post('submit-answer')
+  // @HttpCode(HttpStatus.OK)
+  // @UseGuards(BearerTokenGuard, RoleGuard)
+  // @HasRoles(Role.USER, Role.ADMIN)
+  // @ApiOperation({ summary: 'Submit an answer for a question' })
+  // @ApiOkResponse({
+  //   description: 'Answer submitted successfully',
+  //   schema: {
+  //     example: {
+  //       messages: 'Answer submitted',
+  //       data: { isCorrect: true },
+  //     },
+  //   },
+  // })
+  // @ApiNotFoundResponse({
+  //   description: 'Question or session not found',
+  //   schema: { example: { messages: 'Question not found', data: null } },
+  // })
+  // @ApiUnauthorizedResponse({
+  //   description: 'Unauthorized',
+  //   schema: { example: { messages: 'Unauthorized', data: null } },
+  // })
+  // @ApiBearerAuth()
+  // async submitAnswer(
+  //   @Query('sessionId') sessionId: string,
+  //   @Body('questionIndex') questionIndex: number,
+  //   @Body('answer') answer: string,
+  // ) {
+  //   const { isCorrect } = this.levelsService.submitAnswer(
+  //     sessionId,
+  //     questionIndex,
+  //     answer,
+  //   );
+  //   return {
+  //     messages: 'Answer submitted',
+  //     data: { isCorrect },
+  //   };
+  // }
 }

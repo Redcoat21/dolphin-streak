@@ -25,7 +25,7 @@ export class MailService {
 
         const resetUrl = `${
             this.configService.get<string>("FRONTEND_URL")
-        }/reset-password?payload=${encryptedPayload.encryptedData}&iv=${encryptedPayload.iv}`;
+        }/auth/change-password/${encryptedPayload.encryptedData}?iv=${encryptedPayload.iv}`;
 
         try {
             await this.mailerService.sendMail({

@@ -19,6 +19,9 @@ import { ForumsModule } from "./forums/forums.module";
 import { AiModule } from "./ai/ai.module";
 import { ViewController } from "./views/view.controller";
 import { VoiceaiModule } from './voiceai/voiceai.module';
+import { DailyModule } from "./daily/daily.module";
+import { ComprehensionModule } from "./comprehension/comprehension.module";
+import { AnnouncementModule } from './announcement/announcement.module';
 
 @Module({
   imports: [
@@ -41,7 +44,9 @@ import { VoiceaiModule } from './voiceai/voiceai.module';
     UsersModule,
     SubscriptionsModule,
     QuestionsModule,
+    DailyModule,
     CoursesModule,
+    ComprehensionModule,
     LanguagesModule,
     LevelsModule,
     MailModule,
@@ -49,8 +54,9 @@ import { VoiceaiModule } from './voiceai/voiceai.module';
     ForumsModule,
     AiModule,
     VoiceaiModule,
+    AnnouncementModule,
   ],
   controllers: [AppController, ViewController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

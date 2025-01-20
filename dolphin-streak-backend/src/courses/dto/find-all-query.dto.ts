@@ -1,6 +1,7 @@
 import { IsEnum, IsMongoId, IsOptional, IsString } from "class-validator";
 import { CourseType } from "../schemas/course.schema";
 import { ApiProperty } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 
 export class FindAllCoursesQuery {
     @ApiProperty({
@@ -16,7 +17,8 @@ export class FindAllCoursesQuery {
         example: 0,
         enum: CourseType,
     })
-    @IsOptional()
+    @Transform(({ value }) => parseInt(value, 10)) // Convert to a number
     @IsEnum(CourseType)
+    @IsOptional()
     type?: CourseType;
 }

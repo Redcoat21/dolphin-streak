@@ -1,87 +1,118 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Container } from "@/core/components/container";
-import { GoogleLogo } from "@/core/components/icons/google-logo";
-import { ArrowLeft } from "lucide-react";
+} from '@/components/ui/card';
+import { Container } from '@/core/components/container';
+import { useToast } from '@/hooks/use-toast';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import { trpc } from '@/utils/trpc';
+import { TLoginInput, ZLoginInput } from '@/server/types/auth';
+import { useMediaQuery } from '@/hooks/use-media-query';
+import { useAuthStore } from '@/core/stores/authStore';
+import { LoginDesktopView } from './components/DekstopView/page';
+import { LoginMobileView } from './components/MobileView/page';
 
 export function LoginPage() {
+  const router = useRouter();
+  const { toast } = useToast();
+  const { setAuth } = useAuthStore();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  const form = useForm<TLoginInput>({
+    resolver: zodResolver(ZLoginInput),
+    defaultValues: {
+      email: '',
+      password: '',
+      rememberMe: false,
+    },
+  });
+
+  const { mutate: login, isPending } = trpc.auth.login.useMutation({
+    onSuccess: (response) => {
+      const { accessToken, refreshToken } = response.data;
+      const { email } = form.getValues(); // Get the email from the form values
+      setAuth(accessToken, refreshToken, email); // Pass the email
+      router.push('/');
+      toast({
+        title: "Success!",
+        description: "You have successfully logged in.",
+        duration: 3000,
+      });
+    },
+    onError: (error) => {
+      console.log({ error, messages: error.message });
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+        duration: 3000,
+      });
+    },
+  });
+
+  const handleSubmit = (values: TLoginInput) => {
+    login(values);
+  };
+
   return (
-    <Container>
-      <Button
-        variant="ghost"
-        className="absolute left-4 top-4 md:left-8 md:top-8"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" /> Back
-      </Button>
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-        <Card>
-          <CardHeader className="space-y-1">
-            <div className="flex items-center justify-center mb-6">
-              <div className="relative h-24 w-24">
-                <img
-                  src="/api/placeholder/100/100"
-                  alt="Learn at home"
-                  className="object-cover"
-                />
-              </div>
-            </div>
-            <CardTitle className="text-2xl text-center">Welcome back</CardTitle>
-            <CardDescription className="text-center">
-              For free, join now and start learning
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="name@example.com" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" />
-            </div>
-            <div className="flex items-center justify-end">
-              <Button variant="link" className="px-0" asChild>
-                <a href="/forgot-password">Forgot password?</a>
-              </Button>
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <Button className="w-full" variant={"custom-accented"}>
-              Login
-            </Button>
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <Separator />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
-              </div>
-            </div>
-            <Button variant="outline" className="w-full">
-              <GoogleLogo />
-              Google
-            </Button>
-            <p className="text-center text-sm text-muted-foreground">
-              Not a member?{" "}
-              <Button variant="link" className="px-0" asChild>
-                <a href="/auth/register">Sign up</a>
-              </Button>
-            </p>
-          </CardFooter>
-        </Card>
+    <div className="min-h-screen bg-[#0A0A0A] text-white pb-5">
+      {/* {isMobile && (
+        <div className="flex h-14 items-center px-4 bg-[#007AFF]">
+          <span className="flex-1 text-center font-medium">Sign In</span>
+        </div>
+      )} */}
+      <div className="flex h-14 items-center px-4 bg-[#007AFF]">
+        <span className="flex-1 text-center font-medium">Sign In</span>
       </div>
-    </Container>
+
+      <Container>
+        <div className="mx-auto max-w-[800px] pt-8"> {/* Increased max-w for wider layout */}
+          <Card className="bg-[#121212] border-0 shadow-none">
+            <CardHeader className="space-y-1 pb-6">
+              <h1 className="text-2xl font-semibold text-white text-center">
+                Welcome Back
+              </h1>
+              <p className="text-gray-400 text-center">
+                For free, join now and start learning
+              </p>
+            </CardHeader>
+
+            <CardContent>
+              {isMobile ? (
+                <LoginMobileView
+                  form={form}
+                  isPending={isPending}
+                  onSubmit={handleSubmit}
+                />
+              ) : (
+                <LoginDesktopView
+                  form={form}
+                  isPending={isPending}
+                  onSubmit={handleSubmit}
+                />
+              )}
+            </CardContent>
+
+            <CardFooter className="flex justify-center pb-6">
+              <p className="text-sm text-gray-400">
+                Not a member yet?{" "}
+                <a
+                  href="/auth/register"
+                  className="text-[#007AFF] hover:underline"
+                >
+                  Sign up
+                </a>
+              </p>
+            </CardFooter>
+          </Card>
+        </div>
+      </Container>
+    </div>
   );
 }

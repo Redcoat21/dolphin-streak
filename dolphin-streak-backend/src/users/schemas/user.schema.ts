@@ -74,9 +74,27 @@ export class User {
 
     @Prop({ required: false, maxlength: 100 })
     subscriptionId?: string;
+
+    @Prop({required: true})
+    lives: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+// Add virtual 'id' property that maps to _id
+UserSchema.virtual('id').get(function() {
+    return this._id.toHexString();
+});
+
+// Ensure virtuals are included when converting document to JSON
+UserSchema.set('toJSON', {
+    virtuals: true,
+    transform: (_, converted) => {
+        delete converted._id;
+        delete converted.__v;
+        return converted;
+    }
+});
 
 UserSchema.pre("save", async function (next) {
     if (this.isModified("password")) {

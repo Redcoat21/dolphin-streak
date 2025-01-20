@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { Storage } from '@google-cloud/storage';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 
 @Injectable()
@@ -13,6 +14,10 @@ export class VoiceaiService {
   private readonly storage: Storage;
   private readonly bucketName: string;
   private readonly convertioApiKey: string;
+  private readonly geminiApiKey: string;
+  private readonly modelName: string;
+  private readonly genAI;
+  private readonly model;
 
   constructor(private readonly configService: ConfigService) {
     this.googleCredentials = this.configService.get<string>('GOOGLE_APPLICATION_CREDENTIALS_JSON');
@@ -20,6 +25,10 @@ export class VoiceaiService {
     this.convertioApiKey = this.configService.get<string>('CONVERTIO_API_KEY');
     this.speechClient = new SpeechClient({ keyFilename: this.googleCredentials });
     this.storage = new Storage({ keyFilename: this.googleCredentials });
+    this.geminiApiKey = this.configService.get<string>('GEMINI_API_KEY');
+    this.modelName = "gemini-2.0-flash-exp";
+    this.genAI = new GoogleGenerativeAI(this.geminiApiKey);
+    this.model = this.genAI.getGenerativeModel({model: this.modelName})
   }
 
   /**
@@ -166,6 +175,64 @@ export class VoiceaiService {
       }
     } finally {
       await this.deleteFromBucket(bucketFileName).catch(() => {});
+    }
+  }
+
+  async recognizeSpeechByGemini(fileBuffer: Buffer, mimetype: String, inputFormat: string){
+    try {
+
+       //Convert the Buffer to base64
+      const base64String = fileBuffer.toString('base64')
+
+      const prompt = `Gemini, you are a great listener and you are the one who is going to listening to people speaking in the audio file.
+      
+      Your job is to listen and transcribe what is the person saying in the audio file. The confidence is in range of 0 - 1 where the accuracy is 0.001.
+
+      Make the result into a JSON format with schema like this schema:
+      "{
+        "transcript": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "integer"
+        }
+      }"
+      `
+
+      const parts = [
+        { text: prompt },
+        {
+          inlineData: {
+            mimeType: mimetype,
+            data: base64String,
+          }
+        }
+      ];
+
+      // const result = await this.model.generateContent(parts);
+      const result = await this.model.generateContent([
+        {
+          inlineData: {
+            mimeType: mimetype,
+            data: base64String
+          }
+        },
+        { text: prompt },
+      ]);
+      const geminiRes = result.response.text();
+      const cleanedRes = geminiRes.replace(/```json|```/g, '').trim();
+      try {
+        // Parse the JSON string into a JavaScript object
+        const jsonRes = JSON.parse(cleanedRes);
+        return {
+          modelName: this.modelName,
+          data: jsonRes
+        };
+      } catch (error) {
+        throw new BadGatewayException('Invalid JSON format in AI response from Gemini API');
+      }
+    } catch (error) {
+      console.error("Error during content generation:", error);
     }
   }
 }

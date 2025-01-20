@@ -7,7 +7,7 @@ import {
     IsString,
     IsStrongPassword,
     IsUrl,
-    MaxDate,
+    MaxDate, ValidateIf,
 } from "class-validator";
 import { Type } from "class-transformer";
 import { DateTime } from "luxon";
@@ -72,16 +72,12 @@ export class BaseCreateUserDto {
     @IsUrl()
     profilePicture?: string;
 
-    @ApiPropertyOptional({
-        description:
-            "The user's birth date, the given date should be at least 5 years ago, the given string date should be a valid ISO 8601 date",
-        example: "1996-01-01",
-        nullable: true,
+    @ApiProperty({
+        description: "The user's lives count",
+        example: 3,
+        default: 3,
+        nullable: false,
         required: false,
     })
-    @IsOptional()
-    @IsDate()
-    @Type(() => Date)
-    @MaxDate(() => DateTime.now().minus({ year: 5 }).toJSDate())
-    birthDate?: Date;
+    lives: number = 3;
 }

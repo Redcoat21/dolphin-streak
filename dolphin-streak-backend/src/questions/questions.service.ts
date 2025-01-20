@@ -78,4 +78,11 @@ export class QuestionsService {
 
     return deletedQuestion;
   }
+
+  async getQuestionsByCourse(courseId: string): Promise<Question[]> {
+    const questions = await this.questionModel.find({ courses: courseId })
+      .populate("courses").exec();
+
+    return questions;
+  }
 }

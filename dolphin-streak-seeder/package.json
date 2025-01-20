@@ -1,0 +1,25 @@
+{
+  "name": "dolphin-streak-seeder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/seeder.ts",
+  "scripts": {
+    "seed": "ts-node src/seeder.ts",
+    "extract_data": "ts-node ./src/extract_existing_data.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "argon2": "^0.41.1",
+    "dotenv": "^16.4.7",
+    "mongoose": "^6.13.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@swc/cli": "^0.5.2",
+    "@swc/core": "^1.10.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, UseGuards, HttpCode, HttpStatus, Req } from '@nestjs/common';
 import { FeedbacksService } from './feedbacks.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { FindFeedbacksQuery } from './dto/find-feedbacks.param';
@@ -10,6 +10,10 @@ import { FindByIdParam } from 'src/lib/dto/find-by-id-param.dto';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiForbiddenResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { ApiResponse } from 'src/lib/types/response.type';
 import { checkIfExist, formatGetAllMessages } from 'src/lib/utils/response';
+import { FeedbackType } from './schemas/feedback.schema';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { FindFeedbacksUserQuery, SortType } from './schemas/find-feedbacks-user-query';
+import { SortOrder } from 'mongoose';
 
 @UseGuards(BearerTokenGuard, RoleGuard)
 @Controller('api/feedbacks')
@@ -39,7 +43,55 @@ import { checkIfExist, formatGetAllMessages } from 'src/lib/utils/response';
 })
 @ApiBearerAuth()
 export class FeedbacksController {
-  constructor(private readonly feedbacksService: FeedbacksService) {}
+  constructor(private readonly feedbacksService: FeedbacksService) { }
+
+  @ApiOperation({
+    summary: 'Find all feedbacks for user',
+    description: 'Find all feedbacks with the provided query, Note that only user can access this endpoint',
+  })
+  @ApiOkResponse({
+    description: "The feedbacks has been succesfully found",
+    example: {
+      messages: "1 feedback found",
+      data: [
+        {
+          _id: "674427b72cacb2d5c21f68cb",
+          user: {
+            _id: "6744262d52a2392a69fa49c3",
+            email: "joken.e23@mhs.gmail.com"
+          },
+          type: 0,
+          content: "Test",
+          createdAt: "2024-11-25T07:31:03.055Z",
+          updatedAt: "2024-11-25T07:31:03.055Z",
+          __v: 0
+        }
+      ]
+    }
+  })
+  @HasRoles(Role.ADMIN, Role.USER)
+  @Get('user')
+  async findAllForUser(@Query() findFeedbacksUserQuery: FindFeedbacksUserQuery): Promise<ApiResponse> {
+    console.log({ findFeedbacksUserQuery });
+    const { search, type, sort } = findFeedbacksUserQuery;
+    const filter: any = {};
+    if (search) {
+      filter.content = { $regex: search, $options: 'i' };
+    }
+    if (type && type != -1) {
+      filter.type = type == 1 ? FeedbackType.FEEDBACK : FeedbackType.REPORT;
+    }
+
+    const sortOptions: { createdAt?: SortOrder } = sort === SortType.NEWEST ? { createdAt: -1 as SortOrder } :
+      sort === SortType.OLDEST ? { createdAt: 1 as SortOrder } : {};
+
+    console.log({ filter, sortOptions })
+    const results = await this.feedbacksService.findAll(filter, sortOptions);
+    return {
+      messages: formatGetAllMessages(results.length, "feedback"),
+      data: results
+    }
+  }
 
   @ApiOperation({
     summary: 'Create a new feedback',
@@ -50,40 +102,48 @@ export class FeedbacksController {
     example: {
       messages: "Feedback has been created successfully",
       data: {
-          messages: "Feedback has been created successfully",
-          data: {
-            user: "6744262d52a2392a69fa49c3",
-            type: 0,
-            content: "Test",
-            _id: "674427b72cacb2d5c21f68cb",
-            createdAt: "2024-11-25T07:31:03.055Z",
-            updatedAt: "2024-11-25T07:31:03.055Z",
-            __v: 0
-          }
+        messages: "Feedback has been created successfully",
+        data: {
+          user: "6744262d52a2392a69fa49c3",
+          type: 0,
+          content: "Test",
+          _id: "674427b72cacb2d5c21f68cb",
+          createdAt: "2024-11-25T07:31:03.055Z",
+          updatedAt: "2024-11-25T07:31:03.055Z",
+          __v: 0
+        }
       }
     }
   })
   @ApiBadRequestResponse({
     description: "Bad request",
     example: {
-        messages: [
-          "user should not be empty",
-          "user must be a mongodb id",
-          "type should not be empty",
-          "type must be one of the following values: 0, 1",
-          "content should not be empty",
-          "content must be a string"
-        ],
-        data: null
+      messages: [
+        "user should not be empty",
+        "user must be a mongodb id",
+        "type should not be empty",
+        "type must be one of the following values: 0, 1",
+        "content should not be empty",
+        "content must be a string"
+      ],
+      data: null
     }
   })
   @HasRoles(Role.USER)
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async create(@Body() createFeedbackDto: CreateFeedbackDto): Promise<ApiResponse> {
+  async create(
+    @Body() createFeedbackDto: CreateFeedbackDto,
+    @Req() request: Request
+  ): Promise<ApiResponse> {
+    const data = {
+      user: request.user._id,
+      ...createFeedbackDto
+    }
+
     return {
       messages: "Feedback has been created successfully",
-      data: await this.feedbacksService.create(createFeedbackDto)
+      data: await this.feedbacksService.create(data)
     }
   }
 
@@ -96,18 +156,18 @@ export class FeedbacksController {
     example: {
       messages: "1 feedback found",
       data: [
-          {
-            _id: "674427b72cacb2d5c21f68cb",
-            user: {
-              _id: "6744262d52a2392a69fa49c3",
-              email: "joken.e23@mhs.istts.ac.id"
-            },
-            type: 0,
-            content: "Test",
-            createdAt: "2024-11-25T07:31:03.055Z",
-            updatedAt: "2024-11-25T07:31:03.055Z",
-            __v: 0
-          }
+        {
+          _id: "674427b72cacb2d5c21f68cb",
+          user: {
+            _id: "6744262d52a2392a69fa49c3",
+            email: "joken.e23@mhs.istts.ac.id"
+          },
+          type: 0,
+          content: "Test",
+          createdAt: "2024-11-25T07:31:03.055Z",
+          updatedAt: "2024-11-25T07:31:03.055Z",
+          __v: 0
+        }
       ]
     }
   })
@@ -120,7 +180,7 @@ export class FeedbacksController {
       data: results
     }
   }
-  
+
   @ApiOperation({
     summary: "Find a feedback by its ID",
     description: "Find a feedback by its ID.",
@@ -131,16 +191,16 @@ export class FeedbacksController {
     example: {
       messages: "Feedback founded succesfully",
       data: {
-          _id: "674427b72cacb2d5c21f68cb",
-          user: {
-            _id: "6744262d52a2392a69fa49c3",
-            email: "joken.e23@mhs.istts.ac.id"
-          },
-          type: 0,
-          content: "Test",
-          createdAt: "2024-11-25T07:31:03.055Z",
-          updatedAt: "2024-11-25T07:31:03.055Z",
-          __v: 0
+        _id: "674427b72cacb2d5c21f68cb",
+        user: {
+          _id: "6744262d52a2392a69fa49c3",
+          email: "joken.e23@mhs.istts.ac.id"
+        },
+        type: 0,
+        content: "Test",
+        createdAt: "2024-11-25T07:31:03.055Z",
+        updatedAt: "2024-11-25T07:31:03.055Z",
+        __v: 0
       }
     },
   })
@@ -160,9 +220,10 @@ export class FeedbacksController {
     },
   })
 
-  @HasRoles(Role.ADMIN)
+  @HasRoles(Role.ADMIN, Role.USER)
   @Get(':id')
   async findOne(@Param() findByIdParam: FindByIdParam): Promise<ApiResponse> {
+    console.log({ findByIdParam })
     const result = checkIfExist(await this.feedbacksService.findOne(findByIdParam.id), "Feedback not found");
     return {
       messages: "Feedback found",
@@ -180,16 +241,16 @@ export class FeedbacksController {
     example: {
       messages: "Feedback deleted succesfully",
       data: {
-          _id: "674427b72cacb2d5c21f68cb",
-          user: {
-            _id: "6744262d52a2392a69fa49c3",
-            email: "joken.e23@mhs.istts.ac.id"
-          },
-          type: 0,
-          content: "Test",
-          createdAt: "2024-11-25T07:31:03.055Z",
-          updatedAt: "2024-11-25T07:31:03.055Z",
-          __v: 0
+        _id: "674427b72cacb2d5c21f68cb",
+        user: {
+          _id: "6744262d52a2392a69fa49c3",
+          email: "joken.e23@mhs.istts.ac.id"
+        },
+        type: 0,
+        content: "Test",
+        createdAt: "2024-11-25T07:31:03.055Z",
+        updatedAt: "2024-11-25T07:31:03.055Z",
+        __v: 0
       }
     },
   })

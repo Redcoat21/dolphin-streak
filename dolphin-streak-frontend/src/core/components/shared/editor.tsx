@@ -1,18 +1,20 @@
-import React, { useState, useCallback } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { convertToRaw, EditorState } from "draft-js";
-import draftToHtml from "draftjs-to-html";
-import { Editor } from "react-draft-wysiwyg";
-import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
+import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
+import draftToHtml from 'draftjs-to-html';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; 
 
-const RichTextEditor = () => {
-  const [editorState, setEditorState] = useState(() =>
-    EditorState.createEmpty()
-  );
+const Editor = dynamic(() => import('react-draft-wysiwyg').then((mod) => mod.Editor), {
+  ssr: false,
+});
 
-  const onEditorStateChange = useCallback((newState) => {
-    setEditorState(newState);
-  }, []);
+const EditorComponent: React.FC = () => {
+  const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
+
+  const onEditorStateChange = (contentState: any) => {
+    const newEditorState = EditorState.createWithContent(convertFromRaw(contentState));
+    setEditorState(newEditorState);
+  };
 
   const handleSubmit = () => {
     const contentState = editorState.getCurrentContent();
@@ -32,19 +34,7 @@ const RichTextEditor = () => {
           wrapperClassName="demo-wrapper"
           editorClassName="demo-editor"
           toolbar={{
-            options: [
-              "inline",
-              "blockType",
-              "fontSize",
-              "fontFamily",
-              "list",
-              "textAlign",
-              "colorPicker",
-              "link",
-              "embedded",
-              "emoji",
-              "history",
-            ],
+            options: ['inline', 'blockType', 'fontSize', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'link', 'embedded', 'emoji', 'image', 'remove', 'history'],
           }}
         />
         <button
@@ -58,4 +48,4 @@ const RichTextEditor = () => {
   );
 };
 
-export default RichTextEditor;
+export default EditorComponent;

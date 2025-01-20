@@ -1,5 +1,9 @@
-import { ForumPage } from "@/core/pages/forum";
+import { withAuth } from '@/core/components/hoc/withAuth';
+import { ForumPage } from '@/core/pages/forum/index';
 
-export default function Forum() {
+function Forum() {
   return <ForumPage />;
 }
+export default withAuth(Forum);
+
+

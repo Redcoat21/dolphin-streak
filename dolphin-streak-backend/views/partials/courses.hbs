@@ -17,7 +17,7 @@
             <!-- Course List Section -->
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-semibold text-gray-700">List Course</h3>
-                <a href="/courses/create" class="btn btn-primary">
+                <a href="/courses/add" class="btn btn-primary">
                     + Add New Course
                 </a>
             </div>
@@ -26,115 +26,76 @@
                 <table class="w-full bg-white shadow-md rounded-lg overflow-hidden border border-gray-300">
                     <thead class="bg-gray-100 border-b">
                         <tr>
-                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Profile</th>
-                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Study Languages</th>
-                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Available Levels</th>
-                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Profile
+                            </th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Title
+                            </th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Study
+                                Languages</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Actions
+                            </th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <% courses.forEach(function(course) { %>
-                        <tr class="hover:bg-gray-50 transition duration-200">
-                            <td class="p-3">
-                                <img 
-                                    src="<%= course.thumbnail || '/images/default-course.png' %>" 
-                                    alt="Course Profile" 
-                                    class="w-12 h-12 rounded-full object-cover"
-                                >
-                            </td>
-                            <td class="p-3 text-sm text-gray-700"><%= course.name %></td>
-                            <td class="p-3 text-sm text-gray-700"><%= course.language.name %></td>
-                            <td class="p-3 text-sm text-gray-700">
-                                <%= course.levels.map(level => level.name).join(', ') %>
-                            </td>
-                            <td class="p-3">
-                                <div class="flex space-x-2">
-                                    <a 
-                                        href="/courses/edit/<%= course._id %>" 
-                                        class="btn btn-sm btn-primary"
-                                    >
-                                        Edit
-                                    </a>
-                                    <button 
-                                        onclick="confirmDelete('<%= course._id %>')" 
-                                        class="btn btn-sm btn-danger"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <% }); %>
+                    <tbody id="course-list">
                     </tbody>
                 </table>
-
-                <% if (courses.length === 0) { %>
-                <div class="text-center py-6 text-gray-500">
-                    No courses available. Add a new course to get started.
-                </div>
-                <% } %>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const response = await fetchAPI('/api/courses', 'GET');
+            if (response.messages.toString().includes("courses found")) {
+                const courses = response.data;
+                const courseListElement = document.getElementById('course-list');
+                courses.forEach(course => {
+                    const row = `
+                    <tr>
+                        <td class="p-3">
+                            <img src="${course.thumbnail || '/images/default-course.png'}" alt="Course Profile" class="w-12 h-12 rounded-full object-cover">
+                        </td>
+                        <td class="p-3 text-sm text-gray-700">${course.name}</td>
+                        <td class="p-3 text-sm text-gray-700">${course.language.name}</td>
+                        <td class="p-3">
+                            <div class="flex space-x-2">
+                                <a href="/courses/edit/${course._id}" class="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 transition-colors">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <button onclick="confirmDelete('${course._id}')" class="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 transition-colors">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
+                    courseListElement.insertAdjacentHTML('beforeend', row);
+                });
+            } else {
+                console.error(response.messages);
+                showToaster('danger', { message: 'Failed to fetch course data.' });
+            }
+        } catch (error) {
+            console.error('Error fetching course data:', error);
+            showToaster('danger', { message: 'An error occurred while fetching course data.' });
+        }
+    });
+
     function confirmDelete(courseId) {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you want to delete this course?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/courses/delete/${courseId}`, { method: 'DELETE' })
-                    .then(response => {
-                        if (response.ok) {
-                            Swal.fire(
-                                'Deleted!',
-                                'The course has been deleted.',
-                                'success'
-                            ).then(() => {
-                                window.location.reload();
-                            });
-                        } else {
-                            Swal.fire(
-                                'Error!',
-                                'Failed to delete the course.',
-                                'error'
-                            );
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        Swal.fire(
-                            'Error!',
-                            'An error occurred while deleting the course.',
-                            'error'
-                        );
-                    });
+        showModal('warning', 'Are you sure?', 'Do you want to delete this course?', async () => {
+            try {
+                const response = await fetchAPI(`/api/courses/${courseId}`, 'DELETE');
+                if (response.ok) {
+                    showToaster('success', { message: 'Course deleted successfully.' });
+                    window.location.reload();
+                } else {
+                    showToaster('danger', { message: 'Failed to delete course.' });
+                }
+            } catch (error) {
+                console.error('Error deleting course:', error);
+                showToaster('danger', { message: 'An error occurred while deleting the course.' });
             }
         });
     }
 </script>
-
-<!-- Include SweetAlert for better confirmation -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<style>
-    .btn {
-        @apply inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none transition ease-in-out duration-150;
-    }
-    .btn-primary {
-        @apply bg-green-600 text-white hover:bg-green-700 active:bg-green-800;
-    }
-    .btn-danger {
-        @apply bg-red-600 text-white hover:bg-red-700 active:bg-red-800;
-    }
-    .btn-sm {
-        @apply px-2 py-1 text-xs;
-    }
-</style>

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
   currentPage: number;
@@ -11,38 +12,65 @@ export function Pagination({
   totalPages,
   onPageChange,
 }: PaginationProps) {
-  return (
-    <div className="flex justify-center items-center gap-2 mt-6">
-      {[...Array(Math.min(3, totalPages))].map((_, index) => (
+  const renderPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 3;
+
+    for (let i = 1; i <= Math.min(maxVisiblePages, totalPages); i++) {
+      pages.push(
         <Button
-          key={index + 1}
-          variant={currentPage === index + 1 ? "default" : "outline"}
+          key={i}
+          variant={currentPage === i ? "default" : "outline"}
           size="sm"
-          className={`w-8 h-8 ${
-            currentPage === index + 1
-              ? "bg-blue-500 text-white"
-              : "bg-gray-800 text-gray-400"
-          }`}
-          onClick={() => onPageChange(index + 1)}
+          className={`w-10 h-10 ${currentPage === i
+              ? "bg-[#4F46E5] hover:bg-[#4338CA] text-white"
+              : "bg-[#1E1F23] text-gray-400 hover:bg-[#2E2F33]"
+            } rounded-lg`}
+          onClick={() => onPageChange(i)}
         >
-          {index + 1}
+          {i}
         </Button>
-      ))}
-      <span className="text-gray-400">.........</span>
+      );
+    }
+
+    if (totalPages > maxVisiblePages) {
+      pages.push(
+        <span key="dots" className="text-gray-400 px-2">...</span>,
+        <Button
+          key={totalPages}
+          variant="outline"
+          size="sm"
+          className="w-10 h-10 bg-[#1E1F23] text-gray-400 hover:bg-[#2E2F33] rounded-lg"
+          onClick={() => onPageChange(totalPages)}
+        >
+          {totalPages}
+        </Button>
+      );
+    }
+
+    return pages;
+  };
+
+  return (
+    <div className="flex justify-center items-center gap-2 mt-8">
       <Button
         variant="outline"
         size="sm"
-        className="w-8 h-8 bg-gray-800 text-gray-400"
-        onClick={() => onPageChange(totalPages)}
+        className="w-10 h-10 bg-[#1E1F23] text-gray-400 hover:bg-[#2E2F33] rounded-lg"
+        onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
       >
-        {totalPages}
+        <ChevronLeft className="h-4 w-4" />
       </Button>
+      {renderPageNumbers()}
       <Button
         variant="outline"
         size="sm"
-        className="w-8 h-8 bg-gray-800 text-gray-400"
+        className="w-10 h-10 bg-[#1E1F23] text-gray-400 hover:bg-[#2E2F33] rounded-lg"
+        onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
       >
-        →
+        <ChevronRight className="h-4 w-4" />
       </Button>
     </div>
   );

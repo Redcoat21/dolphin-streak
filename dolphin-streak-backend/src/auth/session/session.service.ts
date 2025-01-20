@@ -12,6 +12,7 @@ import { CreateSessionDto } from "./dto/create-session.dto";
 import crypto from "crypto";
 import { DateTime } from "luxon";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import { UsersService } from "src/users/users.service";
 
 export enum TokenType {
     ACCESS,
@@ -27,8 +28,9 @@ export type TokenData = {
 export class SessionService {
     private readonly logger = new Logger(SessionService.name);
     constructor(
+        private readonly usersService: UsersService,
         @InjectModel(Session.name) private sessionModel: Model<Session>,
-    ) {}
+    ) { }
 
     create(createSessionDto: CreateSessionDto) {
         return this.sessionModel.create(createSessionDto);
@@ -38,14 +40,19 @@ export class SessionService {
         // If token type is access token then the livetime is 30 minutes.
         // For refresh token, depending on rememberMe, if its checked its 30 days, if its not its 24 hours.
         const liveTime = tokenType === TokenType.ACCESS
-            ? 30 * 60 * 1000
+            ? 60 * 60 * 1000
             : rememberMe
-            ? 30 * 24 * 60 * 60 * 1000
-            : 24 * 60 * 60 * 1000;
+                ? 30 * 24 * 60 * 60 * 1000
+                : 24 * 60 * 60 * 1000;
+        // const liveTime = tokenType === TokenType.ACCESS
+        //     ? 30 * 60 * 1000
+        //     : rememberMe
+        //     ? 30 * 24 * 60 * 60 * 1000
+        //     : 24 * 60 * 60 * 1000;
 
         return {
             token: crypto.randomBytes(64).toString("hex"),
-            liveTime: DateTime.now().plus(liveTime).toJSDate(),
+            liveTime: DateTime.now().plus(liveTime * 60).toJSDate(),
         };
     }
 
@@ -89,5 +96,12 @@ export class SessionService {
         });
 
         this.logger.log(`Removed ${count.deletedCount} expired sessions`);
+    }
+
+    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+    private async restoreLives(){
+        const restore = await this.usersService.restoreLives();
+
+        this.logger.log(`${restore} user's lives have been restored`)
     }
 }

@@ -6,21 +6,14 @@ import { Level } from "src/levels/schemas/level.schema";
 export type CourseDocument = HydratedDocument<Course>;
 
 export enum CourseType {
-    Daily,
-    Weekly,
+    Daily = 0,
+    Weekly = 1,
 }
 
 @Schema()
 export class Course {
     @Prop({ required: true, maxlength: 255 })
     name: string;
-
-    @Prop({
-        required: true,
-        default: [],
-        type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Level" }],
-    })
-    levels: Level[];
 
     @Prop({
         required: true,
@@ -32,7 +25,7 @@ export class Course {
     @Prop({ required: true, maxlength: 255, enum: CourseType })
     type: CourseType;
 
-    @Prop({ required: false, maxlength: 255 })
+    @Prop({ required: false, maxlength: 255, default: "https://placehold.co/600x400" })
     thumbnail: string;
 }
 
