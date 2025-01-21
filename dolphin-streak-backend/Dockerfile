@@ -2,18 +2,18 @@ FROM node:20
 
 WORKDIR /usr/src/app
 
-# Copy package files
+# Copy package files first
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install --legacy-peer-deps
+# Install ALL dependencies including devDependencies
+RUN npm install --frozen-lockfile --include=dev
 
-# Copy all files including .env
+# Copy source files
 COPY . .
 
 # Build the application
 RUN npm run build
 
-EXPOSE 8102
+EXPOSE 3000
 
 CMD ["npm", "run", "start:prod"]
