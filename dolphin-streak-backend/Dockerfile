@@ -11,9 +11,6 @@ RUN npm i
 # Install both dependencies and devDependencies
 RUN npm install --legacy-peer-deps
 
-# Install both dependencies and devDependencies
-RUN npm ci --include=dev
-
 # Copy application source
 COPY . .
 
