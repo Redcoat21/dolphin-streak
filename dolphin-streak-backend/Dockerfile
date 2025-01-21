@@ -17,7 +17,7 @@ COPY . .
 # Build the application
 RUN npm run build
 
-EXPOSE 3000
+EXPOSE 8102
 
 # Production run command (remove devDependencies for final image)
 CMD ["npm", "run", "start:prod"]
