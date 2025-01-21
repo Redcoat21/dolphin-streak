@@ -15,7 +15,7 @@ export const fetchAPI = async <T>(
 ): Promise<T> => {
   const backendUrl = selectBackendUrl();
   const url = new URL(`${backendUrl}${endpoint}`);
-  // console.log({ url, method, body, params, query, token })
+  console.log({ url, method, body, params, query, token })
   // Handle path parameters (replace placeholders in the endpoint)
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
