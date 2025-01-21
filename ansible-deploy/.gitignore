@@ -2,3 +2,6 @@ credentials.txt
 deploy.yml
 azure_credentials.yml
 id_ed25519*
+ansible.cfg
+azure-requirements.txt
+deploy.yml
