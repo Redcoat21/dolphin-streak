@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   backend:
     build:
@@ -5,14 +7,12 @@ services:
       dockerfile: Dockerfile
     container_name: dolphin-streak-backend
     ports:
-      - "3000:3000"
-    volumes:
-      - ./dolphin-streak-backend:/usr/src/app
-      - /usr/src/app/node_modules
-    environment:
-      - MONGO_URI=mongodb://mongo:27017/dolphin-streak
-    depends_on:
-      - mongo
+      - "8102:8102"  # Public port 8102 maps to container port 3000
+    env_file:
+      - ./dolphin-streak-backend/.env  # Contains MongoDB Atlas URI
+    command: sh -c "npm run build && npm run start:prod -- --host 0.0.0.0"
+    networks:
+      - app-network
 
   frontend:
     build:
@@ -20,22 +20,15 @@ services:
       dockerfile: Dockerfile
     container_name: dolphin-streak-frontend
     ports:
-      - "3001:3000"
-    volumes:
-      - ./dolphin-streak-frontend:/usr/src/app
-      - /usr/src/app/node_modules
-    environment:
-      - NEXT_PUBLIC_API_URL=http://backend:3000
+      - "3000:3000"  # Direct port mapping
+    env_file:
+      - ./dolphin-streak-frontend/.env
+    command: sh -c "npm run build && npm run start -- -H 0.0.0.0"
     depends_on:
       - backend
+    networks:
+      - app-network
 
-  mongo:
-    image: mongo:6.0
-    container_name: dolphin-streak-mongo
-    volumes:
-      - mongo-data:/data/db
-    ports:
-      - "27017:27017"
-
-volumes:
-  mongo-data:
+networks:
+  app-network:
+    driver: bridge

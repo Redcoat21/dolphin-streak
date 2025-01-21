@@ -1,22 +1,19 @@
-# Use an official Node.js runtime as a parent image
 FROM node:20
 
-# Set the working directory
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json before installing dependencies
-COPY package.json ./
+# Copy package files
+COPY package*.json ./
 
-# Install dependencies using Yarn
-RUN yarn install --frozen-lockfile && echo "Dependencies installed successfully"
+# Install dependencies
+RUN npm ci --quiet
 
-
-RUN npm run build && echo "Build run successfully"
-# Copy the rest of the application
+# Copy all files including .env
 COPY . .
 
-# Expose the port the app runs on
-EXPOSE 3000
+# Build the application
+RUN npm run build
 
-# Start the application in development mode (watch for file changes)
+EXPOSE 8102
+
 CMD ["npm", "run", "start:prod"]
