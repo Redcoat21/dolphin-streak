@@ -5,7 +5,7 @@ import { Level } from "src/levels/schemas/level.schema";
 import { QuestionDetail } from "src/lib/types/question.type";
 
 export enum QuestionType {
-  MULTIPLE_CHOICEz,
+  MULTIPLE_CHOICE,
   ESSAY,
   FILL_IN,
   VOICE,
