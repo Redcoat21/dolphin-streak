@@ -11,6 +11,7 @@ services:
     env_file:
       - ./dolphin-streak-backend/.env  # Contains MongoDB Atlas URI
     command: sh -c "npm run build && npm run start:prod -- --host 0.0.0.0"
+    restart: unless-stopped
     networks:
       - app-network
 
@@ -26,6 +27,7 @@ services:
     command: sh -c "npm run build && npm run start -- -H 0.0.0.0"
     depends_on:
       - backend
+    restart: unless-stopped
     networks:
       - app-network
 
