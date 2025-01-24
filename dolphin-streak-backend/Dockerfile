@@ -17,7 +17,7 @@ RUN npm install @google-cloud/speech @google-cloud/storage @google/generative-ai
 COPY . .
 
 # Build the application
-RUN npm install --legacy-peer-deps && npm run build
+RUN npm install --legacy-peer-deps && npm install @google-cloud/speech @google-cloud/storage @google/generative-ai @nestjs-modules/mailer @nestjs/axios @nestjs/common @nestjs/config @nestjs/core @nestjs/jwt @nestjs/mongoose @nestjs/passport @nestjs/platform-express @nestjs/schedule @nestjs/serve-static @nestjs/swagger @ruraim/nestjs-midtrans argon2 axios class-transformer class-validator cloudinary express-handlebars form-data hbs luxon mongoose multer node-cron node-wav passport passport-google-oauth2 passport-http-bearer passport-jwt passport-local reflect-metadata rxjs ua-parser-js uuid @nestjs/cli @nestjs/schematics @nestjs/testing @swc/cli @swc/core @types/express @types/jest @types/luxon @types/multer @types/node @types/passport-google-oauth2 @types/passport-http-bearer @types/passport-jwt @types/passport-local @types/supertest @types/ua-parser-js @typescript-eslint/eslint-plugin @typescript-eslint/parser @vitest/coverage-v8 eslint eslint-config-prettier eslint-plugin-prettier jest prettier source-map-support supertest ts-jest ts-loader ts-node tsconfig-paths typescript unplugin-swc vitest && npm run build
 
 EXPOSE 8102
 
