@@ -1,79 +1,295 @@
 ---
-- name: Deploy Dolphin Streak Application on Azure
-  hosts: azure
-  become: yes
+- name: Deploy Next.js and NestJS to Azure
+  hosts: localhost
+  connection: local
+  collections:
+    - azure.azcollection
   vars:
-    # Node.js version to install
-    node_version: "20"
-    # Application directory on the target server
-    app_directory: "/usr/src/app"
-    # Backend repository URL
-    backend_repo_url: "https://{{ github_pat }}@github.com/your-repo/dolphin-streak-backend.git"
-    # Frontend repository URL
-    frontend_repo_url: "https://{{ github_pat }}@github.com/your-repo/dolphin-streak-frontend.git"
-    # Azure user and password (for SSH access)
-    azure_user: "azureuser"
-    azure_password: "yourpassword"
-    # GitHub Personal Access Token
-    github_pat: "your-github-pat"
+    azure_subscription_id: "{{ lookup('env', 'AZURE_SUBSCRIPTION_ID') }}"
+    azure_client_id: "{{ lookup('env', 'AZURE_CLIENT_ID') }}"
+    azure_secret: "{{ lookup('env', 'AZURE_SECRET') }}"
+    azure_tenant: "{{ lookup('env', 'AZURE_TENANT') }}"
+    resource_group: "project-sdp-fpw-latest"
+    vm_name_prefix: "sdp-fpw-dolphin-streak-vm"
+    frontend_port: 3000
+    backend_port: 4000
+    github_repo: "https://github.com/Redcoat21/dolphin-streak.git"
+    ssh_public_key: "{{ lookup('file', './id_ed25519.pub') }}"
+    vnet_name: "my-vnet"
+    subnet_name: "my-subnet"
+    ansible_ssh_private_key_file: "./id_ed25519"
 
   tasks:
-    - name: Ensure Node.js is installed
+    - name: Ensure resource group exists
+      azure.azcollection.azure_rm_resourcegroup:
+        name: "{{ resource_group }}"
+        location: "eastus"
+        state: present
+        client_id: "{{ azure_client_id }}"          # Changed from azure_client_id
+        secret: "{{ azure_secret }}"                # Changed from azure_secret
+        subscription_id: "{{ azure_subscription_id }}"  # Changed from azure_subscription_id
+        tenant: "{{ azure_tenant }}"                # Changed from azure_tenant
+
+
+    - name: Create virtual network
+      azure.azcollection.azure_rm_virtualnetwork:
+        resource_group: "{{ resource_group }}"
+        name: "{{ vnet_name }}"
+        address_prefixes:
+          - "10.0.0.0/16"
+        state: present
+        client_id: "{{ azure_client_id }}"
+        secret: "{{ azure_secret }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        tenant: "{{ azure_tenant }}"
+      when: resource_group_result.changed
+
+
+    - name: Create security group
+      azure.azcollection.azure_rm_securitygroup:
+        resource_group: "{{ resource_group }}"
+        name: "my-security-group"
+        client_id: "{{ azure_client_id }}"
+        secret: "{{ azure_secret }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        tenant: "{{ azure_tenant }}"
+        rules:
+          - name: "Allow-HTTP"
+            protocol: "Tcp"
+            destination_port_range: "{{ frontend_port }}"
+            access: "Allow"
+            priority: 100
+            direction: "Inbound"
+          - name: "Allow-Backend"
+            protocol: "Tcp"
+            destination_port_range: "{{ backend_port }}"
+            access: "Allow"
+            priority: 101
+            direction: "Inbound"
+          - name: "Allow-SSH"
+            protocol: "Tcp"
+            destination_port_range: "22"
+            access: "Allow"
+            priority: 102
+            direction: "Inbound"
+        state: present
+      register: security_group
+      when: resource_group_result.changed
+
+    - name: Create subnet with security group
+      azure.azcollection.azure_rm_subnet:
+        resource_group: "{{ resource_group }}"
+        virtual_network_name: "{{ vnet_name }}"
+        name: "{{ subnet_name }}"
+        address_prefix: "10.0.1.0/24"
+        security_group: "my-security-group"  # Changed parameter name
+        state: present
+        client_id: "{{ azure_client_id }}"
+        secret: "{{ azure_secret }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        tenant: "{{ azure_tenant }}"
+      when: security_group_result.changed
+
+    - name: Create public IP addresses
+      azure.azcollection.azure_rm_publicipaddress:
+        resource_group: "{{ resource_group }}"
+        name: "{{ vm_name_prefix }}-ip-{{ item }}"
+        allocation_method: Static
+        client_id: "{{ azure_client_id }}"
+        secret: "{{ azure_secret }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        tenant: "{{ azure_tenant }}"
+      loop:
+        - "frontend"
+        - "backend-1"
+        - "backend-2"
+      register: public_ips
+      when: security_group_result.changed
+
+    - name: Create Network Interfaces
+      azure.azcollection.azure_rm_networkinterface:
+        resource_group: "{{ resource_group }}"
+        name: "{{ vm_name_prefix }}-nic-{{ item }}"
+        virtual_network_name: "{{ vnet_name }}"
+        subnet_name: "{{ subnet_name }}"
+        security_group: "my-security-group"
+        ip_configurations:
+          - name: ipconfig1
+            primary: true
+            public_ip_address_name: "{{ vm_name_prefix }}-ip-{{ item }}"
+        client_id: "{{ azure_client_id }}"
+        secret: "{{ azure_secret }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        tenant: "{{ azure_tenant }}"
+        state: present
+      loop:
+        - "frontend"
+        - "backend-1"
+        - "backend-2"
+      register: network_interfaces
+      when: public_ips_result.changed
+
+    - name: Create Azure VMs
+      azure.azcollection.azure_rm_virtualmachine:
+        resource_group: "{{ resource_group }}"
+        location: "eastus"
+        name: "{{ vm_name_prefix }}-{{ item }}"
+        vm_size: "Standard_B1s"
+        admin_username: "azureuser"
+        ssh_password_enabled: false
+        ssh_public_keys:
+          - path: "/home/azureuser/.ssh/authorized_keys"
+            key_data: "{{ ssh_public_key }}"
+        image:
+          offer: "0001-com-ubuntu-server-jammy"
+          publisher: "canonical"
+          sku: "22_04-lts-gen2"
+          version: "latest"
+        network_interface_names:
+          - "{{ vm_name_prefix }}-nic-{{ item }}"
+        os_disk_name: "{{ vm_name_prefix }}-osdisk-{{ item }}"
+        managed_disk_type: "Standard_LRS"
+        state: present
+      loop:
+        - "frontend"
+        - "backend-1"
+        - "backend-2"
+      register: vm_creation
+      when: network_interfaces_result.changed
+
+
+    - name: Wait for VMs to be ready
+      wait_for_connection:
+        host: "{{ item.ansible_facts.azure_vm.public_ips[0] }}"
+        port: 22
+        timeout: 300
+      loop: "{{ vm_creation.results }}"
+      when: item.ansible_facts.azure_vm.public_ips is defined
+
+    # - name: Ensure ports are open
+    #   azure.azcollection.azure_rm_securitygroup:
+    #     resource_group: "{{ resource_group }}"
+    #     name: "my-security-group"
+    #     rules:
+    #       - name: "Allow-HTTP"
+    #         protocol: "Tcp"
+    #         destination_port_range: "{{ frontend_port }}"
+    #         access: "Allow"
+    #         priority: 100
+    #         direction: "Inbound"
+    #       - name: "Allow-Backend"
+    #         protocol: "Tcp"
+    #         destination_port_range: "{{ backend_port }}"
+    #         access: "Allow"
+    #         priority: 101
+    #         direction: "Inbound"
+    #       - name: "Allow-SSH"
+    #         protocol: "Tcp"
+    #         destination_port_range: "22"
+    #         access: "Allow"
+    #         priority: 102
+    #         direction: "Inbound"
+    - name: Wait for SSH to be available
+      wait_for_connection:
+        host: "{{ item.public_ip_address }}"
+        port: 22
+        timeout: 600
+      loop: "{{ public_ips.results }}"
+      when: item.public_ip_address is defined
+
+    - name: Add VMs to inventory
+      add_host:
+        name: "{{ item.state.ip_address }}"
+        groups:
+          - azure_vms
+          - "{{ 'frontend' if 'frontend' in item.state.name else 'backend' }}"
+        ansible_user: azureuser
+        ansible_ssh_private_key_file: "{{ ansible_ssh_private_key_file }}"
+        ansible_python_interpreter: /usr/bin/python3
+      loop: "{{ public_ips.results }}"
+      when: item.state.ip_address is defined
+
+# Prepare environment on all VMs
+- name: Install Node.js and PM2 on all new VMs
+  hosts: azure_vms
+  become: yes
+  gather_facts: no
+  vars:
+    ansible_ssh_private_key_file: "./id_ed25519"
+  tasks:
+
+    - name: Install Python3
       apt:
-        name: "nodejs"
+        name: python3
         state: present
-      become: yes
-
-    - name: Ensure npm is installed
+        update_cache: yes
+  
+    - name: Install Node.js and npm
       apt:
-        name: "npm"
+        name:
+          - nodejs
+          - npm
         state: present
-      become: yes
+        update_cache: yes
 
-    - name: Clone the backend repository
-      git:
-        repo: "{{ backend_repo_url }}"
-        dest: "{{ app_directory }}/backend"
-        version: main
-      become: yes
-
-    - name: Clone the frontend repository
-      git:
-        repo: "{{ frontend_repo_url }}"
-        dest: "{{ app_directory }}/frontend"
-        version: main
-      become: yes
-
-    - name: Install backend dependencies
+    - name: Install PM2 globally
       npm:
-        path: "{{ app_directory }}/backend"
-        state: present
-        production: no
-      become: yes
+        name: pm2
+        global: yes
 
-    - name: Build and start the backend application
-      shell: npm run start:dev
-      args:
-        chdir: "{{ app_directory }}/backend"
-      become: yes
+    - name: Clone the repository
+      git:
+        repo: "{{ github_repo }}"
+        dest: "/home/azureuser/app"
+        version: "main"
 
-    - name: Install frontend dependencies
+# Deploy Next.js on the frontend
+- name: Deploy Next.js on the frontend VM
+  hosts: frontend
+  become: yes
+  gather_facts: no
+  vars:
+    ansible_ssh_private_key_file: "./id_ed25519"
+  tasks:
+    - name: Copy .env file for frontend
+      copy:
+        src: "../../dolphin-streak-backend/.env-1" 
+        dest: "/home/azureuser/app/frontend/.env"
+
+    - name: Install dependencies for Next.js
       npm:
-        path: "{{ app_directory }}/frontend"
+        path: "/home/azureuser/app/frontend"
         state: present
-        production: no
-      become: yes
 
-    - name: Start the frontend application
-      shell: npm run next-dev
+    - name: Build Next.js frontend
+      command: npm run build
       args:
-        chdir: "{{ app_directory }}/frontend"
-      become: yes
+        chdir: "/home/azureuser/app/frontend"
 
-    - name: Ensure the backend application is running
-      shell: curl -f http://localhost:3000 || exit 1
-      become: yes
+    - name: Start Next.js frontend with PM2
+      command: pm2 start npm --name "nextjs-frontend" -- start
+      args:
+        chdir: "/home/azureuser/app/frontend"
 
-    - name: Ensure the frontend application is running
-      shell: curl -f http://localhost:3001 || exit 1
-      become: yes
+# Deploy NestJS on the backend VMs
+- name: Deploy NestJS on the backend VMs
+  hosts: backend
+  become: yes
+  gather_facts: no
+  vars:
+    ansible_ssh_private_key_file: "./id_ed25519"
+  tasks:
+    - name: Copy .env file for backend
+      copy:
+        src: "../../dolphin-streak-backend/.env"
+        dest: "/home/azureuser/app/backend/.env"
+
+    - name: Install dependencies for NestJS
+      npm:
+        path: "/home/azureuser/app/backend"
+        state: present
+
+    - name: Start NestJS backend with PM2
+      command: pm2 start npm --name "nestjs-backend-{{ inventory_hostname }}" -- start
+      args:
+        chdir: "/home/azureuser/app/backend"

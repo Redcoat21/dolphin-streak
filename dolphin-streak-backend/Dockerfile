@@ -2,7 +2,7 @@ FROM node:20
 
 WORKDIR /usr/src/app
 
-# Copy package files
+# Copy package files first for better layer caching
 COPY package*.json ./
 
 # Install dependencies including dev dependencies
@@ -21,4 +21,5 @@ RUN npm install --legacy-peer-deps && npm install @google-cloud/speech @google-c
 
 EXPOSE 8102
 
+# Production run command (remove devDependencies for final image)
 CMD ["npm", "run", "start:prod"]

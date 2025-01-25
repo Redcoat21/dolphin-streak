@@ -1,1 +1,14 @@
-"[azure]\nyour-azure-vm-ip" 
+[localhost]
+127.0.0.1
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+
+[azure_vms]
+# This will be populated dynamically
+
+[frontend]
+# This will be populated dynamically
+
+[backend]
+# This will be populated dynamically
